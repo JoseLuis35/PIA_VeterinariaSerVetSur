@@ -1,0 +1,204 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.CalendarioCitas"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="28" Spacing="20">
+
+            <StackPanel Spacing="5">
+                <TextBlock
+                    Text="Calendario de citas"
+                    FontSize="30"
+                    FontWeight="Bold"
+                    TextWrapping="Wrap"/>
+
+                <TextBlock
+                    Text="Organiza las citas de la veterinaria y consulta la agenda de cada día."
+                    Opacity="0.75"
+                    TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- Resumen -->
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    Grid.Column="0"
+                    Padding="18"
+                    CornerRadius="12"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Text="Citas del día"
+                            Opacity="0.75"/>
+
+                        <TextBlock
+                            x:Name="TxtTotalDia"
+                            Text="0"
+                            FontSize="30"
+                            FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Grid.Column="1"
+                    Padding="18"
+                    CornerRadius="12"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Text="Citas del mes seleccionado"
+                            Opacity="0.75"
+                            TextWrapping="Wrap"/>
+
+                        <TextBlock
+                            x:Name="TxtTotalMes"
+                            Text="0"
+                            FontSize="30"
+                            FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Calendario -->
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Selecciona una fecha"
+                        FontSize="21"
+                        FontWeight="SemiBold"/>
+
+                    <CalendarView
+                        x:Name="Calendario"
+                        SelectionMode="Single"
+                        IsTodayHighlighted="True"
+                        FirstDayOfWeek="Monday"
+                        SelectedDatesChanged="Calendario_SelectedDatesChanged"
+                        HorizontalAlignment="Stretch"/>
+
+                    <Button
+                        Content="Ir a hoy"
+                        Click="BtnIrHoy_Click"
+                        HorizontalAlignment="Stretch"
+                        Height="42"/>
+
+                    <Button
+                        Content="Actualizar agenda"
+                        Click="BtnActualizar_Click"
+                        HorizontalAlignment="Stretch"
+                        Height="42"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Agenda del día -->
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        x:Name="TxtFechaSeleccionada"
+                        Text="Agenda del día"
+                        FontSize="21"
+                        FontWeight="SemiBold"
+                        TextWrapping="Wrap"/>
+
+                    <TextBlock
+                        x:Name="TxtMensajeAgenda"
+                        Text="Selecciona una fecha del calendario."
+                        Opacity="0.75"
+                        TextWrapping="Wrap"/>
+
+                    <ListView
+                        x:Name="CitasListView"
+                        SelectionMode="Single"
+                        MaxHeight="450"
+                        SelectionChanged="CitasListView_SelectionChanged">
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Padding="12" Spacing="5">
+                                    <TextBlock
+                                        Text="{Binding Titulo}"
+                                        FontSize="17"
+                                        FontWeight="SemiBold"
+                                        TextWrapping="Wrap"/>
+
+                                    <TextBlock
+                                        Text="{Binding Detalle}"
+                                        TextWrapping="Wrap"
+                                        Opacity="0.85"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Detalles -->
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Detalles de la cita"
+                        FontSize="21"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Selecciona una cita de la agenda para consultar sus detalles."
+                        Opacity="0.7"
+                        TextWrapping="Wrap"/>
+
+                    <TextBlock Text="ID de la cita" Opacity="0.75"/>
+                    <TextBox x:Name="TxtIDCita" IsReadOnly="True"/>
+
+                    <TextBlock Text="Mascota" Opacity="0.75"/>
+                    <TextBox x:Name="TxtMascota" IsReadOnly="True"/>
+
+                    <TextBlock Text="Propietario" Opacity="0.75"/>
+                    <TextBox x:Name="TxtPropietario" IsReadOnly="True"/>
+
+                    <TextBlock Text="Servicio" Opacity="0.75"/>
+                    <TextBox x:Name="TxtServicio" IsReadOnly="True"/>
+
+                    <TextBlock Text="Hora" Opacity="0.75"/>
+                    <TextBox x:Name="TxtHora" IsReadOnly="True"/>
+
+                    <TextBlock Text="Observaciones" Opacity="0.75"/>
+                    <TextBox
+                        x:Name="TxtObservaciones"
+                        IsReadOnly="True"
+                        AcceptsReturn="True"
+                        TextWrapping="Wrap"
+                        MinHeight="70"/>
+
+                    <Button
+                        Content="Ir a modificar / eliminar"
+                        Click="BtnAdministrar_Click"
+                        Height="44"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

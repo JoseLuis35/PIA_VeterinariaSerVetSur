@@ -1,0 +1,16 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.MenuPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <NavigationView x:Name="NavMenu" Header="Veterinaria Servetsur Mty" ItemInvoked="NavMenu_ItemInvoked">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Registro" Icon="Add" Tag="RegistroPage" />
+            <NavigationViewItem Content="Búsqueda y Consulta" Icon="Find" Tag="BusquedaPage" />
+            <NavigationViewItem Content="Modificar / Actualizar" Icon="Edit" Tag="ModificarPage" />
+            <NavigationViewItem Content="Exportar PDF" Icon="Document" Tag="ExportarPage" />
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
+</Page>

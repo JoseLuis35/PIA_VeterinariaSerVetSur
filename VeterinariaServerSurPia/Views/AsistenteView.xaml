@@ -1,0 +1,780 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.AsistenteView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VeterinariaServerSurPia.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    RequestedTheme="Light"
+    Background="#FFFFF6EA">
+
+    <Page.Resources>
+
+        <!-- ================= ESTILOS REUTILIZABLES ================= -->
+
+        <!-- Tarjeta blanca de cada sección -->
+        <Style x:Key="TarjetaSeccion" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="22"/>
+            <Setter Property="Padding" Value="26,24"/>
+        </Style>
+
+        <!-- Círculo naranja con el número de la sección -->
+        <Style x:Key="InsigniaNumero" TargetType="Border">
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="CornerRadius" Value="21"/>
+            <Setter Property="Background" Value="#FFFF9A1F"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
+
+        <!-- Caja durazno para mostrar información -->
+        <Style x:Key="CajaInfo" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFF1DD"/>
+            <Setter Property="BorderBrush" Value="#FFF8E2C2"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="16,13"/>
+        </Style>
+
+        <!-- Título de sección -->
+        <Style x:Key="TituloSeccion" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="21"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#FF1F140A"/>
+        </Style>
+
+        <!-- Descripción de sección -->
+        <Style x:Key="DescripcionSeccion" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#FF6B5E50"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="20"/>
+        </Style>
+
+        <!-- ================= CAMPOS DE TEXTO ================= -->
+        <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBorderBrush" Color="#FFE3D6C3"/>
+        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#FFD9B98C"/>
+        <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="TextControlForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#FF8E857B"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#FF8E857B"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
+        <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
+
+        <!-- ================= LISTA DESPLEGABLE ================= -->
+        <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#FFE3D6C3"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#FFD9B98C"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPressed" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="ComboBoxForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
+
+        <!-- ================= BOTONES (naranja, igual que el login) ================= -->
+        <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#FFFFD9A8"/>
+        <SolidColorBrush x:Key="ButtonForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundPressed" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="#FF8A6A3A"/>
+        <SolidColorBrush x:Key="ButtonBorderBrush" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent"/>
+    </Page.Resources>
+
+    <ScrollViewer Padding="30,24,30,24">
+        <StackPanel
+            Spacing="22"
+            MaxWidth="1100"
+            HorizontalAlignment="Center">
+
+            <!-- =====================================================
+                 AVISO DE IMÁGENES QUE NO SE PUDIERON CARGAR
+                 (solo aparece si falta alguna imagen de Assets)
+                 ===================================================== -->
+            <Border
+                x:Name="PanelAvisoImagenes"
+                Visibility="Collapsed"
+                Background="#FFFFE2BD"
+                BorderBrush="#FFFF9A1F"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="18,12">
+                <TextBlock
+                    x:Name="TxtAvisoImagenes"
+                    FontSize="13"
+                    LineHeight="20"
+                    Foreground="#FF3A2A1A"
+                    TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- =====================================================
+                 ENCABEZADO
+                 Todo está dentro de un Viewbox con el tamaño de la imagen
+                 de fondo (785 x 202) para que el logo y los textos queden
+                 siempre bien colocados, sin importar el tamaño de la ventana.
+                 ===================================================== -->
+            <Viewbox Stretch="Uniform" StretchDirection="Both">
+
+                <Border
+                    Width="785"
+                    Height="202"
+                    CornerRadius="16">
+
+                    <!-- Imagen de fondo (Assets/FONDO_ENCABEZADO.png) -->
+                    <Border.Background>
+                        <ImageBrush
+                            ImageSource="/Assets/FONDO_ENCABEZADO.png"
+                            Stretch="Fill"
+                            ImageFailed="FondoEncabezado_ImageFailed"/>
+                    </Border.Background>
+
+                    <Grid>
+
+                        <!-- LOGO DE LA VETERINARIA
+                             Cubre el círculo naranja que trae la imagen.
+                             Si necesitas moverlo, cambia el Margin (izquierda, arriba)
+                             y el Width/Height. -->
+                        <Border
+                            Width="122"
+                            Height="122"
+                            CornerRadius="61"
+                            Background="White"
+                            BorderBrush="#FFFFE6CC"
+                            BorderThickness="3"
+                            Padding="18"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="19,32,0,0">
+
+                            <Image
+                                Source="/Assets/logo_servetsur.png"
+                                Tag="logo_servetsur.png"
+                                ImageFailed="Imagen_ImageFailed"
+                                Stretch="Uniform"/>
+                        </Border>
+
+                        <!-- TEXTOS (zona libre entre el logo y el perro) -->
+                        <StackPanel
+                            Width="335"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Margin="160,0,0,0"
+                            Spacing="6">
+
+                            <TextBlock
+                                Text="VetSmart AI"
+                                FontSize="38"
+                                FontWeight="Bold"
+                                Foreground="#FF1F140A"/>
+
+                            <TextBlock
+                                Text="Asistente de conocimiento veterinario basado en observaciones clínicas y antecedentes registrados."
+                                FontSize="12.5"
+                                LineHeight="17"
+                                Foreground="#FF2B1A0A"
+                                TextWrapping="Wrap"/>
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                Margin="0,6,0,0">
+
+                                <Border
+                                    Background="White"
+                                    BorderBrush="#FFF3D9B8"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="11,5">
+                                    <StackPanel Orientation="Horizontal" Spacing="7">
+                                        <FontIcon
+                                            Glyph="&#xE950;"
+                                            FontSize="12"
+                                            Foreground="#FF3A2A1A"/>
+                                        <TextBlock
+                                            Text="Modelo local · qwen3:4b"
+                                            FontSize="10.5"
+                                            FontWeight="SemiBold"
+                                            Foreground="#FF1F140A"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border
+                                    Background="White"
+                                    BorderBrush="#FFF3D9B8"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="11,5">
+                                    <StackPanel Orientation="Horizontal" Spacing="7">
+                                        <Path
+                                            Data="M0,4 A8,3 0 0 1 16,4 L16,14 A8,3 0 0 1 0,14 Z"
+                                            Fill="#FF3A2A1A"
+                                            Stretch="Fill"
+                                            Width="10"
+                                            Height="12"
+                                            VerticalAlignment="Center"/>
+                                        <TextBlock
+                                            Text="Base de datos SQLite"
+                                            FontSize="10.5"
+                                            FontWeight="SemiBold"
+                                            Foreground="#FF1F140A"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Viewbox>
+
+            <!-- =====================================================
+                 1. SELECCIONAR MASCOTA
+                 ===================================================== -->
+            <Border Style="{StaticResource TarjetaSeccion}">
+                <Grid>
+
+                    <!-- Huella decorativa -->
+                    <Image
+                        Source="/Assets/huella.png"
+                        Tag="huella.png"
+                        ImageFailed="Imagen_ImageFailed"
+                        Width="92"
+                        Height="92"
+                        Stretch="Uniform"
+                        Opacity="0.55"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,0,6,0"
+                        IsHitTestVisible="False"/>
+
+                    <StackPanel Spacing="18">
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource InsigniaNumero}">
+                                <TextBlock
+                                    Text="1"
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Spacing="3">
+                                <TextBlock
+                                    Text="Seleccionar Mascota"
+                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Elige a qué mascota corresponde la consulta."
+                                    Style="{StaticResource DescripcionSeccion}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+
+                            <ComboBox
+                                x:Name="CmbMascotas"
+                                PlaceholderText="Selecciona una mascota"
+                                DisplayMemberPath="TextoMostrar"
+                                SelectionChanged="CmbMascotas_SelectionChanged"
+                                CornerRadius="12"
+                                Width="380"
+                                Height="46"/>
+
+                            <Button
+                                Content="Actualizar Lista de Mascotas"
+                                Click="BtnActualizarMascotas_Click"
+                                Height="46"
+                                Padding="22,0"
+                                CornerRadius="23"
+                                FontWeight="SemiBold"
+                                BorderThickness="1.2">
+
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFFFE3BF"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#FFF28C28"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#FFF28C28"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock
+                            x:Name="TxtMensajeMascotas"
+                            Text="Cargando mascotas..."
+                            FontSize="13"
+                            Foreground="#FF7A6A58"
+                            TextWrapping="Wrap"/>
+
+                        <Border Style="{StaticResource CajaInfo}">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <FontIcon
+                                    Glyph="&#xE946;"
+                                    FontSize="20"
+                                    Foreground="#FFE0710F"
+                                    VerticalAlignment="Top"/>
+
+                                <TextBlock
+                                    x:Name="TxtDatosMascota"
+                                    Grid.Column="1"
+                                    Text="Selecciona una mascota para consultar sus datos."
+                                    FontSize="14"
+                                    LineHeight="24"
+                                    Foreground="#FF2B2118"
+                                    TextWrapping="Wrap"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- =====================================================
+                 2. CONSULTAR A VETSMART AI  (el robot va a la derecha)
+                 ===================================================== -->
+            <Border Style="{StaticResource TarjetaSeccion}">
+                <StackPanel Spacing="18">
+
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="180"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Parte izquierda -->
+                        <StackPanel Spacing="18">
+
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Style="{StaticResource InsigniaNumero}">
+                                    <TextBlock
+                                        Text="2"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" Spacing="3">
+                                    <TextBlock
+                                        Text="Consultar a VetSmart AI (modelo local)"
+                                        Style="{StaticResource TituloSeccion}"/>
+                                    <TextBlock
+                                        Text="Haz preguntas a VetSmart AI. El asistente consulta los registros disponibles de clientes, mascotas, citas, historial médico y cartilla en la base SQLite local, y utiliza Ollama para redactar la respuesta."
+                                        Style="{StaticResource DescripcionSeccion}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBox
+                                x:Name="TxtPreguntaOllama"
+                                PlaceholderText="Ej. ¿Qué cuidados generales debo considerar para esta mascota?"
+                                AcceptsReturn="True"
+                                TextWrapping="Wrap"
+                                CornerRadius="12"
+                                MinHeight="110"
+                                MaxLength="2000"/>
+
+                            <Button
+                                x:Name="BtnConsultarOllama"
+                                Click="BtnConsultarOllama_Click"
+                                HorizontalAlignment="Left"
+                                MinWidth="320"
+                                Height="50"
+                                CornerRadius="25"
+                                FontSize="15"
+                                FontWeight="SemiBold">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE8BD;" FontSize="18"/>
+                                    <TextBlock Text="Consultar IA local"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- ROBOT (Assets/robot.png), al lado derecho -->
+                        <Image
+                            Grid.Column="1"
+                            Source="/Assets/robot.png"
+                            Tag="robot.png"
+                            ImageFailed="Imagen_ImageFailed"
+                            Stretch="Uniform"
+                            Width="175"
+                            Height="230"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <TextBlock
+                        x:Name="TxtEstadoOllama"
+                        Text="Modelo esperado: qwen3:4b. Ollama debe estar ejecutándose."
+                        FontSize="13"
+                        Foreground="#FF7A6A58"
+                        TextWrapping="Wrap"/>
+
+                    <!-- Respuesta de la IA -->
+                    <Border Style="{StaticResource CajaInfo}">
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon
+                                Glyph="&#xE735;"
+                                FontSize="20"
+                                Foreground="#FFFF9A1F"
+                                VerticalAlignment="Top"/>
+
+                            <TextBlock
+                                x:Name="TxtRespuestaOllama"
+                                Grid.Column="1"
+                                Text="La respuesta de la IA aparecerá aquí."
+                                FontSize="14"
+                                LineHeight="24"
+                                Foreground="#FF2B2118"
+                                TextWrapping="Wrap"
+                                IsTextSelectionEnabled="True"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- =====================================================
+                 3. NUEVA OBSERVACIÓN
+                 ===================================================== -->
+            <Border Style="{StaticResource TarjetaSeccion}">
+                <Grid>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Tag="huella.png"
+                        ImageFailed="Imagen_ImageFailed"
+                        Width="92"
+                        Height="92"
+                        Stretch="Uniform"
+                        Opacity="0.55"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,0,6,0"
+                        IsHitTestVisible="False"/>
+
+                    <StackPanel Spacing="18">
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource InsigniaNumero}">
+                                <TextBlock
+                                    Text="3"
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
+                                <TextBlock
+                                    Text="Nueva Observación Veterinaria"
+                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Describe libremente los síntomas, hallazgos, evolución y tratamiento indicado durante la consulta."
+                                    Style="{StaticResource DescripcionSeccion}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBox
+                            x:Name="TxtObservacion"
+                            Header="Comentario clínico"
+                            PlaceholderText="Ej. La mascota presenta vómitos y falta de apetito desde ayer..."
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            CornerRadius="12"
+                            Height="160"
+                            MaxLength="4000"/>
+
+                        <TextBox
+                            x:Name="TxtDiagnostico"
+                            Header="Diagnóstico confirmado por el veterinario (opcional)"
+                            PlaceholderText="Ej. Gastroenteritis"
+                            CornerRadius="12"
+                            MaxLength="200"/>
+
+                        <Button
+                            Content="Guardar Observación"
+                            Click="BtnGuardarObservacion_Click"
+                            HorizontalAlignment="Left"
+                            MinWidth="320"
+                            Height="50"
+                            CornerRadius="25"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+                        <TextBlock
+                            x:Name="TxtMensajeGuardar"
+                            FontSize="13"
+                            Foreground="#FF4A4A4A"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- =====================================================
+                 4. HISTORIAL
+                 ===================================================== -->
+            <Border Style="{StaticResource TarjetaSeccion}">
+                <Grid>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Tag="huella.png"
+                        ImageFailed="Imagen_ImageFailed"
+                        Width="92"
+                        Height="92"
+                        Stretch="Uniform"
+                        Opacity="0.55"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,0,6,0"
+                        IsHitTestVisible="False"/>
+
+                    <StackPanel Spacing="18">
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource InsigniaNumero}">
+                                <TextBlock
+                                    Text="4"
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
+                                <TextBlock
+                                    Text="Historial de la Mascota"
+                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Observaciones registradas anteriormente para la mascota seleccionada."
+                                    Style="{StaticResource DescripcionSeccion}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Style="{StaticResource CajaInfo}">
+                            <TextBlock
+                                x:Name="TxtHistorial"
+                                Text="Selecciona una mascota para consultar su historial."
+                                FontSize="14"
+                                LineHeight="24"
+                                Foreground="#FF2B2118"
+                                TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- =====================================================
+                 5. CASOS RELACIONADOS
+                 ===================================================== -->
+            <Border Style="{StaticResource TarjetaSeccion}">
+                <Grid>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Tag="huella.png"
+                        ImageFailed="Imagen_ImageFailed"
+                        Width="92"
+                        Height="92"
+                        Stretch="Uniform"
+                        Opacity="0.55"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,0,6,0"
+                        IsHitTestVisible="False"/>
+
+                    <StackPanel Spacing="18">
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource InsigniaNumero}">
+                                <TextBlock
+                                    Text="5"
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
+                                <TextBlock
+                                    Text="VetSmart AI - Casos Relacionados"
+                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Escribe los síntomas o el motivo de consulta para buscar antecedentes similares registrados por veterinarios."
+                                    Style="{StaticResource DescripcionSeccion}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBox
+                            x:Name="TxtConsultaIA"
+                            Header="Buscar antecedentes similares"
+                            PlaceholderText="Ej. No quiere comer y ha vomitado"
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            CornerRadius="12"
+                            Height="100"
+                            MaxLength="1000"/>
+
+                        <Button
+                            Content="Buscar Casos Similares"
+                            Click="BtnBuscarSimilares_Click"
+                            HorizontalAlignment="Left"
+                            MinWidth="320"
+                            Height="50"
+                            CornerRadius="25"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+                        <TextBlock
+                            x:Name="TxtCasosSimilares"
+                            Text="Aquí aparecerán los antecedentes relacionados."
+                            FontSize="14"
+                            Foreground="#FF2B2118"
+                            TextWrapping="Wrap"/>
+
+                        <StackPanel
+                            x:Name="PanelCasosSimilares"
+                            Spacing="12"/>
+
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- =====================================================
+                 AVISO
+                 ===================================================== -->
+            <Border
+                Background="#FFFFEBD3"
+                CornerRadius="16"
+                Padding="20,15">
+
+                <Grid ColumnSpacing="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <FontIcon
+                        Glyph="&#xE946;"
+                        FontSize="18"
+                        Foreground="#FFE0710F"
+                        VerticalAlignment="Top"
+                        Margin="0,2,0,0"/>
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="Aviso: VetSmart AI recupera antecedentes documentados, pero no genera diagnósticos. La información debe ser revisada por un médico veterinario."
+                        FontSize="12"
+                        LineHeight="19"
+                        Foreground="#FF5A4E42"
+                        TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+
+            <!-- =====================================================
+                 CAMINITO DE HUELLAS (decoración al final de la pantalla)
+                 ===================================================== -->
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="46"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,24">
+
+                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
+                       Width="38" Height="38" Opacity="0.35" Margin="0,34,0,0"
+                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="-25"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
+                       Width="46" Height="46" Opacity="0.45" Margin="0,0,0,0"
+                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="15"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
+                       Width="54" Height="54" Opacity="0.55" Margin="0,38,0,0"
+                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="-15"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
+                       Width="46" Height="46" Opacity="0.45" Margin="0,0,0,0"
+                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="20"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
+                       Width="38" Height="38" Opacity="0.35" Margin="0,34,0,0"
+                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="-20"/>
+                    </Image.RenderTransform>
+                </Image>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

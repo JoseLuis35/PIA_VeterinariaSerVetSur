@@ -1,0 +1,118 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.RegistrarCita"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="30">
+        <StackPanel Spacing="20"
+                    MaxWidth="650"
+                    HorizontalAlignment="Left">
+
+            <StackPanel Spacing="5">
+                <TextBlock Text="Registrar Nueva Cita"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Foreground="#004F8A"/>
+
+                <TextBlock
+                    Text="Programa una cita para una mascota registrada."
+                    FontSize="14"
+                    Foreground="Gray"
+                    TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20">
+
+                <StackPanel Spacing="15">
+
+                    <TextBlock Text="Datos de la cita"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#4A9949"/>
+
+                    <TextBox x:Name="TxtIdCita"
+                             Header="ID de Cita (automático)"
+                             PlaceholderText="Se genera automáticamente"
+                             IsReadOnly="True"
+                             MaxLength="12"/>
+
+                    <ComboBox x:Name="CmbMascota"
+                              Header="Mascota"
+                              PlaceholderText="Selecciona una mascota"
+                              HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Actualizar lista de mascotas"
+                            Click="BtnActualizarMascotas_Click"
+                            HorizontalAlignment="Left"/>
+
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Fecha de la cita"/>
+                        <DatePicker x:Name="DpFechaCita"
+                                    Language="es-MX"
+                                    HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Hora"/>
+                        <TimePicker x:Name="TpHoraCita"
+                                    Language="es-MX"
+                                    ClockIdentifier="24HourClock"
+                                    MinuteIncrement="5"
+                                    HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+
+                    <ComboBox x:Name="CmbTipoServicio"
+                              Header="Tipo de servicio"
+                              PlaceholderText="Selecciona un servicio"
+                              HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="Consulta médica"/>
+                        <ComboBoxItem Content="Baño y corte"/>
+                        <ComboBoxItem Content="Vacunación"/>
+                        <ComboBoxItem Content="Desparasitación"/>
+                    </ComboBox>
+
+                    <TextBox x:Name="TxtObservaciones"
+                             Header="Observaciones / Motivo"
+                             PlaceholderText="Detalles adicionales de la cita"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MaxLength="500"
+                             MinHeight="80"/>
+
+                </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="10">
+
+                <Button x:Name="BtnGuardarCita"
+                        Content="Guardar Cita"
+                        Click="BtnGuardarCita_Click"
+                        HorizontalAlignment="Stretch"
+                        Height="45"
+                        Background="#004F8A"
+                        Foreground="White"
+                        FontWeight="Bold"/>
+
+                <Button Content="Ir a Registrar Mascota"
+                        Click="BtnIrMascotas_Click"
+                        HorizontalAlignment="Stretch"
+                        Height="42"/>
+
+                <TextBlock x:Name="TxtMensaje"
+                           Visibility="Collapsed"
+                           TextWrapping="Wrap"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

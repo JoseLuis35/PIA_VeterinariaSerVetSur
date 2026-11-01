@@ -1,0 +1,106 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.RegistrarCliente"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VeterinariaServerSurPia.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="30">
+        <StackPanel Spacing="25"
+                    MaxWidth="650"
+                    HorizontalAlignment="Left">
+
+            <StackPanel Spacing="5">
+                <TextBlock
+                    Text="Registro de Clientes"
+                    FontSize="26"
+                    FontWeight="Bold"
+                    Foreground="#004F8A"/>
+
+                <TextBlock
+                    Text="Ingresa la información del propietario o cliente para darlo de alta en el sistema."
+                    FontSize="14"
+                    Foreground="Gray"/>
+            </StackPanel>
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20">
+
+                <StackPanel Spacing="15">
+
+                    <TextBlock
+                        Text="Datos Generales del Cliente"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Foreground="#4A9949"/>
+
+                    <TextBox
+                        x:Name="TxtIdCliente"
+                        Header="ID del Cliente"
+                        PlaceholderText="Ej. C001"
+                        MaxLength="10"
+                        TextChanging="TxtIdCliente_TextChanging"/>
+
+                    <TextBox
+                        x:Name="TxtNombreCliente"
+                        Header="Nombre Completo"
+                        PlaceholderText="Ej. Juan Pérez"
+                        MaxLength="80"
+                        TextChanging="TxtNombreCliente_TextChanging"/>
+
+                    <TextBox
+                        x:Name="TxtTelefono"
+                        Header="Teléfono"
+                        PlaceholderText="Ej. 8123456789"
+                        MaxLength="10"
+                        InputScope="TelephoneNumber"
+                        TextChanging="TxtTelefono_TextChanging"/>
+
+                    <TextBox
+                        x:Name="TxtCorreo"
+                        Header="Correo Electrónico"
+                        PlaceholderText="Ej. juan@gmail.com"
+                        MaxLength="100"
+                        InputScope="EmailSmtpAddress"/>
+
+                </StackPanel>
+            </Border>
+
+            <StackPanel
+                Spacing="10"
+                Margin="0,10,0,20">
+
+                <Button
+                    x:Name="BtnGuardarCliente"
+                    Content="Guardar Cliente"
+                    Click="BtnGuardarCliente_Click"
+                    HorizontalAlignment="Stretch"
+                    Height="45"
+                    Background="#004F8A"
+                    Foreground="White"
+                    FontWeight="Bold"/>
+
+                <Button
+                    Content="Ir a Registrar Mascota"
+                    Click="BtnIrMascotas_Click"
+                    HorizontalAlignment="Stretch"
+                    Height="42"/>
+
+                <TextBlock
+                    x:Name="TxtMensaje"
+                    HorizontalAlignment="Center"
+                    TextWrapping="Wrap"
+                    FontWeight="SemiBold"
+                    Visibility="Collapsed"/>
+
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

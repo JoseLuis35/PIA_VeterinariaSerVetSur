@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VeterinariaServerSurPia (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "VeterinariaServerSurPia (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,124 @@
+<Page
+    x:Class="VeterinariaServerSurPia.Views.ExportarPDF"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="28" Spacing="18">
+
+            <TextBlock
+                Text="Exportar reportes PDF"
+                FontSize="30"
+                FontWeight="Bold"/>
+
+            <TextBlock
+                Text="Genera reportes de la veterinaria o expedientes médicos individuales."
+                TextWrapping="Wrap"
+                Opacity="0.75"/>
+
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Información que se incluirá"
+                        FontSize="21"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Selecciona las secciones que deseas exportar."
+                        TextWrapping="Wrap"
+                        Opacity="0.75"/>
+
+                    <CheckBox
+                        x:Name="ChkClientes"
+                        Content="Clientes y estado de actividad"
+                        IsChecked="True"/>
+
+                    <CheckBox
+                        x:Name="ChkMascotas"
+                        Content="Mascotas y datos de sus propietarios"
+                        IsChecked="True"/>
+
+                    <CheckBox
+                        x:Name="ChkCitas"
+                        Content="Citas registradas"
+                        IsChecked="True"/>
+
+                    <CheckBox
+                        x:Name="ChkHistorial"
+                        Content="Historial clínico, peso, alergias y antecedentes"
+                        IsChecked="True"/>
+
+                    <CheckBox
+                        x:Name="ChkCartilla"
+                        Content="Cartilla de vacunas y desparasitación"
+                        IsChecked="True"/>
+                </StackPanel>
+            </Border>
+
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Expediente individual"
+                        FontSize="21"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Selecciona una mascota para exportar su información médica y la de su propietario."
+                        TextWrapping="Wrap"
+                        Opacity="0.75"/>
+
+                    <ComboBox
+                        x:Name="MascotaCombo"
+                        PlaceholderText="Selecciona una mascota"
+                        DisplayMemberPath="TextoMostrar"
+                        HorizontalAlignment="Stretch"/>
+
+                    <Button
+                        Content="Exportar expediente de la mascota"
+                        Click="BtnExportarExpediente_Click"
+                        Height="44"
+                        HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+
+            <Border
+                Padding="18"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Reporte general"
+                        FontSize="21"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Exporta las secciones seleccionadas en un solo documento PDF."
+                        TextWrapping="Wrap"
+                        Opacity="0.75"/>
+
+                    <Button
+                        Content="Exportar reporte general a PDF"
+                        Click="BtnExportarTodo_Click"
+                        Height="48"
+                        HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock
+                x:Name="TxtEstado"
+                Text="Listo para exportar."
+                TextWrapping="Wrap"
+                FontWeight="SemiBold"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
