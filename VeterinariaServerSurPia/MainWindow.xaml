@@ -7,82 +7,353 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="RootGrid"
-          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid
+        x:Name="RootGrid"
+        Background="#FFF7F3EC">
+
+        <Grid.Resources>
+
+            <SolidColorBrush x:Key="VetBackground" Color="#FFF7F3EC"/>
+            <SolidColorBrush x:Key="VetOrange" Color="#FFE58A3A"/>
+            <SolidColorBrush x:Key="VetOrangeDark" Color="#FFD8752D"/>
+            <SolidColorBrush x:Key="VetText" Color="#FF40352E"/>
+            <SolidColorBrush x:Key="VetMuted" Color="#FF8B7B70"/>
+            <SolidColorBrush x:Key="VetSelected" Color="#FFFBE0C5"/>
+            <SolidColorBrush x:Key="VetHover" Color="#FFF8EBDD"/>
+            <SolidColorBrush x:Key="VetBorder" Color="#FFE4D3C1"/>
+
+        </Grid.Resources>
 
         <NavigationView
             x:Name="NavView"
             SelectionChanged="NavView_SelectionChanged"
-            PaneDisplayMode="Auto"
-            Visibility="Collapsed">
+            PaneDisplayMode="Left"
+            IsPaneOpen="True"
+            IsPaneToggleButtonVisible="True"
+            IsSettingsVisible="False"
+            IsBackButtonVisible="Collapsed"
+            OpenPaneLength="278"
+            CompactPaneLength="64"
+            RequestedTheme="Light"
+            Background="{StaticResource VetBackground}"
+            Foreground="{StaticResource VetText}"
+            Visibility="Collapsed"
+            SelectionFollowsFocus="Disabled">
 
+            <!-- COLORES DEL MENU -->
+            <NavigationView.Resources>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewDefaultPaneBackground"
+                    Color="#FFF1E5D8"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemForeground"
+                    Color="#FF625349"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemForegroundPointerOver"
+                    Color="#FFD8752D"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemForegroundSelected"
+                    Color="#FFC66B29"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBackground"
+                    Color="Transparent"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBackgroundPointerOver"
+                    Color="#FFF8EBDD"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBackgroundSelected"
+                    Color="#FFFBE0C5"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBackgroundSelectedPointerOver"
+                    Color="#FFFBE0C5"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBorderBrush"
+                    Color="Transparent"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBorderBrushPointerOver"
+                    Color="Transparent"/>
+
+                <SolidColorBrush
+                    x:Key="NavigationViewItemBorderBrushSelected"
+                    Color="Transparent"/>
+
+            </NavigationView.Resources>
+
+            <!-- ENCABEZADO -->
+            <NavigationView.PaneHeader>
+
+                <Grid Padding="16,18,12,16">
+
+                    <StackPanel Spacing="12">
+
+                        <Border
+                            Width="55"
+                            Height="55"
+                            CornerRadius="16"
+                            Background="#FFFFF5E9"
+                            HorizontalAlignment="Left">
+
+                            <TextBlock
+                                Text="🐾"
+                                FontSize="30"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+                        </Border>
+
+                        <StackPanel Spacing="3">
+
+                            <TextBlock
+                                Text="VETERINARIA"
+                                FontSize="10"
+                                FontWeight="SemiBold"
+                                CharacterSpacing="150"
+                                Foreground="#FF8B7563"/>
+
+                            <TextBlock
+                                Text="Servetsur Mty"
+                                FontSize="22"
+                                FontWeight="Bold"
+                                Foreground="#FF40352E"/>
+
+                            <TextBlock
+                                Text="Sistema de gestión"
+                                FontSize="12"
+                                Foreground="#FF8B7563"/>
+
+                        </StackPanel>
+
+                        <Border
+                            Height="1"
+                            Background="#FFE4D3C1"
+                            Margin="0,5,0,0"/>
+
+                        <TextBlock
+                            Text="MENÚ PRINCIPAL"
+                            FontSize="10"
+                            FontWeight="SemiBold"
+                            CharacterSpacing="120"
+                            Foreground="#FF8B7563"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </NavigationView.PaneHeader>
+
+            <!-- OPCIONES DEL MENU -->
             <NavigationView.MenuItems>
 
-
+                <!-- INICIO -->
                 <NavigationViewItem
-    Content="Inicio"
-    Tag="Inicio"
-    Icon="Home"/>
+                    Content="Inicio"
+                    Tag="Inicio"
+                    ToolTipService.ToolTip="Página principal">
 
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Home"/>
+                    </NavigationViewItem.Icon>
 
-                <NavigationViewItem Content="Clientes"
-                                    Tag="Clientes"
-                                    Icon="Add" />
+                </NavigationViewItem>
 
-                <NavigationViewItem Content="Mascotas"
-                                    Tag="Mascotas"
-                                    Icon="Contact" />
+                <!-- CLIENTES -->
+                <NavigationViewItem
+                    Content="Clientes"
+                    Tag="Clientes"
+                    ToolTipService.ToolTip="Registro de propietarios">
 
-                <NavigationViewItem Content="Citas"
-                                    Tag="Citas"
-                                    Icon="Calendar" />
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="People"/>
+                    </NavigationViewItem.Icon>
 
-                <NavigationViewItem Content="Búsqueda / Consultas"
-                                    Tag="Busqueda"
-                                    Icon="Find" />
+                </NavigationViewItem>
 
-                <NavigationViewItem Content="Modificar / Eliminar"
-                                    Tag="ModificarEliminar"
-                                    Icon="Edit" />
+                <!-- MASCOTAS -->
+                <NavigationViewItem
+                    Content="Mascotas"
+                    Tag="Mascotas"
+                    ToolTipService.ToolTip="Registro de mascotas">
 
-                
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Favorite"/>
+                    </NavigationViewItem.Icon>
+
+                </NavigationViewItem>
+
+                <!-- CITAS -->
+                <NavigationViewItem
+                    Content="Citas"
+                    Tag="Citas"
+                    ToolTipService.ToolTip="Administrar citas">
+
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Calendar"/>
+                    </NavigationViewItem.Icon>
+
+                </NavigationViewItem>
+
+                <!-- BUSQUEDA -->
+                <NavigationViewItem
+                    Content="Búsqueda / Consultas"
+                    Tag="Busqueda"
+                    ToolTipService.ToolTip="Buscar información">
+
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Find"/>
+                    </NavigationViewItem.Icon>
+
+                </NavigationViewItem>
+
+                <!-- MODIFICAR -->
+                <NavigationViewItem
+                    Content="Modificar / Eliminar"
+                    Tag="ModificarEliminar"
+                    ToolTipService.ToolTip="Editar o eliminar registros">
+
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Edit"/>
+                    </NavigationViewItem.Icon>
+
+                </NavigationViewItem>
+
+                <!-- HISTORIAL MEDICO -->
                 <NavigationViewItem
                     Content="Historial médico"
                     Tag="HistorialMedico"
-                    Icon="Document" />
+                    ToolTipService.ToolTip="Historial clínico">
 
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document"/>
+                    </NavigationViewItem.Icon>
+
+                </NavigationViewItem>
+
+                <!-- CONSULTAR HISTORIAL -->
                 <NavigationViewItem
                     Content="Consultar historial"
                     Tag="ConsultarHistorial"
-                    Icon="Find" />
+                    ToolTipService.ToolTip="Consultar expedientes">
 
-               
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Page"/>
+                    </NavigationViewItem.Icon>
 
+                </NavigationViewItem>
+
+                <!-- CALENDARIO -->
                 <NavigationViewItem
-    Content="Calendario de citas"
-    Tag="CalendarioCitas"
-    Icon="Calendar"/>
+                    Content="Calendario de citas"
+                    Tag="CalendarioCitas"
+                    ToolTipService.ToolTip="Calendario de atención">
 
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Calendar"/>
+                    </NavigationViewItem.Icon>
 
+                </NavigationViewItem>
+
+                <!-- EXPORTAR PDF -->
                 <NavigationViewItem
-    Content="Exportar reportes PDF"
-    Tag="ExportarPDF"
-    Icon="Save"/>
+                    Content="Exportar reportes PDF"
+                    Tag="ExportarPDF"
+                    ToolTipService.ToolTip="Generar reportes PDF">
 
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Save"/>
+                    </NavigationViewItem.Icon>
 
-                <NavigationViewItem Content="VetSmart AI"
+                </NavigationViewItem>
+
+                <!-- VETSMART AI -->
+                <NavigationViewItem
+                    Content="VetSmart AI"
                     Tag="Asistente"
-                    Icon="Message" />
+                    ToolTipService.ToolTip="Asistente veterinario inteligente">
 
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Message"/>
+                    </NavigationViewItem.Icon>
 
+                </NavigationViewItem>
 
             </NavigationView.MenuItems>
 
-            <Frame x:Name="MainFrame" />
+            <!-- PIE DEL MENU -->
+            <NavigationView.PaneFooter>
+
+                <Grid Padding="14,12,14,16">
+
+                    <StackPanel Spacing="10">
+
+                        <Border
+                            Height="1"
+                            Background="#FFE4D3C1"/>
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="9">
+
+                            <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#FFFFF5E9">
+
+                                <FontIcon
+                                    Glyph="&#xE8D4;"
+                                    FontSize="17"
+                                    Foreground="#FFD8752D"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+
+                            </Border>
+
+                            <StackPanel
+                                VerticalAlignment="Center"
+                                Spacing="2">
+
+                                <TextBlock
+                                    Text="Servetsur Mty"
+                                    FontSize="12"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FF40352E"/>
+
+                                <TextBlock
+                                    Text="Cuidamos lo que más quieres"
+                                    FontSize="10"
+                                    Foreground="#FF8B7563"/>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </NavigationView.PaneFooter>
+
+            <!-- CONTENIDO PRINCIPAL -->
+            <Frame
+                x:Name="MainFrame"
+                Background="{StaticResource VetBackground}"/>
 
         </NavigationView>
 
-        <Frame x:Name="LoginFrame" />
+        <!-- LOGIN -->
+        <Frame
+            x:Name="LoginFrame"/>
 
     </Grid>
+
 </Window>

@@ -39,6 +39,7 @@ namespace VeterinariaServerSurPia.Views
 
         private string[] datosCitaActual = Array.Empty<string>();
         private bool cargandoClientes;
+        private bool filtrandoTexto;
 
         private static readonly CultureInfo Cultura =
             CultureInfo.InvariantCulture;
@@ -117,6 +118,238 @@ namespace VeterinariaServerSurPia.Views
             hora = TimeSpan.Zero;
             return false;
         }
+
+        // =========================================================
+        // FILTROS GENERALES DE TEXTO
+        // =========================================================
+
+        private void AplicarFiltro(
+            TextBox caja,
+            Func<char, bool> caracterPermitido,
+            int maximo,
+            bool permitirEspacios = false,
+            bool permitirGuion = false,
+            bool permitirPunto = false,
+            bool permitirDosPuntos = false,
+            bool permitirParentesis = false)
+        {
+            if (filtrandoTexto)
+                return;
+
+            string original = caja.Text;
+            int cursor = caja.SelectionStart;
+
+            string resultado = "";
+
+            foreach (char caracter in original)
+            {
+                if (resultado.Length >= maximo)
+                    break;
+
+                bool permitido =
+                    caracterPermitido(caracter) ||
+                    (permitirEspacios && caracter == ' ') ||
+                    (permitirGuion && caracter == '-') ||
+                    (permitirPunto && caracter == '.') ||
+                    (permitirDosPuntos && caracter == ':') ||
+                    (permitirParentesis &&
+                        (caracter == '(' || caracter == ')'));
+
+                if (!permitido)
+                    continue;
+
+                if (caracter == ' ')
+                {
+                    if (resultado.Length == 0 ||
+                        resultado.EndsWith(" "))
+                        continue;
+                }
+
+                resultado += caracter;
+            }
+
+            if (resultado == original)
+                return;
+
+            filtrandoTexto = true;
+
+            caja.Text = resultado;
+            caja.SelectionStart = Math.Min(
+                cursor, resultado.Length);
+
+            filtrandoTexto = false;
+        }
+
+        private static bool EsLetra(char c) =>
+            char.IsLetter(c);
+
+        private static bool EsLetraONumero(char c) =>
+            char.IsLetterOrDigit(c);
+
+        private void FiltrarNombre(TextBox caja, int maximo)
+        {
+            AplicarFiltro(
+                caja,
+                EsLetra,
+                maximo,
+                permitirEspacios: true);
+        }
+
+        // =========================================================
+        // VALIDACIONES MIENTRAS SE ESCRIBE: CLIENTES
+        // =========================================================
+
+        private void TxtNombreCliente_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            FiltrarNombre(sender, 80);
+        }
+
+        private void TxtTelefonoCliente_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                char.IsDigit,
+                10);
+        }
+
+        private void TxtCorreoCliente_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                c =>
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= 'a' && c <= 'z') ||
+                    char.IsDigit(c) ||
+                    c == '@' ||
+                    c == '.',
+                100);
+        }
+
+        // =========================================================
+        // VALIDACIONES MIENTRAS SE ESCRIBE: MASCOTAS
+        // =========================================================
+
+        private void TxtNombreMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            FiltrarNombre(sender, 50);
+        }
+
+        private void TxtEspecieMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            FiltrarNombre(sender, 40);
+        }
+
+        private void TxtRazaMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                EsLetra,
+                60,
+                permitirEspacios: true,
+                permitirGuion: true);
+        }
+
+        private void TxtEdadMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                char.IsDigit,
+                3);
+        }
+
+        private void TxtSexoMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            FiltrarNombre(sender, 10);
+        }
+
+        private void TxtPesoMascota_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            if (filtrandoTexto)
+                return;
+
+            string original = sender.Text;
+            string convertido = original.Replace(',', '.');
+
+            string resultado = "";
+            bool puntoEncontrado = false;
+            int decimales = 0;
+
+            foreach (char c in convertido)
+            {
+                if (char.IsDigit(c))
+                {
+                    if (puntoEncontrado)
+                    {
+                        if (decimales >= 2)
+                            continue;
+
+                        decimales++;
+                    }
+
+                    if (resultado.Length >= 7)
+                        continue;
+
+                    resultado += c;
+                }
+                else if (c == '.' && !puntoEncontrado)
+                {
+                    puntoEncontrado = true;
+                    resultado += c;
+                }
+            }
+
+            if (resultado == original)
+                return;
+
+            int cursor = sender.SelectionStart;
+
+            filtrandoTexto = true;
+            sender.Text = resultado;
+            sender.SelectionStart = Math.Min(
+                cursor, resultado.Length);
+            filtrandoTexto = false;
+        }
+
+        // =========================================================
+        // VALIDACIONES MIENTRAS SE ESCRIBE: CITAS
+        // =========================================================
+
+        private void TxtHoraCita_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                char.IsDigit,
+                5,
+                permitirDosPuntos: true);
+        }
+
+        private void TxtServicioCita_TextChanging(
+            TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            AplicarFiltro(
+                sender,
+                EsLetraONumero,
+                80,
+                permitirEspacios: true,
+                permitirGuion: true,
+                permitirPunto: true,
+                permitirDosPuntos: true,
+                permitirParentesis: true);
+        }
+
+        // =========================================================
+        // CLIENTES
+        // =========================================================
 
         private bool ClienteInactivo(string id)
         {
@@ -360,19 +593,33 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            if (!Regex.IsMatch(telefono, @"^\d{10}$"))
+            if (nombre.Length > 80 ||
+                !Regex.IsMatch(
+                    nombre,
+                    @"^[\p{L}]+(?: [\p{L}]+)*$"))
             {
                 MostrarMensaje(
-                    "El teléfono debe tener 10 dígitos.", true);
+                    "El nombre solo debe contener letras y espacios sencillos.",
+                    true);
                 return;
             }
 
-            if (!Regex.IsMatch(
-                correo,
-                @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            if (!Regex.IsMatch(telefono, @"^\d{10}$"))
             {
                 MostrarMensaje(
-                    "Escribe un correo válido.", true);
+                    "El teléfono debe tener exactamente 10 dígitos.",
+                    true);
+                return;
+            }
+
+            if (correo.Length > 100 ||
+                !Regex.IsMatch(
+                    correo,
+                    @"^[A-Za-z0-9.]+@[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)+$"))
+            {
+                MostrarMensaje(
+                    "Escribe un correo válido. Solo se permiten letras, números, puntos y arroba.",
+                    true);
                 return;
             }
 
@@ -485,6 +732,10 @@ namespace VeterinariaServerSurPia.Views
             MostrarMensaje("Cliente eliminado.", false);
         }
 
+        // =========================================================
+        // MASCOTAS
+        // =========================================================
+
         private void CargarMascotas(string conservarId = "")
         {
             var mascotas = Leer("mascotas.txt", 8)
@@ -560,44 +811,92 @@ namespace VeterinariaServerSurPia.Views
             string sexo = TxtSexoMascota.Text.Trim();
             string pesoTexto = TxtPesoMascota.Text.Trim();
 
-            if (new[]
-            {
-                nombre, especie, raza, edadTexto, sexo, pesoTexto
-            }.Any(string.IsNullOrWhiteSpace))
+            if (nombre.Length == 0 ||
+                especie.Length == 0 ||
+                edadTexto.Length == 0 ||
+                sexo.Length == 0 ||
+                pesoTexto.Length == 0)
             {
                 MostrarMensaje(
-                    "Completa todos los datos de la mascota.", true);
+                    "Completa el nombre, especie, edad, sexo y peso de la mascota.",
+                    true);
                 return;
             }
 
-            if (!int.TryParse(edadTexto, out int edad) ||
-                edad < 0 || edad > 100)
+            if (nombre.Length > 50 ||
+                !Regex.IsMatch(
+                    nombre,
+                    @"^[\p{L}]+(?: [\p{L}]+)*$"))
             {
                 MostrarMensaje(
-                    "La edad debe ser un número entre 0 y 100.", true);
+                    "El nombre de la mascota solo debe contener letras y espacios sencillos.",
+                    true);
                 return;
             }
 
-            if (!decimal.TryParse(
-                    pesoTexto,
-                    NumberStyles.Number,
-                    CultureInfo.CurrentCulture,
-                    out decimal peso) &&
+            if (especie.Length > 40 ||
+                !Regex.IsMatch(
+                    especie,
+                    @"^[\p{L}]+(?: [\p{L}]+)*$"))
+            {
+                MostrarMensaje(
+                    "Escribe una especie válida usando solamente letras y espacios.",
+                    true);
+                return;
+            }
+
+            if (raza.Length > 60 ||
+                (raza.Length > 0 &&
+                 !Regex.IsMatch(
+                    raza,
+                    @"^[\p{L}]+(?:[ -][\p{L}]+)*$")))
+            {
+                MostrarMensaje(
+                    "La raza solo debe contener letras, espacios y guiones.",
+                    true);
+                return;
+            }
+
+            if (!Regex.IsMatch(edadTexto, @"^\d{1,3}$") ||
+                !int.TryParse(edadTexto, out int edad) ||
+                edad < 0 || edad > 150)
+            {
+                MostrarMensaje(
+                    "La edad debe ser un número entero entre 0 y 150.",
+                    true);
+                return;
+            }
+
+            if (!Regex.IsMatch(
+                sexo,
+                @"^(Macho|Hembra)$",
+                RegexOptions.IgnoreCase))
+            {
+                MostrarMensaje(
+                    "El sexo debe ser Macho o Hembra.", true);
+                return;
+            }
+
+            if (!Regex.IsMatch(
+                pesoTexto,
+                @"^\d{1,5}(\.\d{1,2})?$") ||
                 !decimal.TryParse(
                     pesoTexto,
-                    NumberStyles.Number,
+                    NumberStyles.AllowDecimalPoint,
                     Cultura,
-                    out peso))
+                    out decimal peso))
             {
                 MostrarMensaje(
-                    "El peso debe ser numérico.", true);
+                    "El peso debe ser numérico y tener máximo dos decimales.",
+                    true);
                 return;
             }
 
-            if (peso <= 0 || peso > 500)
+            if (peso <= 0 || peso > 1000)
             {
                 MostrarMensaje(
-                    "El peso debe ser mayor a 0 y máximo 500 kg.", true);
+                    "El peso debe ser mayor a 0 y máximo 1000 kg.",
+                    true);
                 return;
             }
 
@@ -610,7 +909,7 @@ namespace VeterinariaServerSurPia.Views
                 nombre,
                 especie,
                 raza,
-                edad.ToString(),
+                edad.ToString(Cultura),
                 sexo,
                 pesoGuardado,
                 idClienteActual
@@ -679,6 +978,10 @@ namespace VeterinariaServerSurPia.Views
 
             MostrarMensaje("Mascota eliminada.", false);
         }
+
+        // =========================================================
+        // CITAS
+        // =========================================================
 
         private void CargarCitas(string conservarId = "")
         {
@@ -810,6 +1113,17 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
+            if (servicio.Length > 80 ||
+                !Regex.IsMatch(
+                    servicio,
+                    @"^[\p{L}\p{N}]+(?:[ \-.:()/][\p{L}\p{N}]+)*$"))
+            {
+                MostrarMensaje(
+                    "El servicio contiene caracteres no permitidos.",
+                    true);
+                return;
+            }
+
             if (observaciones.Length > 500)
             {
                 MostrarMensaje(
@@ -818,11 +1132,20 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            if (ContieneComa(servicio, observaciones))
+            if (observaciones.Contains(',') ||
+                observaciones.Contains('\n') ||
+                observaciones.Contains('\r'))
             {
                 MostrarMensaje(
-                    "No escribas comas en servicio u observaciones.",
+                    "Las observaciones no pueden contener comas ni saltos de línea porque el archivo utiliza esos separadores.",
                     true);
+                return;
+            }
+
+            if (ContieneComa(servicio))
+            {
+                MostrarMensaje(
+                    "No escribas comas en el servicio.", true);
                 return;
             }
 
@@ -909,6 +1232,10 @@ namespace VeterinariaServerSurPia.Views
             MostrarMensaje("Cita eliminada.", false);
         }
 
+        // =========================================================
+        // CARGAR CITA DESDE EL CALENDARIO
+        // =========================================================
+
         private void CargarCitaPendiente()
         {
             string idCita = MainWindow.CitaPendienteId;
@@ -963,6 +1290,10 @@ namespace VeterinariaServerSurPia.Views
                 $"Cita {idCita} cargada desde el calendario.",
                 false);
         }
+
+        // =========================================================
+        // NAVEGACIÓN
+        // =========================================================
 
         private void BtnVerExpediente_Click(
             object sender, RoutedEventArgs e)

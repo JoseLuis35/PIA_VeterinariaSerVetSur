@@ -1,3 +1,4 @@
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -26,6 +27,7 @@ namespace VeterinariaServerSurPia.Views
             public string Sexo { get; set; } = "";
             public string Peso { get; set; } = "";
             public string IdPropietario { get; set; } = "";
+
             public string TextoMostrar => $"{Nombre} ({Id})";
         }
 
@@ -55,10 +57,13 @@ namespace VeterinariaServerSurPia.Views
 
         private readonly List<MascotaOpcion> mascotas = new();
         private readonly OllamaService ollamaService = new();
+
         private MascotaOpcion? mascotaSeleccionada;
 
-        // Nombres de las imágenes de Assets que no se pudieron cargar
         private readonly HashSet<string> imagenesFallidas = new();
+
+        // Evita que TextChanging se ejecute recursivamente.
+        private bool aplicandoFiltroTexto = false;
 
         private string RutaMascotas => Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
@@ -132,12 +137,152 @@ namespace VeterinariaServerSurPia.Views
         }
 
         // =========================================================
+        // VALIDACIÓN DE ESPACIOS EN CAMPOS DE TEXTO LIBRE
+        // =========================================================
+
+        private void TextoLibre_TextChanging(
+            TextBox sender,
+            TextBoxTextChangingEventArgs args)
+        {
+            if (aplicandoFiltroTexto)
+                return;
+
+            string textoOriginal = sender.Text;
+
+            if (string.IsNullOrEmpty(textoOriginal))
+                return;
+
+            int posicionOriginal = sender.SelectionStart;
+
+            StringBuilder textoCorregido = new();
+
+            int nuevaPosicion = 0;
+
+            for (int i = 0; i < textoOriginal.Length; i++)
+            {
+                char caracter = textoOriginal[i];
+
+                if (caracter == '\r' || caracter == '\n')
+                {
+                    if (sender.AcceptsReturn)
+                    {
+                        // Evitar líneas vacías consecutivas.
+                        if (textoCorregido.Length > 0 &&
+                            textoCorregido[^1] != '\n')
+                        {
+                            // Quitar espacios antes del salto de línea.
+                            while (textoCorregido.Length > 0 &&
+                                   textoCorregido[^1] == ' ')
+                            {
+                                textoCorregido.Length--;
+                            }
+
+                            textoCorregido.Append('\n');
+                        }
+                    }
+                }
+                else
+                {
+                    // Convertir tabulaciones y espacios especiales.
+                    if (char.IsWhiteSpace(caracter))
+                        caracter = ' ';
+
+                    // Bloquear caracteres de control.
+                    if (char.IsControl(caracter))
+                    {
+                        if (i < posicionOriginal)
+                            nuevaPosicion = textoCorregido.Length;
+
+                        continue;
+                    }
+
+                    if (caracter == ' ')
+                    {
+                        // Bloquear espacios al principio.
+                        if (textoCorregido.Length == 0 ||
+                            textoCorregido[^1] == '\n')
+                        {
+                            if (i < posicionOriginal)
+                                nuevaPosicion = textoCorregido.Length;
+
+                            continue;
+                        }
+
+                        // Bloquear espacios consecutivos.
+                        if (textoCorregido[^1] == ' ')
+                        {
+                            if (i < posicionOriginal)
+                                nuevaPosicion = textoCorregido.Length;
+
+                            continue;
+                        }
+
+                        // Permitir un espacio entre palabras,
+                        // incluso al final mientras se escribe.
+                        textoCorregido.Append(' ');
+                    }
+                    else
+                    {
+                        textoCorregido.Append(caracter);
+                    }
+                }
+
+                if (i < posicionOriginal)
+                    nuevaPosicion = textoCorregido.Length;
+            }
+
+            if (posicionOriginal >= textoOriginal.Length)
+                nuevaPosicion = textoCorregido.Length;
+
+            string resultado = textoCorregido.ToString();
+
+            if (resultado == textoOriginal)
+                return;
+
+            nuevaPosicion = Math.Clamp(
+                nuevaPosicion,
+                0,
+                resultado.Length);
+
+            aplicandoFiltroTexto = true;
+
+            try
+            {
+                sender.Text = resultado;
+                sender.SelectionStart = nuevaPosicion;
+                sender.SelectionLength = 0;
+            }
+            finally
+            {
+                aplicandoFiltroTexto = false;
+            }
+        }
+
+        // Normaliza espacios antes de guardar o consultar.
+        private static string NormalizarEspacios(string texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+                return "";
+
+            string[] lineas = texto
+                .Replace("\r\n", "\n")
+                .Replace('\r', '\n')
+                .Split('\n');
+
+            return string.Join(
+                "\n",
+                lineas.Select(linea =>
+                    Regex.Replace(linea.Trim(), @"\s+", " ")))
+                .Trim();
+        }
+
+        // =========================================================
         // AVISO CUANDO UNA IMAGEN DE ASSETS NO SE PUEDE CARGAR
         // =========================================================
 
-        // Para controles Image (usa la propiedad Tag con el nombre del archivo)
         private void Imagen_ImageFailed(
-            object sender, ExceptionRoutedEventArgs e)
+            object sender,
+            ExceptionRoutedEventArgs e)
         {
             string nombre =
                 (sender as FrameworkElement)?.Tag as string ?? "imagen";
@@ -145,9 +290,9 @@ namespace VeterinariaServerSurPia.Views
             RegistrarImagenFallida(nombre);
         }
 
-        // Para la imagen de fondo del encabezado (ImageBrush)
         private void FondoEncabezado_ImageFailed(
-            object sender, ExceptionRoutedEventArgs e)
+            object sender,
+            ExceptionRoutedEventArgs e)
         {
             RegistrarImagenFallida("FONDO_ENCABEZADO.png");
         }
@@ -165,6 +310,10 @@ namespace VeterinariaServerSurPia.Views
 
             PanelAvisoImagenes.Visibility = Visibility.Visible;
         }
+
+        // =========================================================
+        // CARGAR Y SELECCIONAR MASCOTAS
+        // =========================================================
 
         private void CargarMascotas()
         {
@@ -192,6 +341,7 @@ namespace VeterinariaServerSurPia.Views
                     TxtMensajeMascotas.Text =
                         "No se encontró mascotas.txt. " +
                         "Registra una mascota primero.";
+
                     return;
                 }
 
@@ -205,7 +355,9 @@ namespace VeterinariaServerSurPia.Views
                     if (datos.Length < 8 ||
                         string.IsNullOrWhiteSpace(datos[0]) ||
                         string.IsNullOrWhiteSpace(datos[1]))
+                    {
                         continue;
+                    }
 
                     mascotas.Add(new MascotaOpcion
                     {
@@ -245,13 +397,15 @@ namespace VeterinariaServerSurPia.Views
         }
 
         private void BtnActualizarMascotas_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             CargarMascotas();
         }
 
         private void CmbMascotas_SelectionChanged(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             mascotaSeleccionada =
                 CmbMascotas.SelectedItem as MascotaOpcion;
@@ -269,6 +423,7 @@ namespace VeterinariaServerSurPia.Views
 
                 TxtHistorial.Text =
                     "Selecciona una mascota para consultar su historial.";
+
                 return;
             }
 
@@ -290,6 +445,10 @@ namespace VeterinariaServerSurPia.Views
 
             MostrarHistorial();
         }
+
+        // =========================================================
+        // LEER ARCHIVO DE CONOCIMIENTO
+        // =========================================================
 
         private List<RegistroConocimiento> LeerConocimiento()
         {
@@ -329,9 +488,9 @@ namespace VeterinariaServerSurPia.Views
 
         private MascotaOpcion? BuscarMascotaEnPregunta(string pregunta)
         {
-            string preguntaNormalizada = NormalizarPregunta(pregunta);
+            string preguntaNormalizada =
+                NormalizarPregunta(pregunta);
 
-            // Primero se revisan los identificadores.
             foreach (var mascota in mascotas)
             {
                 string id = NormalizarPregunta(mascota.Id);
@@ -345,8 +504,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             }
 
-            // Después se buscan nombres completos.
-            // Se ordenan por longitud para priorizar nombres más específicos.
             foreach (var mascota in mascotas
                 .OrderByDescending(m => m.Nombre.Length))
             {
@@ -429,20 +586,25 @@ namespace VeterinariaServerSurPia.Views
         // =========================================================
 
         private async void BtnConsultarOllama_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
-            string pregunta = TxtPreguntaOllama.Text.Trim();
+            string pregunta =
+                NormalizarEspacios(TxtPreguntaOllama.Text);
 
             if (string.IsNullOrWhiteSpace(pregunta))
             {
                 TxtEstadoOllama.Text =
                     "Escribe una pregunta antes de consultar.";
+
                 return;
             }
 
             BtnConsultarOllama.IsEnabled = false;
+
             TxtEstadoOllama.Text =
                 "Analizando la pregunta y consultando los registros...";
+
             TxtRespuestaOllama.Text =
                 "VetSmart AI está procesando tu consulta...";
 
@@ -454,25 +616,17 @@ namespace VeterinariaServerSurPia.Views
                         "La base de datos no está inicializada.");
                 }
 
-                // Las pantallas actuales todavía guardan en TXT.
-                // Se sincronizan esos archivos antes de consultar SQLite.
                 await App.Database.SincronizarDatosDesdeArchivosAsync();
 
-                var consultaService = new ConsultaVeterinariaService(
-                    App.Database);
+                var consultaService =
+                    new ConsultaVeterinariaService(App.Database);
 
-                string preguntaNormalizada =
-                    NormalizarPregunta(pregunta);
-
-                // Si la pregunta menciona una mascota por nombre o ID,
-                // se identifica sin obligar al usuario a seleccionarla.
                 MascotaOpcion? mascotaMencionada =
                     BuscarMascotaEnPregunta(pregunta);
 
-                string idMascota = mascotaSeleccionada?.Id ?? "";
+                string idMascota =
+                    mascotaSeleccionada?.Id ?? "";
 
-                // La selección manual tiene prioridad.
-                // Si no hay selección, se usa la mascota mencionada.
                 if (string.IsNullOrWhiteSpace(idMascota) &&
                     mascotaMencionada != null)
                 {
@@ -482,10 +636,7 @@ namespace VeterinariaServerSurPia.Views
                 bool consultaGeneral =
                     string.IsNullOrWhiteSpace(idMascota);
 
-                // -------------------------------------------------
                 // 1. CONSULTAS DIRECTAS: PRÓXIMAS CITAS
-                // -------------------------------------------------
-
                 if (EsConsultaDeCitas(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
                 {
@@ -501,10 +652,7 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // -------------------------------------------------
                 // 2. CONSULTAS DIRECTAS: CARTILLA MÉDICA
-                // -------------------------------------------------
-
                 if (EsConsultaDeCartilla(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
                 {
@@ -520,10 +668,7 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // -------------------------------------------------
                 // 3. CONSULTAS DIRECTAS: LISTADO DE MASCOTAS
-                // -------------------------------------------------
-
                 if (EsConsultaDeListadoMascotas(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
                 {
@@ -538,10 +683,7 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // -------------------------------------------------
                 // 4. CONSULTAS DIRECTAS: RESUMEN GENERAL
-                // -------------------------------------------------
-
                 if (EsConsultaDeResumenGeneral(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
                 {
@@ -556,31 +698,27 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // -------------------------------------------------
                 // 5. PREGUNTAS SOBRE UNA MASCOTA ESPECÍFICA
-                // -------------------------------------------------
-
                 if (!string.IsNullOrWhiteSpace(idMascota))
                 {
                     string contextoVeterinario =
                         await App.Database.ObtenerContextoVeterinarioAsync(
                             idMascota);
 
-                    // Si la pregunta es únicamente de datos, se puede
-                    // responder usando el expediente recuperado.
-                    // Qwen3 se utiliza cuando se requiere interpretación.
                     if (PareceConsultaDeDatos(pregunta) &&
                         !SolicitaInterpretacion(pregunta))
                     {
-                        string respuesta = await ollamaService.GenerarRespuestaAsync(
-                            contextoVeterinario,
-                            pregunta);
+                        string respuesta =
+                            await ollamaService.GenerarRespuestaAsync(
+                                contextoVeterinario,
+                                pregunta);
 
                         TxtRespuestaOllama.Text = respuesta;
 
-                        string nombre = mascotaSeleccionada?.Nombre ??
-                                        mascotaMencionada?.Nombre ??
-                                        idMascota;
+                        string nombre =
+                            mascotaSeleccionada?.Nombre ??
+                            mascotaMencionada?.Nombre ??
+                            idMascota;
 
                         TxtEstadoOllama.Text =
                             "Consulta basada en el expediente de " +
@@ -589,17 +727,17 @@ namespace VeterinariaServerSurPia.Views
                         return;
                     }
 
-                    // Pregunta clínica o combinada:
-                    // SQLite aporta los datos y Ollama los interpreta.
-                    string respuestaIA = await ollamaService.GenerarRespuestaAsync(
-                        contextoVeterinario,
-                        pregunta);
+                    string respuestaIA =
+                        await ollamaService.GenerarRespuestaAsync(
+                            contextoVeterinario,
+                            pregunta);
 
                     TxtRespuestaOllama.Text = respuestaIA;
 
-                    string nombreMascota = mascotaSeleccionada?.Nombre ??
-                                           mascotaMencionada?.Nombre ??
-                                           idMascota;
+                    string nombreMascota =
+                        mascotaSeleccionada?.Nombre ??
+                        mascotaMencionada?.Nombre ??
+                        idMascota;
 
                     TxtEstadoOllama.Text =
                         "Respuesta generada por Qwen3 utilizando los registros " +
@@ -608,11 +746,9 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // -------------------------------------------------
                 // 6. CONSULTAS GENERALES SIN MASCOTA SELECCIONADA
-                // -------------------------------------------------
-
-                if (consultaGeneral && PareceConsultaDeDatos(pregunta))
+                if (consultaGeneral &&
+                    PareceConsultaDeDatos(pregunta))
                 {
                     StringBuilder contextoGeneral = new();
 
@@ -624,8 +760,6 @@ namespace VeterinariaServerSurPia.Views
 
                     contextoGeneral.AppendLine();
 
-                    // Se agregan los datos generales necesarios según
-                    // el contenido de la pregunta.
                     if (EsConsultaDeResumenGeneral(pregunta))
                     {
                         contextoGeneral.AppendLine(
@@ -658,8 +792,6 @@ namespace VeterinariaServerSurPia.Views
                         contextoGeneral.AppendLine();
                     }
 
-                    // Si la pregunta general solicita varios tipos de datos,
-                    // se agregan también los listados que correspondan.
                     if (!EsConsultaDeCitas(pregunta) &&
                         !EsConsultaDeCartilla(pregunta) &&
                         !EsConsultaDeListadoMascotas(pregunta) &&
@@ -675,43 +807,24 @@ namespace VeterinariaServerSurPia.Views
                     }
 
                     contextoGeneral.AppendLine();
+
                     contextoGeneral.AppendLine(
                         "No inventes datos ni afirmes que se consultaron registros que no aparecen en esta información.");
 
-                    if (!SolicitaInterpretacion(pregunta))
-                    {
-                        string respuesta = await ollamaService.GenerarRespuestaAsync(
-                            contextoGeneral.ToString(),
-                            pregunta);
-
-                        TxtRespuestaOllama.Text = respuesta;
-
-                        TxtEstadoOllama.Text =
-                            "Respuesta basada en información general de SQLite.";
-
-                        return;
-                    }
-
-                    // Si además de consultar datos solicita explicación,
-                    // se envía el contexto a Qwen3.
-                    string respuestaMixta =
+                    string respuestaGeneralDatos =
                         await ollamaService.GenerarRespuestaAsync(
                             contextoGeneral.ToString(),
                             pregunta);
 
-                    TxtRespuestaOllama.Text = respuestaMixta;
+                    TxtRespuestaOllama.Text = respuestaGeneralDatos;
 
                     TxtEstadoOllama.Text =
-                        "Respuesta generada por Qwen3 con información general " +
-                        "recuperada de SQLite.";
+                        "Respuesta basada en información general de SQLite.";
 
                     return;
                 }
 
-                // -------------------------------------------------
                 // 7. PREGUNTAS GENERALES DE ORIENTACIÓN VETERINARIA
-                // -------------------------------------------------
-
                 string contextoOrientacion =
                     "No hay una mascota seleccionada ni se identificó " +
                     "una mascota específica en la pregunta. " +
@@ -746,23 +859,33 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =========================================================
+        // GUARDAR NUEVA OBSERVACIÓN
+        // =========================================================
+
         private void BtnGuardarObservacion_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (mascotaSeleccionada == null)
             {
                 TxtMensajeGuardar.Text =
                     "Primero selecciona una mascota.";
+
                 return;
             }
 
-            string observacion = TxtObservacion.Text.Trim();
-            string diagnostico = TxtDiagnostico.Text.Trim();
+            string observacion =
+                NormalizarEspacios(TxtObservacion.Text);
+
+            string diagnostico =
+                NormalizarEspacios(TxtDiagnostico.Text);
 
             if (string.IsNullOrWhiteSpace(observacion))
             {
                 TxtMensajeGuardar.Text =
                     "Escribe una observación clínica antes de guardar.";
+
                 return;
             }
 
@@ -790,7 +913,11 @@ namespace VeterinariaServerSurPia.Views
                 string temporal = RutaConocimiento + ".tmp";
 
                 File.WriteAllText(temporal, json);
-                File.Move(temporal, RutaConocimiento, true);
+
+                File.Move(
+                    temporal,
+                    RutaConocimiento,
+                    true);
 
                 TxtMensajeGuardar.Text =
                     "Observación guardada correctamente.";
@@ -806,6 +933,10 @@ namespace VeterinariaServerSurPia.Views
                     "No se pudo guardar: " + ex.Message;
             }
         }
+
+        // =========================================================
+        // MOSTRAR HISTORIAL DE LA MASCOTA
+        // =========================================================
 
         private void MostrarHistorial()
         {
@@ -826,6 +957,7 @@ namespace VeterinariaServerSurPia.Views
                     TxtHistorial.Text =
                         "Esta mascota todavía no tiene " +
                         "observaciones registradas.";
+
                     return;
                 }
 
@@ -833,6 +965,7 @@ namespace VeterinariaServerSurPia.Views
 
                 historial.AppendLine(
                     $"Consultas registradas: {registros.Count}");
+
                 historial.AppendLine();
 
                 foreach (var r in registros)
@@ -863,6 +996,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =========================================================
+        // NORMALIZACIÓN DE TEXTO CLÍNICO
+        // =========================================================
+
         private static string NormalizarTexto(string texto)
         {
             string normalizado = texto
@@ -884,6 +1021,10 @@ namespace VeterinariaServerSurPia.Views
                 .Normalize(NormalizationForm.FormC);
         }
 
+        // =========================================================
+        // INTERPRETACIÓN DE SÍNTOMAS
+        // =========================================================
+
         private static InterpretacionClinica Interpretar(
             string comentario)
         {
@@ -902,12 +1043,14 @@ namespace VeterinariaServerSurPia.Views
                 if (string.IsNullOrWhiteSpace(frase))
                     continue;
 
-                var menciones = new List<(int Inicio, int Fin, string Sintoma)>();
+                var menciones =
+                    new List<(int Inicio, int Fin, string Sintoma)>();
 
                 foreach (var patron in Patrones)
                 {
                     foreach (Match match in Regex.Matches(
-                        frase, patron.Value))
+                        frase,
+                        patron.Value))
                     {
                         menciones.Add((
                             match.Index,
@@ -921,7 +1064,8 @@ namespace VeterinariaServerSurPia.Views
                     .ThenByDescending(m => m.Fin - m.Inicio)
                     .ToList();
 
-                var filtradas = new List<(int Inicio, int Fin, string Sintoma)>();
+                var filtradas =
+                    new List<(int Inicio, int Fin, string Sintoma)>();
 
                 foreach (var m in ordenadas)
                 {
@@ -947,7 +1091,8 @@ namespace VeterinariaServerSurPia.Views
 
                 foreach (var mencion in filtradas)
                 {
-                    string antes = frase.Substring(0, mencion.Inicio);
+                    string antes =
+                        frase.Substring(0, mencion.Inicio);
 
                     string[] palabras = antes.Split(
                         ' ',
@@ -1006,6 +1151,10 @@ namespace VeterinariaServerSurPia.Views
             return interpretacion;
         }
 
+        // =========================================================
+        // COMPARAR CASOS CLÍNICOS
+        // =========================================================
+
         private static CasoRelacionado CompararCaso(
             string consulta,
             RegistroConocimiento registro)
@@ -1035,7 +1184,8 @@ namespace VeterinariaServerSurPia.Views
 
             if (actual.Presentes.Count > 0)
             {
-                similitud = (double)comunes.Count /
+                similitud =
+                    (double)comunes.Count /
                     actual.Presentes.Count;
             }
 
@@ -1047,8 +1197,13 @@ namespace VeterinariaServerSurPia.Views
             };
         }
 
+        // =========================================================
+        // BUSCAR CASOS SIMILARES
+        // =========================================================
+
         private void BtnBuscarSimilares_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             PanelCasosSimilares.Children.Clear();
 
@@ -1056,15 +1211,18 @@ namespace VeterinariaServerSurPia.Views
             {
                 TxtCasosSimilares.Text =
                     "Primero selecciona una mascota.";
+
                 return;
             }
 
-            string consulta = TxtConsultaIA.Text.Trim();
+            string consulta =
+                NormalizarEspacios(TxtConsultaIA.Text);
 
             if (string.IsNullOrWhiteSpace(consulta))
             {
                 TxtCasosSimilares.Text =
                     "Escribe los síntomas o el motivo de consulta.";
+
                 return;
             }
 
@@ -1080,6 +1238,7 @@ namespace VeterinariaServerSurPia.Views
                     "para recuperar casos como si fueran " +
                     "síntomas confirmados.\n\n" +
                     "Esto no descarta enfermedades.";
+
                 return;
             }
 
@@ -1107,6 +1266,7 @@ namespace VeterinariaServerSurPia.Views
                         "identificados por las reglas actuales.\n\n" +
                         "Esto no descarta enfermedades " +
                         "ni sustituye una valoración veterinaria.";
+
                     return;
                 }
 
@@ -1130,6 +1290,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =========================================================
+        // CREAR TARJETAS DE CASOS RELACIONADOS
+        // =========================================================
+
         private void CrearTarjetaClinica(
             CasoRelacionado caso,
             int numero)
@@ -1142,16 +1306,17 @@ namespace VeterinariaServerSurPia.Views
                     mascotaSeleccionada.Id,
                     StringComparison.OrdinalIgnoreCase);
 
-            // Tarjeta en tonos durazno, igual que el resto de la app
             Border tarjeta = new Border
             {
                 CornerRadius = new CornerRadius(14),
                 BorderThickness = new Thickness(1),
                 Padding = new Thickness(18),
                 Margin = new Thickness(0, 5, 0, 5),
+
                 Background = new SolidColorBrush(
                     Windows.UI.Color.FromArgb(
                         255, 255, 248, 239)),
+
                 BorderBrush = new SolidColorBrush(
                     Windows.UI.Color.FromArgb(
                         255, 246, 230, 207))
@@ -1168,6 +1333,7 @@ namespace VeterinariaServerSurPia.Views
                 FontSize = 16,
                 FontWeight =
                     Microsoft.UI.Text.FontWeights.Bold,
+
                 Foreground = new SolidColorBrush(
                     Windows.UI.Color.FromArgb(
                         255, 224, 113, 15))
@@ -1180,9 +1346,12 @@ namespace VeterinariaServerSurPia.Views
                 Text = mismaMascota
                     ? "ANTECEDENTE DE ESTA MASCOTA"
                     : "CASO DE OTRA MASCOTA",
+
                 FontSize = 12,
+
                 FontWeight =
                     Microsoft.UI.Text.FontWeights.SemiBold,
+
                 Foreground = new SolidColorBrush(
                     mismaMascota
                         ? Windows.UI.Color.FromArgb(
@@ -1195,7 +1364,8 @@ namespace VeterinariaServerSurPia.Views
 
             contenido.Children.Add(CrearTexto(
                 $"Mascota: {registro.NombreMascota} " +
-                $"({registro.IdMascota})", true));
+                $"({registro.IdMascota})",
+                true));
 
             contenido.Children.Add(CrearTexto(
                 $"Fecha: {registro.Fecha:dd/MM/yyyy HH:mm}"));
@@ -1203,20 +1373,24 @@ namespace VeterinariaServerSurPia.Views
             contenido.Children.Add(new Border
             {
                 Height = 1,
+
                 Background = new SolidColorBrush(
                     Windows.UI.Color.FromArgb(
                         255, 240, 226, 206)),
+
                 Margin = new Thickness(0, 5, 0, 5)
             });
 
             contenido.Children.Add(CrearTexto(
-                "OBSERVACIÓN VETERINARIA", true));
+                "OBSERVACIÓN VETERINARIA",
+                true));
 
             contenido.Children.Add(CrearTexto(
                 registro.Observacion));
 
             contenido.Children.Add(CrearTexto(
-                "DIAGNÓSTICO DOCUMENTADO", true));
+                "DIAGNÓSTICO DOCUMENTADO",
+                true));
 
             contenido.Children.Add(CrearTexto(
                 string.IsNullOrWhiteSpace(registro.Diagnostico)
@@ -1225,7 +1399,8 @@ namespace VeterinariaServerSurPia.Views
 
             contenido.Children.Add(CrearTexto(
                 $"Coincidencia de síntomas identificados: " +
-                $"{caso.Similitud:P0}", true));
+                $"{caso.Similitud:P0}",
+                true));
 
             string terminos = string.Join(
                 ", ",
@@ -1253,6 +1428,7 @@ namespace VeterinariaServerSurPia.Views
                 Text = contenido,
                 TextWrapping = TextWrapping.Wrap,
                 FontSize = 13,
+
                 Foreground = new SolidColorBrush(
                     Windows.UI.Color.FromArgb(
                         255, 43, 33, 24))
@@ -1268,3 +1444,4 @@ namespace VeterinariaServerSurPia.Views
         }
     }
 }
+    

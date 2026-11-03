@@ -5,10 +5,64 @@
     xmlns:local="using:VeterinariaServerSurPia.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Background="#FF13171A"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    RequestedTheme="Light"
+    Background="#FFFFF6EA">
 
-    <Grid Padding="28">
+    <Page.Resources>
+
+        <!-- ================= CAMPOS DE TEXTO ================= -->
+        <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
+        <SolidColorBrush x:Key="TextControlBorderBrush" Color="#FFE3D6C3"/>
+        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#FFD9B98C"/>
+        <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="TextControlForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FF161616"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#FF8E857B"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#FF8E857B"/>
+        <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
+        <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
+
+        <!-- ================= LISTAS DESPLEGABLES ================= -->
+        <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#FFE3D6C3"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#FFD9B98C"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushPressed" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#FFF28C28"/>
+        <SolidColorBrush x:Key="ComboBoxForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
+
+        <!-- ================= BOTONES (naranja, igual que el resto de la app) ================= -->
+        <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
+        <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
+        <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#FFFFD9A8"/>
+        <SolidColorBrush x:Key="ButtonForeground" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundPressed" Color="#FF161616"/>
+        <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="#FF8A6A3A"/>
+        <SolidColorBrush x:Key="ButtonBorderBrush" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent"/>
+        <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent"/>
+
+        <!-- ================= FILAS DE LAS TABLAS ================= -->
+        <Style x:Key="FilaTabla" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+
+    </Page.Resources>
+
+    <Grid Padding="30,24,30,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -16,131 +70,330 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock
-                Text="Búsqueda y Consulta"
-                FontSize="28"
-                FontWeight="Bold"
-                Foreground="#FFF1F3F5"/>
-
-            <TextBlock
-                Text="Veterinaria Servetsur Mty — Gestión de registros"
-                FontSize="14"
-                Foreground="#FF909EA6"
-                Margin="0,4,0,0"/>
-        </StackPanel>
-
+        <!-- =====================================================
+             ENCABEZADO
+             ===================================================== -->
         <Border
-            Grid.Row="1"
-            Background="#FF1D2328"
-            BorderBrush="#FF2A333B"
-            BorderThickness="1"
-            CornerRadius="12"
-            Padding="20"
-            Margin="0,0,0,12">
+            Grid.Row="0"
+            CornerRadius="26"
+            Padding="26,20"
+            Margin="0,0,0,18">
 
-            <ScrollViewer
-                HorizontalScrollMode="Auto"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollMode="Disabled"
-                VerticalScrollBarVisibility="Disabled">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#FFFFF0DB" Offset="0"/>
+                    <GradientStop Color="#FFFFD9A6" Offset="0.6"/>
+                    <GradientStop Color="#FFFFB866" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
 
-                <StackPanel
-                    Orientation="Horizontal"
-                    Spacing="16"
+            <Grid ColumnSpacing="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Huellitas decorativas -->
+                <Image
+                    Grid.ColumnSpan="3"
+                    Source="/Assets/huella.png"
+                    Width="66"
+                    Height="66"
+                    Opacity="0.5"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,190,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="-15"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <Image
+                    Grid.ColumnSpan="3"
+                    Source="/Assets/huella.png"
+                    Width="40"
+                    Height="40"
+                    Opacity="0.4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,275,-6"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="20"/>
+                    </Image.RenderTransform>
+                </Image>
+
+                <!-- Logo de la veterinaria -->
+                <Border
+                    Width="78"
+                    Height="78"
+                    CornerRadius="39"
+                    Background="White"
+                    BorderBrush="#FFFFE6CC"
+                    BorderThickness="3"
+                    Padding="12"
                     VerticalAlignment="Center">
+                    <Image
+                        Source="/Assets/logo_servetsur.png"
+                        Stretch="Uniform"/>
+                </Border>
 
-                    <ComboBox
-                        x:Name="CategoriaCombo"
-                        Header="Categoría"
-                        Width="150"
-                        SelectionChanged="CategoriaCombo_SelectionChanged">
-                        <x:String>Clientes</x:String>
-                        <x:String>Mascotas</x:String>
-                        <x:String>Citas</x:String>
-                    </ComboBox>
+                <!-- Títulos -->
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="4">
 
-                    <ComboBox
-                        x:Name="CriterioCombo"
-                        Header="Buscar por"
-                        Width="170"/>
+                    <TextBlock
+                        Text="Búsqueda y Consulta"
+                        FontSize="30"
+                        FontWeight="Bold"
+                        Foreground="#FF1F140A"/>
 
-                    <TextBox
-                        x:Name="BusquedaText"
-                        Header="Término de búsqueda"
-                        Width="200"
-                        MaxLength="100"
-                        VerticalAlignment="Bottom"/>
+                    <TextBlock
+                        Text="Consulta y administra los registros de la veterinaria"
+                        FontSize="14"
+                        Foreground="#FF2B1A0A"
+                        TextWrapping="Wrap"/>
 
-                    <ComboBox
-                        x:Name="FiltroServicioCombo"
-                        Header="Filtrar servicio"
-                        Width="170"
-                        Visibility="Collapsed">
-                        <x:String>Todos</x:String>
-                        <x:String>Consulta médica</x:String>
-                        <x:String>Baño y corte</x:String>
-                        <x:String>Vacunación</x:String>
-                        <x:String>Desparasitación</x:String>
-                    </ComboBox>
-
-                    <Button
-                        Content="Buscar"
-                        Click="BuscarBtn_Click"
-                        VerticalAlignment="Bottom"
-                        Style="{StaticResource AccentButtonStyle}"/>
-
-                    <Button
-                        Content="Actualizar"
-                        Click="ActualizarBtn_Click"
-                        VerticalAlignment="Bottom"/>
+                    <TextBlock
+                        Text="VETERINARIA SERVETSUR MTY"
+                        FontSize="10"
+                        FontWeight="Bold"
+                        CharacterSpacing="150"
+                        Foreground="#FFB4621C"
+                        Margin="0,5,0,0"/>
                 </StackPanel>
-            </ScrollViewer>
+
+                <!-- Chip -->
+                <Border
+                    Grid.Column="2"
+                    Background="White"
+                    BorderBrush="#FFF3D9B8"
+                    BorderThickness="1"
+                    CornerRadius="20"
+                    Padding="16,9"
+                    VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="9">
+                        <FontIcon
+                            Glyph="&#xE721;"
+                            FontSize="15"
+                            Foreground="#FFE0710F"/>
+                        <TextBlock
+                            Text="Registros"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Foreground="#FF1F140A"
+                            VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
 
-        <TextBlock
-            x:Name="TxtEstadoBusqueda"
+        <!-- =====================================================
+             PANEL DE FILTROS Y BÚSQUEDA
+             ===================================================== -->
+        <Border
+            Grid.Row="1"
+            Background="White"
+            BorderBrush="#FFF6E6CF"
+            BorderThickness="1"
+            CornerRadius="22"
+            Padding="26,22"
+            Margin="0,0,0,16">
+
+            <StackPanel Spacing="18">
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border
+                        Width="42"
+                        Height="42"
+                        CornerRadius="21"
+                        Background="#FFFF9A1F"
+                        VerticalAlignment="Top">
+                        <FontIcon
+                            Glyph="&#xE721;"
+                            FontSize="18"
+                            Foreground="White"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="3">
+                        <TextBlock
+                            Text="Buscar registros"
+                            FontSize="21"
+                            FontWeight="Bold"
+                            Foreground="#FF1F140A"/>
+                        <TextBlock
+                            Text="Selecciona una categoría y utiliza los filtros para encontrar la información."
+                            FontSize="13"
+                            Foreground="#FF6B5E50"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer
+                    HorizontalScrollMode="Auto"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Disabled"
+                    VerticalScrollBarVisibility="Disabled">
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="14"
+                        Padding="0,2,0,8">
+
+                        <ComboBox
+                            x:Name="CategoriaCombo"
+                            Header="Categoría"
+                            Width="160"
+                            MinHeight="44"
+                            CornerRadius="12"
+                            SelectionChanged="CategoriaCombo_SelectionChanged">
+                            <x:String>Clientes</x:String>
+                            <x:String>Mascotas</x:String>
+                            <x:String>Citas</x:String>
+                        </ComboBox>
+
+                        <ComboBox
+                            x:Name="CriterioCombo"
+                            Header="Buscar por"
+                            Width="185"
+                            MinHeight="44"
+                            CornerRadius="12"/>
+
+                        <TextBox
+                            x:Name="BusquedaText"
+                            Header="Término de búsqueda"
+                            PlaceholderText="Escribe para buscar..."
+                            Width="250"
+                            MaxLength="100"
+                            MinHeight="44"
+                            CornerRadius="12"
+                            VerticalAlignment="Bottom"/>
+
+                        <ComboBox
+                            x:Name="FiltroServicioCombo"
+                            Header="Filtrar servicio"
+                            Width="190"
+                            MinHeight="44"
+                            CornerRadius="12"
+                            Visibility="Collapsed">
+                            <x:String>Todos</x:String>
+                            <x:String>Consulta médica</x:String>
+                            <x:String>Baño y corte</x:String>
+                            <x:String>Vacunación</x:String>
+                            <x:String>Desparasitación</x:String>
+                        </ComboBox>
+
+                        <Button
+                            Click="BuscarBtn_Click"
+                            Height="46"
+                            Padding="28,0"
+                            CornerRadius="23"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <FontIcon Glyph="&#xE721;" FontSize="15"/>
+                                <TextBlock Text="Buscar"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button
+                            Click="ActualizarBtn_Click"
+                            Height="46"
+                            Padding="26,0"
+                            CornerRadius="23"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            BorderThickness="1.2"
+                            VerticalAlignment="Bottom">
+
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFFFE3BF"/>
+                                <SolidColorBrush x:Key="ButtonBorderBrush" Color="#FFF28C28"/>
+                                <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#FFF28C28"/>
+                                <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
+                            </Button.Resources>
+
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <FontIcon Glyph="&#xE895;" FontSize="15"/>
+                                <TextBlock Text="Actualizar"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- =====================================================
+             ESTADO DE LA BÚSQUEDA
+             ===================================================== -->
+        <Border
             Grid.Row="2"
-            TextWrapping="Wrap"
-            Margin="4,0,0,12"
-            Foreground="#FF90C590"/>
+            Background="#FFFFF1DD"
+            BorderBrush="#FFF8E2C2"
+            BorderThickness="1"
+            CornerRadius="14"
+            Padding="16,12"
+            Margin="0,0,0,16">
 
-        <!-- Clientes -->
-        <ScrollViewer
-            Grid.Row="3"
-            HorizontalScrollMode="Auto"
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollMode="Disabled"
-            VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <FontIcon
+                    Glyph="&#xE946;"
+                    FontSize="18"
+                    Foreground="#FFE0710F"
+                    VerticalAlignment="Center"/>
+                <TextBlock
+                    x:Name="TxtEstadoBusqueda"
+                    TextWrapping="Wrap"
+                    Foreground="#FF94603D"
+                    FontSize="14"
+                    VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
 
-            <ListView
-                x:Name="ClientesListView"
-                MinWidth="700"
+        <!-- =====================================================
+             RESULTADOS
+             ===================================================== -->
+        <Grid Grid.Row="3">
+
+            <!-- ================= CLIENTES ================= -->
+            <ScrollViewer
+                x:Name="ScrollClientes"
                 Visibility="Collapsed"
-                Background="#FF1D2328"
-                BorderBrush="#FF2A333B"
-                BorderThickness="1"
-                CornerRadius="10">
+                HorizontalScrollMode="Auto"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollMode="Auto"
+                VerticalScrollBarVisibility="Auto">
 
-                <ListView.Header>
-                    <Grid Padding="16,14" Background="#FF263138">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <ListView
+                    x:Name="ClientesListView"
+                    MinWidth="700"
+                    Background="White"
+                    BorderBrush="#FFF6E6CF"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    SelectionMode="None"
+                    IsItemClickEnabled="False"
+                    ItemContainerStyle="{StaticResource FilaTabla}">
 
-                        <TextBlock Text="ID Cliente" Foreground="#FFE1E6EB" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="Nombre" Foreground="#FFE1E6EB" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="2" Text="Teléfono" Foreground="#FFE1E6EB" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="3" Text="Correo" Foreground="#FFE1E6EB" FontWeight="SemiBold"/>
-                    </Grid>
-                </ListView.Header>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="local:Cliente">
-                        <Grid Padding="16,12">
+                    <ListView.Header>
+                        <Grid
+                            Padding="17,15"
+                            Background="#FFFFE9CF"
+                            CornerRadius="18,18,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="200"/>
@@ -148,62 +401,60 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{x:Bind IDCliente}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind Nombre}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="2" Text="{x:Bind Telefono}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="3" Text="{x:Bind Correo}" Foreground="#FFD0D7DE"/>
+                            <TextBlock Text="ID Cliente" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="Nombre" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="2" Text="Teléfono" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="3" Text="Correo" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+                    </ListView.Header>
 
-        <!-- Mascotas -->
-        <ScrollViewer
-            Grid.Row="3"
-            HorizontalScrollMode="Auto"
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollMode="Disabled"
-            VerticalScrollBarVisibility="Disabled">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:Cliente">
+                            <Border BorderBrush="#FFFBEEDC" BorderThickness="0,0,0,1">
+                                <Grid Padding="17,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-            <ListView
-                x:Name="MascotasListView"
-                MinWidth="1100"
+                                    <TextBlock Text="{x:Bind IDCliente}" Foreground="#FF8E7B66" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Nombre}" Foreground="#FF2B2118" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Telefono}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind Correo}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+
+            <!-- ================= MASCOTAS ================= -->
+            <ScrollViewer
+                x:Name="ScrollMascotas"
                 Visibility="Collapsed"
-                Background="#FF1D2328"
-                BorderBrush="#FF2A333B"
-                BorderThickness="1"
-                CornerRadius="10">
+                HorizontalScrollMode="Auto"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollMode="Auto"
+                VerticalScrollBarVisibility="Auto">
 
-                <ListView.Header>
-                    <Grid Padding="16,14" Background="#FF263138">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="75"/>
-                            <ColumnDefinition Width="75"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <ListView
+                    x:Name="MascotasListView"
+                    MinWidth="1100"
+                    Background="White"
+                    BorderBrush="#FFF6E6CF"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    SelectionMode="None"
+                    IsItemClickEnabled="False"
+                    ItemContainerStyle="{StaticResource FilaTabla}">
 
-                        <TextBlock Text="ID Mascota" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="1" Text="Nombre" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="2" Text="Especie" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="3" Text="Raza" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="4" Text="Edad" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="5" Text="Sexo" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="6" Text="Peso" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="7" Text="ID Cliente" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="8" Text="Propietario" Foreground="#FFE1E6EB"/>
-                    </Grid>
-                </ListView.Header>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="local:Mascota">
-                        <Grid Padding="16,12">
+                    <ListView.Header>
+                        <Grid
+                            Padding="17,15"
+                            Background="#FFFFE9CF"
+                            CornerRadius="18,18,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="140"/>
@@ -216,65 +467,75 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{x:Bind IDMascota}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind Nombre}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="2" Text="{x:Bind Especie}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="3" Text="{x:Bind Raza}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="4" Text="{x:Bind Edad}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="5" Text="{x:Bind Sexo}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="6" Text="{x:Bind Peso}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="7" Text="{x:Bind IDCliente}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="8" Text="{x:Bind NombrePropietario}" Foreground="#FFD0D7DE"/>
+                            <TextBlock Text="ID Mascota" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="Nombre" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="2" Text="Especie" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="3" Text="Raza" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="4" Text="Edad" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="5" Text="Sexo" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="6" Text="Peso" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="7" Text="ID Cliente" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="8" Text="Propietario" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+                    </ListView.Header>
 
-        <!-- Citas -->
-        <ScrollViewer
-            Grid.Row="3"
-            HorizontalScrollMode="Auto"
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollMode="Disabled"
-            VerticalScrollBarVisibility="Disabled">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:Mascota">
+                            <Border BorderBrush="#FFFBEEDC" BorderThickness="0,0,0,1">
+                                <Grid Padding="17,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-            <ListView
-                x:Name="CitasListView"
-                MinWidth="1250"
+                                    <TextBlock Text="{x:Bind IDMascota}" Foreground="#FF8E7B66" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Nombre}" Foreground="#FF2B2118" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Especie}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind Raza}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="{x:Bind Edad}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{x:Bind Sexo}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="{x:Bind Peso}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="{x:Bind IDCliente}" Foreground="#FF8E7B66" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="8" Text="{x:Bind NombrePropietario}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+
+            <!-- ================= CITAS ================= -->
+            <ScrollViewer
+                x:Name="ScrollCitas"
                 Visibility="Collapsed"
-                Background="#FF1D2328"
-                BorderBrush="#FF2A333B"
-                BorderThickness="1"
-                CornerRadius="10">
+                HorizontalScrollMode="Auto"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollMode="Auto"
+                VerticalScrollBarVisibility="Auto">
 
-                <ListView.Header>
-                    <Grid Padding="16,14" Background="#FF263138">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="180"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <ListView
+                    x:Name="CitasListView"
+                    MinWidth="1250"
+                    Background="White"
+                    BorderBrush="#FFF6E6CF"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    SelectionMode="None"
+                    IsItemClickEnabled="False"
+                    ItemContainerStyle="{StaticResource FilaTabla}">
 
-                        <TextBlock Text="ID Cita" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="1" Text="ID Mascota" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="2" Text="Mascota" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="3" Text="Dueño" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="4" Text="Fecha" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="5" Text="Hora" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="6" Text="Servicio" Foreground="#FFE1E6EB"/>
-                        <TextBlock Grid.Column="7" Text="Observaciones" Foreground="#FFE1E6EB"/>
-                    </Grid>
-                </ListView.Header>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="local:Cita">
-                        <Grid Padding="16,12">
+                    <ListView.Header>
+                        <Grid
+                            Padding="17,15"
+                            Background="#FFFFE9CF"
+                            CornerRadius="18,18,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="110"/>
@@ -286,18 +547,62 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{x:Bind IDCita}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind IDMascota}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="2" Text="{x:Bind NombreMascota}" Foreground="#FFD0D7DE" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="3" Text="{x:Bind NombrePropietario}" Foreground="#FFD0D7DE" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="4" Text="{x:Bind Fecha}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="5" Text="{x:Bind Hora}" Foreground="#FFD0D7DE"/>
-                            <TextBlock Grid.Column="6" Text="{x:Bind Servicio}" Foreground="#FFD0D7DE" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Column="7" Text="{x:Bind Observaciones}" Foreground="#FFD0D7DE" TextWrapping="Wrap"/>
+                            <TextBlock Text="ID Cita" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="ID Mascota" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="2" Text="Mascota" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="3" Text="Dueño" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="4" Text="Fecha" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="5" Text="Hora" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="6" Text="Servicio" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
+                            <TextBlock Grid.Column="7" Text="Observaciones" Foreground="#FFB4621C" FontWeight="Bold" FontSize="12"/>
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+                    </ListView.Header>
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:Cita">
+                            <Border BorderBrush="#FFFBEEDC" BorderThickness="0,0,0,1">
+                                <Grid Padding="17,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="{x:Bind IDCita}" Foreground="#FF8E7B66" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind IDMascota}" Foreground="#FF8E7B66" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind NombreMascota}" Foreground="#FF2B2118" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind NombrePropietario}" Foreground="#FF2B2118" FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="{x:Bind Fecha}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{x:Bind Hora}" Foreground="#FF2B2118" FontSize="13" VerticalAlignment="Center"/>
+
+                                    <!-- Servicio como etiqueta -->
+                                    <Border
+                                        Grid.Column="6"
+                                        Background="#FFFFF1DD"
+                                        CornerRadius="12"
+                                        Padding="10,4"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center">
+                                        <TextBlock
+                                            Text="{x:Bind Servicio}"
+                                            Foreground="#FFB4621C"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            TextWrapping="Wrap"/>
+                                    </Border>
+
+                                    <TextBlock Grid.Column="7" Text="{x:Bind Observaciones}" Foreground="#FF2B2118" FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

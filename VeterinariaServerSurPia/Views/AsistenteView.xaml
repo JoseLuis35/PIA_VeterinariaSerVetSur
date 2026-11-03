@@ -10,10 +10,6 @@
     Background="#FFFFF6EA">
 
     <Page.Resources>
-
-        <!-- ================= ESTILOS REUTILIZABLES ================= -->
-
-        <!-- Tarjeta blanca de cada sección -->
         <Style x:Key="TarjetaSeccion" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
@@ -22,7 +18,6 @@
             <Setter Property="Padding" Value="26,24"/>
         </Style>
 
-        <!-- Círculo naranja con el número de la sección -->
         <Style x:Key="InsigniaNumero" TargetType="Border">
             <Setter Property="Width" Value="42"/>
             <Setter Property="Height" Value="42"/>
@@ -31,7 +26,6 @@
             <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
 
-        <!-- Caja durazno para mostrar información -->
         <Style x:Key="CajaInfo" TargetType="Border">
             <Setter Property="Background" Value="#FFFFF1DD"/>
             <Setter Property="BorderBrush" Value="#FFF8E2C2"/>
@@ -40,14 +34,12 @@
             <Setter Property="Padding" Value="16,13"/>
         </Style>
 
-        <!-- Título de sección -->
         <Style x:Key="TituloSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="21"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#FF1F140A"/>
         </Style>
 
-        <!-- Descripción de sección -->
         <Style x:Key="DescripcionSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="#FF6B5E50"/>
@@ -55,7 +47,6 @@
             <Setter Property="LineHeight" Value="20"/>
         </Style>
 
-        <!-- ================= CAMPOS DE TEXTO ================= -->
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -70,7 +61,6 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- ================= LISTA DESPLEGABLE ================= -->
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -83,7 +73,6 @@
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
 
-        <!-- ================= BOTONES (naranja, igual que el login) ================= -->
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
@@ -99,15 +88,8 @@
     </Page.Resources>
 
     <ScrollViewer Padding="30,24,30,24">
-        <StackPanel
-            Spacing="22"
-            MaxWidth="1100"
-            HorizontalAlignment="Center">
+        <StackPanel Spacing="22" MaxWidth="1100" HorizontalAlignment="Center">
 
-            <!-- =====================================================
-                 AVISO DE IMÁGENES QUE NO SE PUDIERON CARGAR
-                 (solo aparece si falta alguna imagen de Assets)
-                 ===================================================== -->
             <Border
                 x:Name="PanelAvisoImagenes"
                 Visibility="Collapsed"
@@ -124,20 +106,8 @@
                     TextWrapping="Wrap"/>
             </Border>
 
-            <!-- =====================================================
-                 ENCABEZADO
-                 Todo está dentro de un Viewbox con el tamaño de la imagen
-                 de fondo (785 x 202) para que el logo y los textos queden
-                 siempre bien colocados, sin importar el tamaño de la ventana.
-                 ===================================================== -->
             <Viewbox Stretch="Uniform" StretchDirection="Both">
-
-                <Border
-                    Width="785"
-                    Height="202"
-                    CornerRadius="16">
-
-                    <!-- Imagen de fondo (Assets/FONDO_ENCABEZADO.png) -->
+                <Border Width="785" Height="202" CornerRadius="16">
                     <Border.Background>
                         <ImageBrush
                             ImageSource="/Assets/FONDO_ENCABEZADO.png"
@@ -146,11 +116,6 @@
                     </Border.Background>
 
                     <Grid>
-
-                        <!-- LOGO DE LA VETERINARIA
-                             Cubre el círculo naranja que trae la imagen.
-                             Si necesitas moverlo, cambia el Margin (izquierda, arriba)
-                             y el Width/Height. -->
                         <Border
                             Width="122"
                             Height="122"
@@ -162,7 +127,6 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
                             Margin="19,32,0,0">
-
                             <Image
                                 Source="/Assets/logo_servetsur.png"
                                 Tag="logo_servetsur.png"
@@ -170,7 +134,6 @@
                                 Stretch="Uniform"/>
                         </Border>
 
-                        <!-- TEXTOS (zona libre entre el logo y el perro) -->
                         <StackPanel
                             Width="335"
                             HorizontalAlignment="Left"
@@ -203,10 +166,7 @@
                                     CornerRadius="16"
                                     Padding="11,5">
                                     <StackPanel Orientation="Horizontal" Spacing="7">
-                                        <FontIcon
-                                            Glyph="&#xE950;"
-                                            FontSize="12"
-                                            Foreground="#FF3A2A1A"/>
+                                        <FontIcon Glyph="&#xE950;" FontSize="12" Foreground="#FF3A2A1A"/>
                                         <TextBlock
                                             Text="Modelo local · qwen3:4b"
                                             FontSize="10.5"
@@ -242,13 +202,9 @@
                 </Border>
             </Viewbox>
 
-            <!-- =====================================================
-                 1. SELECCIONAR MASCOTA
-                 ===================================================== -->
+            <!-- 1. SELECCIONAR MASCOTA -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
-
-                    <!-- Huella decorativa -->
                     <Image
                         Source="/Assets/huella.png"
                         Tag="huella.png"
@@ -263,7 +219,6 @@
                         IsHitTestVisible="False"/>
 
                     <StackPanel Spacing="18">
-
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -281,9 +236,7 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3">
-                                <TextBlock
-                                    Text="Seleccionar Mascota"
-                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock Text="Seleccionar Mascota" Style="{StaticResource TituloSeccion}"/>
                                 <TextBlock
                                     Text="Elige a qué mascota corresponde la consulta."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -291,7 +244,6 @@
                         </Grid>
 
                         <StackPanel Orientation="Horizontal" Spacing="16">
-
                             <ComboBox
                                 x:Name="CmbMascotas"
                                 PlaceholderText="Selecciona una mascota"
@@ -309,7 +261,6 @@
                                 CornerRadius="23"
                                 FontWeight="SemiBold"
                                 BorderThickness="1.2">
-
                                 <Button.Resources>
                                     <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
                                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
@@ -335,12 +286,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <FontIcon
-                                    Glyph="&#xE946;"
-                                    FontSize="20"
-                                    Foreground="#FFE0710F"
-                                    VerticalAlignment="Top"/>
-
+                                <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="#FFE0710F" VerticalAlignment="Top"/>
                                 <TextBlock
                                     x:Name="TxtDatosMascota"
                                     Grid.Column="1"
@@ -355,21 +301,16 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 2. CONSULTAR A VETSMART AI  (el robot va a la derecha)
-                 ===================================================== -->
+            <!-- 2. CONSULTAR A VETSMART AI -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <StackPanel Spacing="18">
-
                     <Grid ColumnSpacing="24">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="180"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Parte izquierda -->
                         <StackPanel Spacing="18">
-
                             <Grid ColumnSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -403,7 +344,8 @@
                                 TextWrapping="Wrap"
                                 CornerRadius="12"
                                 MinHeight="110"
-                                MaxLength="2000"/>
+                                MaxLength="2000"
+                                TextChanging="TextoLibre_TextChanging"/>
 
                             <Button
                                 x:Name="BtnConsultarOllama"
@@ -421,7 +363,6 @@
                             </Button>
                         </StackPanel>
 
-                        <!-- ROBOT (Assets/robot.png), al lado derecho -->
                         <Image
                             Grid.Column="1"
                             Source="/Assets/robot.png"
@@ -441,7 +382,6 @@
                         Foreground="#FF7A6A58"
                         TextWrapping="Wrap"/>
 
-                    <!-- Respuesta de la IA -->
                     <Border Style="{StaticResource CajaInfo}">
                         <Grid ColumnSpacing="14">
                             <Grid.ColumnDefinitions>
@@ -449,12 +389,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <FontIcon
-                                Glyph="&#xE735;"
-                                FontSize="20"
-                                Foreground="#FFFF9A1F"
-                                VerticalAlignment="Top"/>
-
+                            <FontIcon Glyph="&#xE735;" FontSize="20" Foreground="#FFFF9A1F" VerticalAlignment="Top"/>
                             <TextBlock
                                 x:Name="TxtRespuestaOllama"
                                 Grid.Column="1"
@@ -469,12 +404,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- =====================================================
-                 3. NUEVA OBSERVACIÓN
-                 ===================================================== -->
+            <!-- 3. NUEVA OBSERVACIÓN -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
-
                     <Image
                         Source="/Assets/huella.png"
                         Tag="huella.png"
@@ -489,7 +421,6 @@
                         IsHitTestVisible="False"/>
 
                     <StackPanel Spacing="18">
-
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -507,9 +438,7 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock
-                                    Text="Nueva Observación Veterinaria"
-                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock Text="Nueva Observación Veterinaria" Style="{StaticResource TituloSeccion}"/>
                                 <TextBlock
                                     Text="Describe libremente los síntomas, hallazgos, evolución y tratamiento indicado durante la consulta."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -524,14 +453,16 @@
                             TextWrapping="Wrap"
                             CornerRadius="12"
                             Height="160"
-                            MaxLength="4000"/>
+                            MaxLength="4000"
+                            TextChanging="TextoLibre_TextChanging"/>
 
                         <TextBox
                             x:Name="TxtDiagnostico"
                             Header="Diagnóstico confirmado por el veterinario (opcional)"
                             PlaceholderText="Ej. Gastroenteritis"
                             CornerRadius="12"
-                            MaxLength="200"/>
+                            MaxLength="200"
+                            TextChanging="TextoLibre_TextChanging"/>
 
                         <Button
                             Content="Guardar Observación"
@@ -552,12 +483,9 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 4. HISTORIAL
-                 ===================================================== -->
+            <!-- 4. HISTORIAL -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
-
                     <Image
                         Source="/Assets/huella.png"
                         Tag="huella.png"
@@ -572,7 +500,6 @@
                         IsHitTestVisible="False"/>
 
                     <StackPanel Spacing="18">
-
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -590,9 +517,7 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock
-                                    Text="Historial de la Mascota"
-                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock Text="Historial de la Mascota" Style="{StaticResource TituloSeccion}"/>
                                 <TextBlock
                                     Text="Observaciones registradas anteriormente para la mascota seleccionada."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -612,12 +537,9 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 5. CASOS RELACIONADOS
-                 ===================================================== -->
+            <!-- 5. CASOS RELACIONADOS -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
-
                     <Image
                         Source="/Assets/huella.png"
                         Tag="huella.png"
@@ -632,7 +554,6 @@
                         IsHitTestVisible="False"/>
 
                     <StackPanel Spacing="18">
-
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -650,9 +571,7 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock
-                                    Text="VetSmart AI - Casos Relacionados"
-                                    Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock Text="VetSmart AI - Casos Relacionados" Style="{StaticResource TituloSeccion}"/>
                                 <TextBlock
                                     Text="Escribe los síntomas o el motivo de consulta para buscar antecedentes similares registrados por veterinarios."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -667,7 +586,8 @@
                             TextWrapping="Wrap"
                             CornerRadius="12"
                             Height="100"
-                            MaxLength="1000"/>
+                            MaxLength="1000"
+                            TextChanging="TextoLibre_TextChanging"/>
 
                         <Button
                             Content="Buscar Casos Similares"
@@ -689,19 +609,12 @@
                         <StackPanel
                             x:Name="PanelCasosSimilares"
                             Spacing="12"/>
-
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 AVISO
-                 ===================================================== -->
-            <Border
-                Background="#FFFFEBD3"
-                CornerRadius="16"
-                Padding="20,15">
-
+            <!-- AVISO -->
+            <Border Background="#FFFFEBD3" CornerRadius="16" Padding="20,15">
                 <Grid ColumnSpacing="14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -725,56 +638,88 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 CAMINITO DE HUELLAS (decoración al final de la pantalla)
-                 ===================================================== -->
+            <!-- CAMINITO DE HUELLAS -->
             <StackPanel
                 Orientation="Horizontal"
                 Spacing="46"
                 HorizontalAlignment="Center"
                 Margin="0,0,0,24">
 
-                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
-                       Width="38" Height="38" Opacity="0.35" Margin="0,34,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                <Image
+                    Source="/Assets/huella.png"
+                    Tag="huella.png"
+                    ImageFailed="Imagen_ImageFailed"
+                    Width="38"
+                    Height="38"
+                    Opacity="0.35"
+                    Margin="0,34,0,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
                     <Image.RenderTransform>
                         <RotateTransform Angle="-25"/>
                     </Image.RenderTransform>
                 </Image>
 
-                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
-                       Width="46" Height="46" Opacity="0.45" Margin="0,0,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                <Image
+                    Source="/Assets/huella.png"
+                    Tag="huella.png"
+                    ImageFailed="Imagen_ImageFailed"
+                    Width="46"
+                    Height="46"
+                    Opacity="0.45"
+                    Margin="0,0,0,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
                     <Image.RenderTransform>
                         <RotateTransform Angle="15"/>
                     </Image.RenderTransform>
                 </Image>
 
-                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
-                       Width="54" Height="54" Opacity="0.55" Margin="0,38,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                <Image
+                    Source="/Assets/huella.png"
+                    Tag="huella.png"
+                    ImageFailed="Imagen_ImageFailed"
+                    Width="54"
+                    Height="54"
+                    Opacity="0.55"
+                    Margin="0,38,0,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
                     <Image.RenderTransform>
                         <RotateTransform Angle="-15"/>
                     </Image.RenderTransform>
                 </Image>
 
-                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
-                       Width="46" Height="46" Opacity="0.45" Margin="0,0,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                <Image
+                    Source="/Assets/huella.png"
+                    Tag="huella.png"
+                    ImageFailed="Imagen_ImageFailed"
+                    Width="46"
+                    Height="46"
+                    Opacity="0.45"
+                    Margin="0,0,0,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
                     <Image.RenderTransform>
                         <RotateTransform Angle="20"/>
                     </Image.RenderTransform>
                 </Image>
 
-                <Image Source="/Assets/huella.png" Tag="huella.png" ImageFailed="Imagen_ImageFailed"
-                       Width="38" Height="38" Opacity="0.35" Margin="0,34,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                <Image
+                    Source="/Assets/huella.png"
+                    Tag="huella.png"
+                    ImageFailed="Imagen_ImageFailed"
+                    Width="38"
+                    Height="38"
+                    Opacity="0.35"
+                    Margin="0,34,0,0"
+                    RenderTransformOrigin="0.5,0.5"
+                    IsHitTestVisible="False">
                     <Image.RenderTransform>
                         <RotateTransform Angle="-20"/>
                     </Image.RenderTransform>
                 </Image>
             </StackPanel>
-
         </StackPanel>
     </ScrollViewer>
 </Page>

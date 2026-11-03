@@ -1,4 +1,3 @@
-
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -184,9 +183,9 @@ namespace VeterinariaServerSurPia.Views
             if (CriterioCombo == null ||
                 BusquedaText == null ||
                 FiltroServicioCombo == null ||
-                ClientesListView == null ||
-                MascotasListView == null ||
-                CitasListView == null)
+                ScrollClientes == null ||
+                ScrollMascotas == null ||
+                ScrollCitas == null)
             {
                 return;
             }
@@ -196,9 +195,10 @@ namespace VeterinariaServerSurPia.Views
 
             FiltroServicioCombo.Visibility = Visibility.Collapsed;
 
-            ClientesListView.Visibility = Visibility.Collapsed;
-            MascotasListView.Visibility = Visibility.Collapsed;
-            CitasListView.Visibility = Visibility.Collapsed;
+            // Se oculta cada tabla junto con su contenedor de scroll
+            ScrollClientes.Visibility = Visibility.Collapsed;
+            ScrollMascotas.Visibility = Visibility.Collapsed;
+            ScrollCitas.Visibility = Visibility.Collapsed;
 
             string categoria =
                 CategoriaCombo.SelectedItem?.ToString() ?? "";
@@ -211,7 +211,7 @@ namespace VeterinariaServerSurPia.Views
                     "Por teléfono",
                     "Por correo");
 
-                ClientesListView.Visibility = Visibility.Visible;
+                ScrollClientes.Visibility = Visibility.Visible;
             }
             else if (categoria == "Mascotas")
             {
@@ -222,7 +222,7 @@ namespace VeterinariaServerSurPia.Views
                     "Por raza",
                     "Por propietario");
 
-                MascotasListView.Visibility = Visibility.Visible;
+                ScrollMascotas.Visibility = Visibility.Visible;
             }
             else if (categoria == "Citas")
             {
@@ -235,7 +235,7 @@ namespace VeterinariaServerSurPia.Views
 
                 FiltroServicioCombo.Visibility = Visibility.Visible;
                 FiltroServicioCombo.SelectedIndex = 0;
-                CitasListView.Visibility = Visibility.Visible;
+                ScrollCitas.Visibility = Visibility.Visible;
             }
 
             if (CriterioCombo.Items.Count > 0)
@@ -423,6 +423,12 @@ namespace VeterinariaServerSurPia.Views
                     "No se encontraron registros con los filtros seleccionados.",
                     true);
             }
+            else if (cantidad == 1)
+            {
+                MostrarEstado(
+                    $"Se encontró 1 registro de {categoria}.",
+                    false);
+            }
             else
             {
                 MostrarEstado(
@@ -437,11 +443,14 @@ namespace VeterinariaServerSurPia.Views
                 return;
 
             TxtEstadoBusqueda.Text = mensaje;
+
+            // Café para mensajes normales y rojo oscuro para errores
+            // (se leen bien sobre el fondo durazno)
             TxtEstadoBusqueda.Foreground =
                 new Microsoft.UI.Xaml.Media.SolidColorBrush(
                     esError
-                        ? Microsoft.UI.Colors.OrangeRed
-                        : Microsoft.UI.Colors.LightGreen);
+                        ? Windows.UI.Color.FromArgb(255, 192, 57, 43)
+                        : Windows.UI.Color.FromArgb(255, 148, 96, 61));
         }
 
         private void RegresarMenuBtn_Click(

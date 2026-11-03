@@ -1,16 +1,200 @@
 <Page
     x:Class="VeterinariaServerSurPia.Views.MenuPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="#FFF7F3EC">
 
-    <NavigationView x:Name="NavMenu" Header="Veterinaria Servetsur Mty" ItemInvoked="NavMenu_ItemInvoked">
+    <Page.Resources>
+
+        <!-- COLORES PRINCIPALES -->
+        <SolidColorBrush x:Key="MenuBackgroundBrush" Color="#FFFFF9F1"/>
+        <SolidColorBrush x:Key="MenuAccentBrush" Color="#FFE58A3A"/>
+        <SolidColorBrush x:Key="MenuAccentDarkBrush" Color="#FFD8752D"/>
+        <SolidColorBrush x:Key="MenuTextBrush" Color="#FF40352E"/>
+        <SolidColorBrush x:Key="MenuMutedBrush" Color="#FF8B7B70"/>
+        <SolidColorBrush x:Key="MenuLineBrush" Color="#FFF0E4D8"/>
+        <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#FFF7F3EC"/>
+
+    </Page.Resources>
+
+    <NavigationView
+        x:Name="NavMenu"
+        Header=" "
+        PaneDisplayMode="Left"
+        IsPaneOpen="True"
+        IsPaneToggleButtonVisible="False"
+        IsSettingsVisible="False"
+        IsBackButtonVisible="Collapsed"
+        OpenPaneLength="276"
+        CompactPaneLength="0"
+        Background="{StaticResource ContentBackgroundBrush}"
+        Foreground="{StaticResource MenuTextBrush}"
+        SelectionFollowsFocus="Disabled"
+        ItemInvoked="NavMenu_ItemInvoked">
+
+        <!-- ESTILOS DEL MENU -->
+        <NavigationView.Resources>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemForeground"
+                Color="#FF625349"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemForegroundPointerOver"
+                Color="#FF40352E"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemForegroundSelected"
+                Color="#FFD8752D"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBackgroundPointerOver"
+                Color="#FFFFF0E3"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBackgroundSelected"
+                Color="#FFFFEAD8"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBackgroundSelectedPointerOver"
+                Color="#FFFFEAD8"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBorderBrush"
+                Color="Transparent"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBorderBrushPointerOver"
+                Color="Transparent"/>
+
+            <SolidColorBrush
+                x:Key="NavigationViewItemBorderBrushSelected"
+                Color="Transparent"/>
+
+        </NavigationView.Resources>
+
+        <!-- ENCABEZADO DEL MENU -->
+        <NavigationView.PaneHeader>
+
+            <Grid Padding="20,24,18,18">
+
+                <StackPanel Spacing="12">
+
+                    <!-- ICONO -->
+                    <Border
+                        Width="58"
+                        Height="58"
+                        CornerRadius="18"
+                        Background="#FFFFEAD8"
+                        HorizontalAlignment="Left">
+
+                        <FontIcon
+                            Glyph="&#xE734;"
+                            FontSize="29"
+                            Foreground="{StaticResource MenuAccentDarkBrush}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+
+                    </Border>
+
+                    <!-- NOMBRE DE LA VETERINARIA -->
+                    <StackPanel Spacing="3">
+
+                        <TextBlock
+                            Text="VETERINARIA"
+                            FontSize="11"
+                            FontWeight="SemiBold"
+                            CharacterSpacing="180"
+                            Foreground="{StaticResource MenuMutedBrush}"/>
+
+                        <TextBlock
+                            Text="Servetsur Mty"
+                            FontSize="23"
+                            FontWeight="Bold"
+                            Foreground="{StaticResource MenuTextBrush}"/>
+
+                        <TextBlock
+                            Text="Sistema de gestión"
+                            FontSize="12"
+                            Foreground="{StaticResource MenuMutedBrush}"/>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </Grid>
+
+        </NavigationView.PaneHeader>
+
+        <!-- OPCIONES DE NAVEGACION -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Registro" Icon="Add" Tag="RegistroPage" />
-            <NavigationViewItem Content="Búsqueda y Consulta" Icon="Find" Tag="BusquedaPage" />
-            <NavigationViewItem Content="Modificar / Actualizar" Icon="Edit" Tag="ModificarPage" />
-            <NavigationViewItem Content="Exportar PDF" Icon="Document" Tag="ExportarPage" />
+
+            <NavigationViewItem
+                Content="Registro"
+                Icon="Add"
+                Tag="RegistroPage"
+                ToolTipService.ToolTip="Registrar clientes y mascotas"/>
+
+            <NavigationViewItem
+                Content="Búsqueda y Consulta"
+                Icon="Find"
+                Tag="BusquedaPage"
+                ToolTipService.ToolTip="Consultar registros"/>
+
+            <NavigationViewItem
+                Content="Modificar / Actualizar"
+                Icon="Edit"
+                Tag="ModificarPage"
+                ToolTipService.ToolTip="Modificar información"/>
+
+            <NavigationViewItem
+                Content="Exportar PDF"
+                Icon="Document"
+                Tag="ExportarPage"
+                ToolTipService.ToolTip="Exportar información a PDF"/>
+
         </NavigationView.MenuItems>
 
-        <Frame x:Name="ContentFrame" />
+        <!-- PIE DEL MENU -->
+        <NavigationView.PaneFooter>
+
+            <Grid Padding="18,12,18,18">
+
+                <StackPanel Spacing="10">
+
+                    <Border
+                        Height="1"
+                        Background="{StaticResource MenuLineBrush}"/>
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="9">
+
+                        <FontIcon
+                            Glyph="&#xE946;"
+                            FontSize="15"
+                            Foreground="{StaticResource MenuAccentDarkBrush}"
+                            VerticalAlignment="Center"/>
+
+                        <TextBlock
+                            Text="Atención y cuidado animal"
+                            FontSize="11"
+                            Foreground="{StaticResource MenuMutedBrush}"
+                            VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </Grid>
+
+        </NavigationView.PaneFooter>
+
+        <!-- CONTENIDO DE LAS PAGINAS -->
+        <Frame
+            x:Name="ContentFrame"
+            Background="{StaticResource ContentBackgroundBrush}"/>
+
     </NavigationView>
+
 </Page>
