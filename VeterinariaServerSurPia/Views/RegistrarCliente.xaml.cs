@@ -1,11 +1,14 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Windows.UI;
 
 namespace VeterinariaServerSurPia.Views
 {
@@ -13,193 +16,397 @@ namespace VeterinariaServerSurPia.Views
     {
         private bool _validandoTexto = false;
         private bool _actualizandoCorreo = false;
-
-        private readonly string rutaClientes = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "clientes.txt"
-        );
-
-        private readonly string rutaConsecutivo = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "ultimo_id_cliente.txt"
-        );
+        private bool _guardandoCliente = false;
 
         public RegistrarCliente()
         {
-            this.InitializeComponent();
-
-            MostrarSiguienteId();
+            InitializeComponent();
+            Loaded += RegistrarCliente_Loaded;
         }
 
-        private int ObtenerSiguienteNumero()
+        // =====================================================
+        // CARGA INICIAL
+        // =====================================================
+
+        private async void RegistrarCliente_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
+            Loaded -= RegistrarCliente_Loaded;
+            await MostrarSiguienteIdAsync();
+        }
+
+        // =====================================================
+        // GENERAR ID AUTOMÁTICO
+        // =====================================================
+
+        private async Task<int> ObtenerSiguienteNumeroAsync(
+            SqliteConnection conexion,
+            SqliteTransaction? transaccion = null)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+
+            comando.Transaction = transaccion;
+            comando.CommandText = "SELECT IdCliente FROM Clientes;";
+
             int ultimoId = 0;
 
-            if (File.Exists(rutaConsecutivo))
-            {
-                string contenido = File.ReadAllText(rutaConsecutivo).Trim();
-                int.TryParse(contenido, out ultimoId);
-            }
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
 
-            if (File.Exists(rutaClientes))
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadAllLines(rutaClientes))
+                string id = reader.IsDBNull(0)
+                    ? ""
+                    : reader.GetString(0).Trim();
+
+                Match coincidencia = Regex.Match(
+                    id,
+                    @"^C(\d+)$",
+                    RegexOptions.IgnoreCase
+                );
+
+                if (coincidencia.Success &&
+                    int.TryParse(
+                        coincidencia.Groups[1].Value,
+                        out int numero))
                 {
-                    string[] datos = linea.Split(',');
-
-                    if (datos.Length > 0)
-                    {
-                        Match coincidencia = Regex.Match(
-                            datos[0].Trim(),
-                            @"^C(\d+)$"
-                        );
-
-                        if (coincidencia.Success &&
-                            int.TryParse(coincidencia.Groups[1].Value, out int numero))
-                        {
-                            ultimoId = Math.Max(ultimoId, numero);
-                        }
-                    }
+                    ultimoId = Math.Max(ultimoId, numero);
                 }
             }
 
             return ultimoId + 1;
         }
 
-        private void MostrarSiguienteId()
+        private async Task MostrarSiguienteIdAsync()
         {
             try
             {
-                int siguiente = ObtenerSiguienteNumero();
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
+
+                int siguiente =
+                    await ObtenerSiguienteNumeroAsync(conexion);
+
                 TxtIdCliente.Text = $"C{siguiente:D4}";
             }
-            catch
+            catch (Exception)
             {
-                TxtIdCliente.Text = "C0001";
+                TxtIdCliente.Text = "No disponible";
+
+                MostrarMensaje(
+                    "No se pudo generar el ID del cliente. Verifica la conexión con la base de datos."
+                );
             }
         }
 
-        private void BtnGuardarCliente_Click(object sender, RoutedEventArgs e)
+        // =====================================================
+        // GUARDAR CLIENTE
+        // =====================================================
+
+        private async void BtnGuardarCliente_Click(
+            object sender,
+            RoutedEventArgs e)
         {
-            string id = TxtIdCliente.Text.Trim();
+            if (_guardandoCliente)
+                return;
+
             string nombre = TxtNombreCliente.Text.Trim();
             string telefono = TxtTelefono.Text.Trim();
             string correo = TxtCorreo.Text.Trim();
 
+            // ---------------------------------------------
+            // VALIDAR NOMBRE
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(nombre))
             {
-                MostrarMensaje("Ingresa el nombre del cliente.");
+                MostrarMensaje("El nombre del cliente es obligatorio.");
                 TxtNombreCliente.Focus(FocusState.Programmatic);
                 return;
             }
 
-            if (!NombreValido(nombre))
+            if (nombre.Length < 3)
             {
-                MostrarMensaje("El nombre solo debe contener letras y espacios sencillos.");
+                MostrarMensaje(
+                    "El nombre debe contener al menos 3 caracteres."
+                );
+
                 TxtNombreCliente.Focus(FocusState.Programmatic);
                 return;
             }
 
             if (nombre.Length > 80)
             {
-                MostrarMensaje("El nombre no puede superar los 80 caracteres.");
+                MostrarMensaje(
+                    "El nombre no puede superar los 80 caracteres."
+                );
+
                 TxtNombreCliente.Focus(FocusState.Programmatic);
                 return;
             }
 
+            if (!NombreValido(nombre))
+            {
+                MostrarMensaje(
+                    "El nombre solo puede contener letras, espacios, puntos, apóstrofes y guiones. No uses números ni símbolos especiales."
+                );
+
+                TxtNombreCliente.Focus(FocusState.Programmatic);
+                return;
+            }
+
+            // ---------------------------------------------
+            // VALIDAR QUE EXISTA UN MEDIO DE CONTACTO
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(telefono) &&
                 string.IsNullOrWhiteSpace(correo))
             {
-                MostrarMensaje("Debes ingresar un teléfono o un correo electrónico.");
+                MostrarMensaje(
+                    "Debes ingresar al menos un teléfono o un correo electrónico."
+                );
+
                 TxtTelefono.Focus(FocusState.Programmatic);
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(telefono) &&
-                !Regex.IsMatch(telefono, @"^\d{10}$"))
+            // ---------------------------------------------
+            // VALIDAR TELÉFONO
+            // ---------------------------------------------
+
+            if (!string.IsNullOrWhiteSpace(telefono))
             {
-                MostrarMensaje("El teléfono debe contener exactamente 10 números.");
-                TxtTelefono.Focus(FocusState.Programmatic);
-                return;
+                if (!Regex.IsMatch(telefono, @"^[0-9]{10}$"))
+                {
+                    MostrarMensaje(
+                        "El teléfono debe contener exactamente 10 dígitos."
+                    );
+
+                    TxtTelefono.Focus(FocusState.Programmatic);
+                    return;
+                }
+
+                if (telefono.All(c => c == telefono[0]))
+                {
+                    MostrarMensaje(
+                        "El teléfono ingresado no parece ser válido."
+                    );
+
+                    TxtTelefono.Focus(FocusState.Programmatic);
+                    return;
+                }
             }
 
-            if (!string.IsNullOrWhiteSpace(correo) &&
-                !CorreoValido(correo))
+            // ---------------------------------------------
+            // VALIDAR CORREO
+            // ---------------------------------------------
+
+            if (!string.IsNullOrWhiteSpace(correo))
             {
-                MostrarMensaje("El correo no es válido. Utiliza únicamente letras, números, puntos y un solo @.");
-                TxtCorreo.Focus(FocusState.Programmatic);
-                return;
+                if (correo.Length > 100)
+                {
+                    MostrarMensaje(
+                        "El correo no puede superar los 100 caracteres."
+                    );
+
+                    TxtCorreo.Focus(FocusState.Programmatic);
+                    return;
+                }
+
+                if (!CorreoValido(correo))
+                {
+                    MostrarMensaje(
+                        "El correo electrónico no tiene un formato válido. Revisa el usuario, el símbolo @ y el dominio."
+                    );
+
+                    TxtCorreo.Focus(FocusState.Programmatic);
+                    return;
+                }
+
+                correo = correo.ToLowerInvariant();
             }
+
+            _guardandoCliente = true;
+
+            if (sender is Button botonGuardar)
+                botonGuardar.IsEnabled = false;
 
             try
             {
-                if (File.Exists(rutaClientes))
-                {
-                    bool existe = File.ReadAllLines(rutaClientes)
-                        .Any(linea => linea.Split(',')[0].Trim() == id);
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
 
-                    if (existe)
+                using SqliteTransaction transaccion =
+                    conexion.BeginTransaction();
+
+                // ---------------------------------------------
+                // COMPROBAR TELÉFONO Y CORREO DUPLICADOS
+                // ---------------------------------------------
+
+                using (SqliteCommand verificarContacto =
+                    conexion.CreateCommand())
+                {
+                    verificarContacto.Transaction = transaccion;
+
+                    verificarContacto.CommandText = @"
+                        SELECT COUNT(*)
+                        FROM Clientes
+                        WHERE
+                            (
+                                $telefono <> ''
+                                AND TRIM(COALESCE(Telefono, '')) = $telefono
+                            )
+                            OR
+                            (
+                                $correo <> ''
+                                AND LOWER(TRIM(COALESCE(Correo, ''))) = $correo
+                            );
+                    ";
+
+                    verificarContacto.Parameters.AddWithValue(
+                        "$telefono",
+                        telefono
+                    );
+
+                    verificarContacto.Parameters.AddWithValue(
+                        "$correo",
+                        correo
+                    );
+
+                    object? resultado =
+                        await verificarContacto.ExecuteScalarAsync();
+
+                    long duplicados = Convert.ToInt64(resultado);
+
+                    if (duplicados > 0)
                     {
-                        MostrarMensaje("El ID del cliente ya existe. Intenta nuevamente.");
-                        MostrarSiguienteId();
+                        MostrarMensaje(
+                            "Ya existe un cliente registrado con ese teléfono o correo electrónico. Verifica los datos."
+                        );
+
+                        if (!string.IsNullOrWhiteSpace(telefono))
+                            TxtTelefono.Focus(FocusState.Programmatic);
+                        else
+                            TxtCorreo.Focus(FocusState.Programmatic);
+
                         return;
                     }
                 }
 
-                string registro = $"{id},{nombre},{telefono},{correo}";
+                // ---------------------------------------------
+                // GENERAR ID DENTRO DE LA TRANSACCIÓN
+                // ---------------------------------------------
 
-                using (StreamWriter escritor = new StreamWriter(
-                    rutaClientes,
-                    true
-                ))
-                {
-                    escritor.WriteLine(registro);
-                }
+                int siguiente =
+                    await ObtenerSiguienteNumeroAsync(
+                        conexion,
+                        transaccion
+                    );
 
-                int numeroActual = ObtenerNumeroId(id);
+                string id = $"C{siguiente:D4}";
 
-                File.WriteAllText(
-                    rutaConsecutivo,
-                    numeroActual.ToString()
+                // ---------------------------------------------
+                // INSERTAR CLIENTE
+                // ---------------------------------------------
+
+                using SqliteCommand guardar =
+                    conexion.CreateCommand();
+
+                guardar.Transaction = transaccion;
+
+                guardar.CommandText = @"
+                    INSERT INTO Clientes
+                    (
+                        IdCliente,
+                        Nombre,
+                        Telefono,
+                        Correo,
+                        Activo,
+                        FechaRegistro
+                    )
+                    VALUES
+                    (
+                        $id,
+                        $nombre,
+                        $telefono,
+                        $correo,
+                        1,
+                        $fecha
+                    );
+                ";
+
+                guardar.Parameters.AddWithValue("$id", id);
+                guardar.Parameters.AddWithValue("$nombre", nombre);
+                guardar.Parameters.AddWithValue("$telefono", telefono);
+                guardar.Parameters.AddWithValue("$correo", correo);
+
+                guardar.Parameters.AddWithValue(
+                    "$fecha",
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 );
 
-                // Primero se limpia el formulario y después se muestra
-                // el mensaje, para que no se borre al instante.
+                await guardar.ExecuteNonQueryAsync();
+
+                transaccion.Commit();
+
+                // ---------------------------------------------
+                // LIMPIAR FORMULARIO Y ACTUALIZAR ID
+                // ---------------------------------------------
+
                 LimpiarFormulario();
-                MostrarSiguienteId();
+
+                await MostrarSiguienteIdAsync();
 
                 MostrarMensaje(
-                    $"Cliente {nombre} registrado correctamente con el ID {id}.",
-                    false);
+                    $"El cliente {nombre} se registró correctamente con el ID {id}.",
+                    false
+                );
+            }
+            catch (SqliteException ex)
+            {
+                MostrarMensaje(
+                    "No se pudo guardar el cliente en la base de datos. Verifica que los datos sean correctos. Detalle: " +
+                    ex.Message
+                );
             }
             catch (Exception ex)
             {
-                MostrarMensaje("Error al guardar el cliente: " + ex.Message);
+                MostrarMensaje(
+                    "Ocurrió un error al registrar el cliente: " +
+                    ex.Message
+                );
             }
-        }
-
-        private int ObtenerNumeroId(string id)
-        {
-            Match coincidencia = Regex.Match(id, @"^C(\d+)$");
-
-            if (coincidencia.Success &&
-                int.TryParse(coincidencia.Groups[1].Value, out int numero))
+            finally
             {
-                return numero;
-            }
+                _guardandoCliente = false;
 
-            return 0;
+                if (sender is Button boton)
+                    boton.IsEnabled = true;
+            }
         }
+
+        // =====================================================
+        // VALIDACIONES
+        // =====================================================
 
         private bool NombreValido(string nombre)
         {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
             if (nombre != nombre.Trim())
                 return false;
 
             if (nombre.Contains("  "))
                 return false;
 
-            return nombre.All(c => char.IsLetter(c) || c == ' ');
+            // Acepta nombres con acentos, ñ, espacios,
+            // puntos, apóstrofes y guiones.
+            return Regex.IsMatch(
+                nombre,
+                @"^\p{L}+(?:[ .'-]\p{L}+)*$"
+            );
         }
 
         private bool CorreoValido(string correo)
@@ -207,54 +414,73 @@ namespace VeterinariaServerSurPia.Views
             if (string.IsNullOrWhiteSpace(correo))
                 return false;
 
-            // No permite espacios ni caracteres especiales.
-            // Solamente letras, números, puntos y un único @.
-            string patron = @"^[A-Za-z0-9.]+@[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)+$";
+            if (correo != correo.Trim())
+                return false;
 
-            return Regex.IsMatch(correo, patron);
+            if (correo.Length > 100)
+                return false;
+
+            string patron =
+                @"^[A-Za-z0-9]+(?:[._%+-][A-Za-z0-9]+)*@" +
+                @"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?" +
+                @"(?:\.[A-Za-z]{2,})+$";
+
+            return Regex.IsMatch(
+                correo,
+                patron,
+                RegexOptions.IgnoreCase
+            );
         }
 
-        // Muestra un mensaje en la caja de avisos.
-        // Verde cuando todo salió bien, rojo cuando hay un error.
-        private void MostrarMensaje(string mensaje, bool esError = true)
+        // =====================================================
+        // MENSAJES VISUALES
+        // =====================================================
+
+        private void MostrarMensaje(
+            string mensaje,
+            bool esError = true)
         {
             TxtMensaje.Text = mensaje;
 
             if (esError)
             {
                 PanelMensaje.Background = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 255, 232, 227));
+                    Color.FromArgb(255, 255, 232, 227));
 
                 PanelMensaje.BorderBrush = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 245, 198, 189));
+                    Color.FromArgb(255, 245, 198, 189));
 
                 TxtMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 192, 57, 43));
+                    Color.FromArgb(255, 192, 57, 43));
 
                 IconoMensaje.Glyph = "\uE7BA";
 
                 IconoMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 192, 57, 43));
+                    Color.FromArgb(255, 192, 57, 43));
             }
             else
             {
                 PanelMensaje.Background = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 233, 245, 230));
+                    Color.FromArgb(255, 233, 245, 230));
 
                 PanelMensaje.BorderBrush = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 195, 226, 189));
+                    Color.FromArgb(255, 195, 226, 189));
 
                 TxtMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 46, 107, 43));
+                    Color.FromArgb(255, 46, 107, 43));
 
                 IconoMensaje.Glyph = "\uE73E";
 
                 IconoMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 46, 107, 43));
+                    Color.FromArgb(255, 46, 107, 43));
             }
 
             PanelMensaje.Visibility = Visibility.Visible;
         }
+
+        // =====================================================
+        // LIMPIAR FORMULARIO
+        // =====================================================
 
         private void LimpiarFormulario()
         {
@@ -268,10 +494,20 @@ namespace VeterinariaServerSurPia.Views
             PanelMensaje.Visibility = Visibility.Collapsed;
         }
 
-        private void BtnIrMascotas_Click(object sender, RoutedEventArgs e)
+        // =====================================================
+        // NAVEGACIÓN
+        // =====================================================
+
+        private void BtnIrMascotas_Click(
+            object sender,
+            RoutedEventArgs e)
         {
             MainWindow.Current?.SeleccionarPantalla("Mascotas");
         }
+
+        // =====================================================
+        // FILTRADO DEL NOMBRE
+        // =====================================================
 
         private void TxtNombreCliente_TextChanging(
             TextBox sender,
@@ -284,13 +520,27 @@ namespace VeterinariaServerSurPia.Views
 
             string textoFiltrado = new string(
                 textoOriginal
-                    .Where(c => char.IsLetter(c) || c == ' ')
+                    .Where(c =>
+                        char.IsLetter(c) ||
+                        c == ' ' ||
+                        c == '.' ||
+                        c == '\'' ||
+                        c == '-')
+                    .Take(80)
                     .ToArray()
             );
 
-            // Evita espacios al inicio y espacios dobles.
-            textoFiltrado = Regex.Replace(textoFiltrado, @"^ +", "");
-            textoFiltrado = Regex.Replace(textoFiltrado, @" {2,}", " ");
+            textoFiltrado = Regex.Replace(
+                textoFiltrado,
+                @"^ +",
+                ""
+            );
+
+            textoFiltrado = Regex.Replace(
+                textoFiltrado,
+                @" {2,}",
+                " "
+            );
 
             if (textoOriginal == textoFiltrado)
                 return;
@@ -315,6 +565,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =====================================================
+        // FILTRADO DEL TELÉFONO
+        // =====================================================
+
         private void TxtTelefono_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -326,7 +580,7 @@ namespace VeterinariaServerSurPia.Views
 
             string textoFiltrado = new string(
                 textoOriginal
-                    .Where(char.IsDigit)
+                    .Where(c => c >= '0' && c <= '9')
                     .Take(10)
                     .ToArray()
             );
@@ -354,6 +608,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =====================================================
+        // FILTRADO DEL CORREO
+        // =====================================================
+
         private void TxtCorreo_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -364,7 +622,6 @@ namespace VeterinariaServerSurPia.Views
             string textoOriginal = sender.Text;
             int posicionOriginal = sender.SelectionStart;
 
-            // Únicamente permite letras ASCII, números, punto y @.
             string textoFiltrado = new string(
                 textoOriginal
                     .Where(c =>
@@ -372,6 +629,10 @@ namespace VeterinariaServerSurPia.Views
                         (c >= 'a' && c <= 'z') ||
                         (c >= '0' && c <= '9') ||
                         c == '.' ||
+                        c == '_' ||
+                        c == '%' ||
+                        c == '+' ||
+                        c == '-' ||
                         c == '@')
                     .Take(100)
                     .ToArray()
@@ -390,6 +651,10 @@ namespace VeterinariaServerSurPia.Views
                 (c >= 'a' && c <= 'z') ||
                 (c >= '0' && c <= '9') ||
                 c == '.' ||
+                c == '_' ||
+                c == '%' ||
+                c == '+' ||
+                c == '-' ||
                 c == '@'
             );
 
@@ -411,19 +676,29 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // =====================================================
+        // AUTOCOMPLETAR CORREO
+        // =====================================================
+
         private void CmbProveedorCorreo_SelectionChanged(
             object sender,
             SelectionChangedEventArgs e)
         {
-            if (TxtCorreo == null || CmbProveedorCorreo.SelectedItem == null)
+            if (TxtCorreo == null ||
+                CmbProveedorCorreo.SelectedItem == null)
+            {
                 return;
+            }
 
             string? proveedor =
-                (CmbProveedorCorreo.SelectedItem as ComboBoxItem)?.Content?.ToString();
+                (CmbProveedorCorreo.SelectedItem as ComboBoxItem)
+                ?.Content?.ToString();
 
             if (string.IsNullOrWhiteSpace(proveedor) ||
                 proveedor == "Automático")
+            {
                 return;
+            }
 
             CompletarDominioCorreo(proveedor);
         }
@@ -457,9 +732,19 @@ namespace VeterinariaServerSurPia.Views
 
             string nuevoCorreo = $"{usuario}@{dominio}";
 
+            if (nuevoCorreo.Length > 100)
+            {
+                MostrarMensaje(
+                    "El correo resultante supera el límite de 100 caracteres."
+                );
+
+                return;
+            }
+
             try
             {
                 _actualizandoCorreo = true;
+
                 TxtCorreo.Text = nuevoCorreo;
                 TxtCorreo.SelectionStart = TxtCorreo.Text.Length;
             }

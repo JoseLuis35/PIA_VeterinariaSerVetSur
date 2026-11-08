@@ -1,71 +1,157 @@
+
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
-using System.IO;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace VeterinariaServerSurPia.Views
 {
     public sealed partial class RegistrarCita : Page
     {
+        private bool _guardandoCita = false;
+
         public RegistrarCita()
         {
             InitializeComponent();
 
             DpFechaCita.MinYear = DateTimeOffset.Now.Date;
-            DpFechaCita.MaxYear =
-                DateTimeOffset.Now.AddYears(5);
+            DpFechaCita.MaxYear = DateTimeOffset.Now.AddYears(5);
 
-            DpFechaCita.Date = DateTimeOffset.Now;
+            ConfigurarFechaYHoraInicial();
 
-            CargarMascotas();
-            ActualizarIdCita();
+            Loaded += RegistrarCita_Loaded;
         }
 
-        private string ObtenerRuta(string archivo)
+        // ==========================================
+        // CONFIGURAR FECHA Y HORA INICIAL
+        // ==========================================
+
+        private void ConfigurarFechaYHoraInicial()
         {
-            return Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                archivo);
+            DateTime horaInicial = DateTime.Now.AddMinutes(30);
+
+            int minutosAdicionales =
+                (5 - (horaInicial.Minute % 5)) % 5;
+
+            horaInicial = horaInicial
+                .AddMinutes(minutosAdicionales)
+                .AddSeconds(-horaInicial.Second)
+                .AddMilliseconds(-horaInicial.Millisecond);
+
+            DpFechaCita.Date = new DateTimeOffset(
+                horaInicial.Date,
+                DateTimeOffset.Now.Offset);
+
+            TpHoraCita.Time = horaInicial.TimeOfDay;
         }
 
-        private string GenerarIdCita()
+        private async void RegistrarCita_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
-            string ruta = ObtenerRuta("citas.txt");
+            Loaded -= RegistrarCita_Loaded;
+
+            try
+            {
+                await CargarMascotasAsync();
+                await ActualizarIdCitaAsync();
+            }
+            catch (Exception ex)
+            {
+                MostrarMensaje(
+                    "No se pudo cargar la información: " + ex.Message,
+                    true);
+            }
+        }
+
+        // ==========================================
+        // GENERAR ID DE CITA
+        // ==========================================
+
+        private async Task<string> GenerarIdCitaAsync(
+            SqliteConnection? conexionExistente = null,
+            SqliteTransaction? transaccion = null)
+        {
+            // Si recibimos una conexión existente, NO debemos
+            // cerrarla ni disponerla desde este método.
+            if (conexionExistente != null)
+            {
+                return await ObtenerSiguienteIdAsync(
+                    conexionExistente,
+                    transaccion);
+            }
+
+            // Solo se abre y se cierra una conexión cuando
+            // este método es responsable de crearla.
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
+
+            return await ObtenerSiguienteIdAsync(
+                conexion,
+                null);
+        }
+
+        private async Task<string> ObtenerSiguienteIdAsync(
+            SqliteConnection conexion,
+            SqliteTransaction? transaccion)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+
+            comando.Transaction = transaccion;
+            comando.CommandText = "SELECT IdCita FROM Citas;";
+
             int maximo = 0;
 
-            if (File.Exists(ruta))
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadLines(ruta))
+                string id = reader.IsDBNull(0)
+                    ? ""
+                    : reader.GetString(0).Trim();
+
+                Match match = Regex.Match(
+                    id,
+                    @"^CITA(\d+)$",
+                    RegexOptions.IgnoreCase);
+
+                if (match.Success &&
+                    int.TryParse(
+                        match.Groups[1].Value,
+                        out int numero))
                 {
-                    string id = linea.Split(',')[0].Trim();
-
-                    Match match = Regex.Match(
-                        id,
-                        @"^CITA(\d+)$",
-                        RegexOptions.IgnoreCase);
-
-                    if (match.Success &&
-                        int.TryParse(match.Groups[1].Value,
-                            out int numero))
-                    {
-                        maximo = Math.Max(maximo, numero);
-                    }
+                    maximo = Math.Max(maximo, numero);
                 }
             }
 
             return "CITA" + (maximo + 1).ToString("D4");
         }
 
-        private void ActualizarIdCita()
+        private async Task ActualizarIdCitaAsync()
         {
-            TxtIdCita.Text = GenerarIdCita();
+            try
+            {
+                TxtIdCita.Text = await GenerarIdCitaAsync();
+            }
+            catch (Exception ex)
+            {
+                MostrarMensaje(
+                    "No se pudo generar el ID de la cita: " + ex.Message,
+                    true);
+            }
         }
 
-        private void CargarMascotas()
+        // ==========================================
+        // CARGAR MASCOTAS DESDE SQLITE
+        // ==========================================
+
+        private async Task CargarMascotasAsync()
         {
             string? idAnterior =
                 (CmbMascota.SelectedItem as ComboBoxItem)?
@@ -73,31 +159,43 @@ namespace VeterinariaServerSurPia.Views
 
             CmbMascota.Items.Clear();
 
-            string rutaMascotas = ObtenerRuta("mascotas.txt");
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
 
-            if (File.Exists(rutaMascotas))
+            using SqliteCommand comando = conexion.CreateCommand();
+
+            comando.CommandText = @"
+                SELECT IdMascota, Nombre
+                FROM Mascotas
+                ORDER BY Nombre;";
+
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadLines(rutaMascotas))
+                string id = reader.IsDBNull(0)
+                    ? ""
+                    : reader.GetString(0).Trim();
+
+                string nombre = reader.IsDBNull(1)
+                    ? ""
+                    : reader.GetString(1).Trim();
+
+                if (string.IsNullOrWhiteSpace(id) ||
+                    string.IsNullOrWhiteSpace(nombre))
                 {
-                    string[] datos = linea.Split(',');
-
-                    if (datos.Length >= 8 &&
-                        !string.IsNullOrWhiteSpace(datos[0]) &&
-                        !string.IsNullOrWhiteSpace(datos[1]))
-                    {
-                        string id = datos[0].Trim();
-                        string nombre = datos[1].Trim();
-
-                        CmbMascota.Items.Add(new ComboBoxItem
-                        {
-                            Content = $"{nombre} ({id})",
-                            Tag = id
-                        });
-                    }
+                    continue;
                 }
+
+                CmbMascota.Items.Add(new ComboBoxItem
+                {
+                    Content = $"{nombre} ({id})",
+                    Tag = id
+                });
             }
 
-            var anterior = CmbMascota.Items
+            ComboBoxItem? anterior = CmbMascota.Items
                 .OfType<ComboBoxItem>()
                 .FirstOrDefault(item =>
                     string.Equals(
@@ -107,177 +205,387 @@ namespace VeterinariaServerSurPia.Views
 
             CmbMascota.SelectedItem = anterior;
 
-            MostrarMensaje(
-                CmbMascota.Items.Count > 0
-                    ? "Mascotas cargadas. Selecciona la mascota."
-                    : "No hay mascotas registradas. Registra una primero.",
-                CmbMascota.Items.Count == 0);
+            if (CmbMascota.Items.Count > 0)
+            {
+                MostrarMensaje(
+                    "Mascotas cargadas. Selecciona la mascota para la cita.",
+                    false);
+            }
+            else
+            {
+                MostrarMensaje(
+                    "No hay mascotas registradas. Registra una mascota antes de programar una cita.",
+                    true);
+            }
         }
 
-        private void BtnActualizarMascotas_Click(
-            object sender, RoutedEventArgs e)
+        private async void BtnActualizarMascotas_Click(
+            object sender,
+            RoutedEventArgs e)
         {
-            CargarMascotas();
-        }
-
-        private void BtnGuardarCita_Click(
-            object sender, RoutedEventArgs e)
-        {
-            if (CmbMascota.SelectedItem is not ComboBoxItem mascota)
-            {
-                MostrarMensaje(
-                    "Selecciona una mascota registrada.", true);
-                return;
-            }
-
-            string idMascota = mascota.Tag?.ToString() ?? "";
-
-            if (CmbTipoServicio.SelectedItem is not ComboBoxItem servicioItem)
-            {
-                MostrarMensaje(
-                    "Selecciona el tipo de servicio.", true);
-                return;
-            }
-
-            string servicio =
-                servicioItem.Content?.ToString()?.Trim() ?? "";
-
-            DateTime fechaSeleccionada =
-                DpFechaCita.Date.Date;
-
-            TimeSpan horaSeleccionada = TpHoraCita.Time;
-
-            DateTime fechaHora = fechaSeleccionada
-                .Add(horaSeleccionada);
-
-            if (fechaHora <= DateTime.Now)
-            {
-                MostrarMensaje(
-                    "La cita debe programarse para una fecha y hora futuras.",
-                    true);
-                return;
-            }
-
-            string fecha = fechaSeleccionada.ToString(
-                "dd/MM/yyyy", CultureInfo.InvariantCulture);
-
-            string hora = horaSeleccionada.ToString(@"hh\:mm");
-
-            string observaciones = TxtObservaciones.Text.Trim()
-                .Replace(",", " ")
-                .Replace("\r", " ")
-                .Replace("\n", " ");
-
-            if (observaciones.Length > 500)
-            {
-                MostrarMensaje(
-                    "Las observaciones no pueden superar 500 caracteres.",
-                    true);
-                return;
-            }
-
             try
             {
-                string rutaMascotas = ObtenerRuta("mascotas.txt");
-                string rutaCitas = ObtenerRuta("citas.txt");
-
-                bool mascotaExiste = File.Exists(rutaMascotas) &&
-                    File.ReadLines(rutaMascotas).Any(linea =>
-                    {
-                        string[] datos = linea.Split(',');
-
-                        return datos.Length >= 8 &&
-                            datos[0].Trim().Equals(
-                                idMascota,
-                                StringComparison.OrdinalIgnoreCase);
-                    });
-
-                if (!mascotaExiste)
-                {
-                    CargarMascotas();
-                    MostrarMensaje(
-                        "La mascota ya no está registrada. Actualiza la lista.",
-                        true);
-                    return;
-                }
-
-                if (File.Exists(rutaCitas))
-                {
-                    foreach (string linea in File.ReadLines(rutaCitas))
-                    {
-                        string[] datos = linea.Split(',');
-
-                        if (datos.Length < 6)
-                            continue;
-
-                        bool mismaFecha =
-                            datos[2].Trim() == fecha;
-
-                        bool mismaHora =
-                            datos[3].Trim() == hora;
-
-                        if (mismaFecha && mismaHora)
-                        {
-                            MostrarMensaje(
-                                "Ya existe una cita programada en esa fecha y hora. Selecciona otro horario.",
-                                true);
-                            return;
-                        }
-                    }
-                }
-
-                // El ID se calcula justo antes de guardar.
-                string idCita = GenerarIdCita();
-
-                string nuevaLinea = string.Join(",", new[]
-                {
-                    idCita,
-                    idMascota,
-                    fecha,
-                    hora,
-                    servicio,
-                    observaciones
-                });
-
-                if (File.Exists(rutaCitas) &&
-                    new FileInfo(rutaCitas).Length > 0)
-                {
-                    string contenido = File.ReadAllText(rutaCitas);
-
-                    if (!contenido.EndsWith("\n") &&
-                        !contenido.EndsWith("\r"))
-                    {
-                        nuevaLinea =
-                            Environment.NewLine + nuevaLinea;
-                    }
-                }
-
-                File.AppendAllText(
-                    rutaCitas,
-                    nuevaLinea + Environment.NewLine);
-
-                LimpiarFormulario();
-                ActualizarIdCita();
-
-                MostrarMensaje(
-                    $"¡Cita {idCita} registrada correctamente para {mascota.Content}!",
-                    false);
+                await CargarMascotasAsync();
             }
             catch (Exception ex)
             {
                 MostrarMensaje(
-                    $"Error al guardar la cita: {ex.Message}",
+                    "No se pudo actualizar la lista de mascotas: "
+                    + ex.Message,
                     true);
             }
         }
 
+        // ==========================================
+        // VALIDAR OBSERVACIONES
+        // ==========================================
+
+        private void TxtObservaciones_TextChanging(
+            TextBox sender,
+            TextBoxTextChangingEventArgs args)
+        {
+            string texto = sender.Text;
+
+            texto = Regex.Replace(
+                texto,
+                @"[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9\s.,:;¿?¡!\-]",
+                "");
+
+            texto = texto.TrimStart();
+
+            texto = Regex.Replace(
+                texto,
+                @"[ ]{2,}",
+                " ");
+
+            if (texto.Length > 500)
+            {
+                texto = texto.Substring(0, 500);
+            }
+
+            if (sender.Text != texto)
+            {
+                int posicion = sender.SelectionStart;
+
+                sender.Text = texto;
+
+                sender.SelectionStart =
+                    Math.Min(posicion, texto.Length);
+            }
+        }
+
+        // ==========================================
+        // REGISTRAR CITA
+        // ==========================================
+
+        private async void BtnGuardarCita_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_guardandoCita)
+                return;
+
+            _guardandoCita = true;
+
+            Button? botonGuardar = sender as Button;
+
+            if (botonGuardar != null)
+                botonGuardar.IsEnabled = false;
+
+            try
+            {
+                // Validar mascota seleccionada.
+                if (CmbMascota.SelectedItem is not ComboBoxItem mascota)
+                {
+                    MostrarMensaje(
+                        "Selecciona una mascota registrada.",
+                        true);
+                    return;
+                }
+
+                string idMascota =
+                    mascota.Tag?.ToString()?.Trim() ?? "";
+
+                if (string.IsNullOrWhiteSpace(idMascota))
+                {
+                    MostrarMensaje(
+                        "No se pudo identificar la mascota seleccionada.",
+                        true);
+                    return;
+                }
+
+                // Validar servicio.
+                if (CmbTipoServicio.SelectedItem is not ComboBoxItem servicioItem)
+                {
+                    MostrarMensaje(
+                        "Selecciona el tipo de servicio.",
+                        true);
+                    return;
+                }
+
+                string servicio =
+                    servicioItem.Content?.ToString()?.Trim() ?? "";
+
+                if (string.IsNullOrWhiteSpace(servicio))
+                {
+                    MostrarMensaje(
+                        "Selecciona un tipo de servicio válido.",
+                        true);
+                    return;
+                }
+
+                // Validar fecha.
+                DateTime fechaSeleccionada =
+                    DpFechaCita.Date.Date;
+
+                DateTime fechaActual = DateTime.Now.Date;
+
+                if (fechaSeleccionada.Date < fechaActual)
+                {
+                    MostrarMensaje(
+                        "No puedes registrar una cita en una fecha pasada.",
+                        true);
+                    return;
+                }
+
+                // Validar hora.
+                TimeSpan horaSeleccionada = TpHoraCita.Time;
+
+                if (horaSeleccionada < TimeSpan.Zero ||
+                    horaSeleccionada >= TimeSpan.FromDays(1))
+                {
+                    MostrarMensaje(
+                        "Selecciona una hora válida para la cita.",
+                        true);
+                    return;
+                }
+
+                DateTime fechaHora = fechaSeleccionada.Date.Add(
+                    horaSeleccionada);
+
+                if (fechaHora <= DateTime.Now)
+                {
+                    MostrarMensaje(
+                        "La cita debe programarse para una fecha y hora futuras.",
+                        true);
+                    return;
+                }
+
+                string fecha = fechaSeleccionada.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture);
+
+                string hora = horaSeleccionada.ToString(
+                    @"hh\:mm",
+                    CultureInfo.InvariantCulture);
+
+                // Validar observaciones.
+                string observaciones =
+                    TxtObservaciones.Text.Trim();
+
+                if (observaciones.Length > 500)
+                {
+                    MostrarMensaje(
+                        "Las observaciones no pueden superar los 500 caracteres.",
+                        true);
+                    return;
+                }
+
+                // ==================================
+                // GUARDAR EN SQLITE
+                // ==================================
+
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
+
+                using SqliteTransaction transaccion =
+                    conexion.BeginTransaction();
+
+                // Verificar que la mascota todavía exista.
+                using (SqliteCommand verificarMascota =
+                    conexion.CreateCommand())
+                {
+                    verificarMascota.Transaction = transaccion;
+
+                    verificarMascota.CommandText = @"
+                        SELECT COUNT(*)
+                        FROM Mascotas
+                        WHERE IdMascota = $id;";
+
+                    verificarMascota.Parameters.AddWithValue(
+                        "$id",
+                        idMascota);
+
+                    object? resultado =
+                        await verificarMascota.ExecuteScalarAsync();
+
+                    long existe = Convert.ToInt64(
+                        resultado ?? 0L,
+                        CultureInfo.InvariantCulture);
+
+                    if (existe == 0)
+                    {
+                        transaccion.Rollback();
+
+                        await CargarMascotasAsync();
+
+                        MostrarMensaje(
+                            "La mascota ya no está registrada. Actualiza la lista y selecciona otra.",
+                            true);
+                        return;
+                    }
+                }
+
+                // Evitar dos citas en el mismo horario.
+                using (SqliteCommand verificarCita =
+                    conexion.CreateCommand())
+                {
+                    verificarCita.Transaction = transaccion;
+
+                    verificarCita.CommandText = @"
+                        SELECT COUNT(*)
+                        FROM Citas
+                        WHERE Fecha = $fecha
+                          AND Hora = $hora;";
+
+                    verificarCita.Parameters.AddWithValue(
+                        "$fecha",
+                        fecha);
+
+                    verificarCita.Parameters.AddWithValue(
+                        "$hora",
+                        hora);
+
+                    object? resultado =
+                        await verificarCita.ExecuteScalarAsync();
+
+                    long citasExistentes = Convert.ToInt64(
+                        resultado ?? 0L,
+                        CultureInfo.InvariantCulture);
+
+                    if (citasExistentes > 0)
+                    {
+                        transaccion.Rollback();
+
+                        MostrarMensaje(
+                            "Ya existe una cita programada en esa fecha y hora. Selecciona otro horario.",
+                            true);
+                        return;
+                    }
+                }
+
+                // Generar ID utilizando la misma conexión.
+                // Este método ya NO cierra la conexión recibida.
+                string idCita = await GenerarIdCitaAsync(
+                    conexion,
+                    transaccion);
+
+                // Insertar cita.
+                using SqliteCommand guardar =
+                    conexion.CreateCommand();
+
+                guardar.Transaction = transaccion;
+
+                guardar.CommandText = @"
+                    INSERT INTO Citas
+                    (
+                        IdCita,
+                        IdMascota,
+                        Fecha,
+                        Hora,
+                        Servicio,
+                        Observaciones
+                    )
+                    VALUES
+                    (
+                        $id,
+                        $idMascota,
+                        $fecha,
+                        $hora,
+                        $servicio,
+                        $observaciones
+                    );";
+
+                guardar.Parameters.AddWithValue(
+                    "$id",
+                    idCita);
+
+                guardar.Parameters.AddWithValue(
+                    "$idMascota",
+                    idMascota);
+
+                guardar.Parameters.AddWithValue(
+                    "$fecha",
+                    fecha);
+
+                guardar.Parameters.AddWithValue(
+                    "$hora",
+                    hora);
+
+                guardar.Parameters.AddWithValue(
+                    "$servicio",
+                    servicio);
+
+                guardar.Parameters.AddWithValue(
+                    "$observaciones",
+                    observaciones);
+
+                await guardar.ExecuteNonQueryAsync();
+
+                // Confirmar cambios.
+                transaccion.Commit();
+
+                string mascotaRegistrada =
+                    mascota.Content?.ToString() ?? idMascota;
+
+                LimpiarFormulario();
+
+                await ActualizarIdCitaAsync();
+
+                MostrarMensaje(
+                    $"¡Cita {idCita} registrada correctamente para {mascotaRegistrada}!",
+                    false);
+            }
+            catch (SqliteException ex)
+            {
+                MostrarMensaje(
+                    "Error de base de datos al guardar la cita: "
+                    + ex.Message,
+                    true);
+            }
+            catch (Exception ex)
+            {
+                MostrarMensaje(
+                    "Error al guardar la cita: " + ex.Message,
+                    true);
+            }
+            finally
+            {
+                _guardandoCita = false;
+
+                if (botonGuardar != null)
+                    botonGuardar.IsEnabled = true;
+            }
+        }
+
+        // ==========================================
+        // NAVEGACIÓN
+        // ==========================================
+
         private void BtnIrMascotas_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             MainWindow.Current?.SeleccionarPantalla("Mascotas");
         }
 
-        private void MostrarMensaje(string texto, bool esError)
+        // ==========================================
+        // MENSAJES
+        // ==========================================
+
+        private void MostrarMensaje(
+            string texto,
+            bool esError)
         {
             TxtMensaje.Text = texto;
 
@@ -289,12 +597,25 @@ namespace VeterinariaServerSurPia.Views
             TxtMensaje.Visibility = Visibility.Visible;
         }
 
+        private void OcultarMensaje()
+        {
+            TxtMensaje.Text = "";
+            TxtMensaje.Visibility = Visibility.Collapsed;
+        }
+
+        // ==========================================
+        // LIMPIAR FORMULARIO
+        // ==========================================
+
         private void LimpiarFormulario()
         {
             CmbTipoServicio.SelectedIndex = -1;
+
             TxtObservaciones.Text = "";
-            DpFechaCita.Date = DateTimeOffset.Now;
+
+            ConfigurarFechaYHoraInicial();
+
+            OcultarMensaje();
         }
     }
 }
-

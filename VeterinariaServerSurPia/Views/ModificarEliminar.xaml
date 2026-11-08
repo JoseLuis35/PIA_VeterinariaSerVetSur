@@ -3,7 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     RequestedTheme="Light"
-    Background="#FFFFF6EA">
+    Background="#FFFFF6EA"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
 
     <Page.Resources>
 
@@ -13,6 +15,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="22"/>
             <Setter Property="Padding" Value="26,24"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="CajaInfo" TargetType="Border">
@@ -38,6 +41,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Foreground" Value="#FF1F140A"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="Selector" TargetType="ComboBox">
@@ -49,6 +53,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Foreground" Value="#FF1F140A"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="ListaRegistros" TargetType="ListView">
@@ -57,6 +62,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="5"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="BotonPrincipal" TargetType="Button">
@@ -68,6 +74,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="BotonSecundario" TargetType="Button">
@@ -80,6 +87,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="BotonPeligro" TargetType="Button">
@@ -92,792 +100,974 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
     </Page.Resources>
 
-    <ScrollViewer
-        Padding="30,24,30,24"
-        HorizontalScrollMode="Disabled"
-        HorizontalScrollBarVisibility="Disabled"
-        VerticalScrollMode="Enabled"
-        VerticalScrollBarVisibility="Auto">
+    <Grid
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch">
+
+        <ScrollViewer
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Padding="24,20,24,28"
+            HorizontalScrollMode="Disabled"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto">
 
-        <StackPanel
-            MaxWidth="820"
-            HorizontalAlignment="Center"
-            Spacing="22">
-
-            <!-- ENCABEZADO -->
-            <Border
-                Padding="26,22"
-                CornerRadius="26"
-                BorderThickness="1"
-                BorderBrush="#FFF5D4A9">
-
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#FFFFF0DB" Offset="0"/>
-                        <GradientStop Color="#FFFFD9A6" Offset="0.55"/>
-                        <GradientStop Color="#FFFFB866" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-
-                <Grid>
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="95"
-                        Height="95"
-                        Opacity="0.09"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Stretch="Uniform"/>
-
-                    <StackPanel Spacing="15">
-
-                        <Border
-                            Width="78"
-                            Height="78"
-                            CornerRadius="39"
-                            Background="#FFFFFFFF"
-                            BorderBrush="#FFFFE5C3"
-                            BorderThickness="2"
-                            HorizontalAlignment="Left">
-
-                            <Image
-                                Source="/Assets/logo_servetsur.png"
-                                Width="65"
-                                Height="65"
-                                Stretch="Uniform"/>
-                        </Border>
-
-                        <StackPanel Spacing="5">
-                            <TextBlock
-                                Text="Administración integral"
-                                FontSize="29"
-                                FontWeight="Bold"
-                                Foreground="#FF1F140A"
-                                TextWrapping="Wrap"/>
-
-                            <TextBlock
-                                Text="Gestiona clientes, mascotas y citas desde un solo lugar."
-                                FontSize="14"
-                                Foreground="#FF5A4030"
-                                TextWrapping="Wrap"/>
-
-                            <TextBlock
-                                Text="VETERINARIA SERVETSUR MTY"
-                                FontSize="11"
-                                FontWeight="Bold"
-                                CharacterSpacing="150"
-                                Foreground="#FF81532C"
-                                Margin="0,7,0,0"/>
-                        </StackPanel>
-
-                        <Border
-                            Background="#CCFFFFFF"
-                            CornerRadius="20"
-                            Padding="13,7"
-                            HorizontalAlignment="Left">
-
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon
-                                    Glyph="&#xE70F;"
-                                    FontSize="14"
-                                    Foreground="#FFB66A16"/>
-
-                                <TextBlock
-                                    Text="Modificar y eliminar registros"
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="#FF68431E"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 1. SELECCIÓN DEL CLIENTE -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <Grid>
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="70"
-                        Height="70"
-                        Opacity="0.055"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"/>
-
-                    <StackPanel Spacing="15">
-
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Border
-                                Width="42"
-                                Height="42"
-                                CornerRadius="21"
-                                Background="#FFFF9A1F">
-                                <FontIcon
-                                    Glyph="&#xE77B;"
-                                    FontSize="19"
-                                    Foreground="White"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel VerticalAlignment="Center" Spacing="2">
-                                <TextBlock
-                                    Text="1. Seleccionar cliente"
-                                    FontSize="20"
-                                    FontWeight="Bold"
-                                    Foreground="#FF1F140A"/>
-
-                                <TextBlock
-                                    Text="Busca y selecciona el propietario."
-                                    FontSize="12"
-                                    Foreground="#FF8A7A68"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Style="{StaticResource CajaInfo}">
-                            <StackPanel Spacing="9">
-                                <TextBlock
-                                    Text="Buscar por nombre o ID"
-                                    Style="{StaticResource TextoCampo}"/>
-
-                                <TextBox
-                                    x:Name="TxtBuscarCliente"
-                                    Style="{StaticResource EntradaTexto}"
-                                    PlaceholderText="Escribe el nombre o ID del cliente"
-                                    TextChanged="TxtBuscarCliente_TextChanged"/>
-
-                                <TextBlock
-                                    Text="Cliente disponible"
-                                    Style="{StaticResource TextoCampo}"/>
-
-                                <ComboBox
-                                    x:Name="ClienteCombo"
-                                    Style="{StaticResource Selector}"
-                                    PlaceholderText="Selecciona un cliente"
-                                    DisplayMemberPath="TextoMostrar"
-                                    HorizontalAlignment="Stretch"
-                                    SelectionChanged="ClienteCombo_SelectionChanged"/>
-
-                                <TextBlock
-                                    x:Name="TxtEstadoCliente"
-                                    Text="Selecciona un cliente para comenzar."
-                                    FontSize="12"
-                                    Foreground="#FF8A6A43"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 2. INFORMACIÓN DEL CLIENTE -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <Grid>
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="70"
-                        Height="70"
-                        Opacity="0.055"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"/>
-
-                    <StackPanel Spacing="15">
-
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Border
-                                Width="42"
-                                Height="42"
-                                CornerRadius="21"
-                                Background="#FFFF9A1F">
-                                <FontIcon
-                                    Glyph="&#xE77B;"
-                                    FontSize="19"
-                                    Foreground="White"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel VerticalAlignment="Center" Spacing="2">
-                                <TextBlock
-                                    Text="2. Información del cliente"
-                                    FontSize="20"
-                                    FontWeight="Bold"
-                                    Foreground="#FF1F140A"/>
-
-                                <TextBlock
-                                    Text="Consulta y actualiza sus datos personales."
-                                    FontSize="12"
-                                    Foreground="#FF8A7A68"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="ID del cliente" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtIDCliente"
-                                Style="{StaticResource EntradaTexto}"
-                                IsReadOnly="True"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Nombre completo" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtNombreCliente"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="Nombre del cliente"
-                                MaxLength="80"
-                                TextChanging="TxtNombreCliente_TextChanging"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Teléfono" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtTelefonoCliente"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="10 dígitos"
-                                MaxLength="10"
-                                InputScope="Number"
-                                TextChanging="TxtTelefonoCliente_TextChanging"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Correo electrónico" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtCorreoCliente"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="ejemplo@correo.com"
-                                MaxLength="100"
-                                InputScope="EmailSmtpAddress"
-                                TextChanging="TxtCorreoCliente_TextChanging"/>
-                        </StackPanel>
-
-                        <Border
-                            Background="#FFFFF1DD"
-                            CornerRadius="12"
-                            Padding="13,11">
-                            <TextBlock
-                                x:Name="TxtEstadoBaja"
-                                FontWeight="SemiBold"
-                                FontSize="13"
-                                Foreground="#FF8A5A22"
-                                TextWrapping="Wrap"/>
-                        </Border>
-
-                        <Grid ColumnSpacing="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button
-                                Grid.Column="0"
-                                Style="{StaticResource BotonPrincipal}"
-                                Content="Guardar cliente"
-                                Click="BtnGuardarCliente_Click"
-                                HorizontalAlignment="Stretch"/>
-
-                            <Button
-                                Grid.Column="1"
-                                x:Name="BtnDarBajaCliente"
-                                Style="{StaticResource BotonSecundario}"
-                                Content="Dar de baja"
-                                Click="BtnDarBajaCliente_Click"
-                                HorizontalAlignment="Stretch"/>
-                        </Grid>
-
-                        <Button
-                            x:Name="BtnEliminarCliente"
-                            Style="{StaticResource BotonPeligro}"
-                            Content="Eliminar cliente definitivamente"
-                            Click="BtnEliminarCliente_Click"
-                            HorizontalAlignment="Stretch"/>
-
-                        <Border
-                            Background="#FFFFF8EE"
-                            CornerRadius="12"
-                            Padding="13">
-                            <StackPanel Orientation="Horizontal" Spacing="9">
-                                <FontIcon
-                                    Glyph="&#xE946;"
-                                    FontSize="17"
-                                    Foreground="#FFB77A27"
-                                    VerticalAlignment="Top"/>
-
-                                <TextBlock
-                                    Text="Si el cliente tiene mascotas registradas, no podrá eliminarse definitivamente. Puedes darlo de baja para conservar su información."
-                                    FontSize="12"
-                                    Foreground="#FF786A5A"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 3. MASCOTAS -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <Grid>
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="70"
-                        Height="70"
-                        Opacity="0.055"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"/>
-
-                    <StackPanel Spacing="15">
-
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Border
-                                Width="42"
-                                Height="42"
-                                CornerRadius="21"
-                                Background="#FFFF9A1F">
-                                <FontIcon
-                                    Glyph="&#xEED8;"
-                                    FontSize="20"
-                                    Foreground="White"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel VerticalAlignment="Center" Spacing="2">
-                                <TextBlock
-                                    Text="3. Mascotas del cliente"
-                                    FontSize="20"
-                                    FontWeight="Bold"
-                                    Foreground="#FF1F140A"/>
-
-                                <TextBlock
-                                    Text="Selecciona una mascota para editar su información."
-                                    FontSize="12"
-                                    Foreground="#FF8A7A68"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <TextBlock
-                            Text="Mascotas registradas"
-                            Style="{StaticResource TextoCampo}"/>
-
-                        <ListView
-                            x:Name="MascotasListView"
-                            Style="{StaticResource ListaRegistros}"
-                            SelectionMode="Single"
-                            MaxHeight="220"
-                            SelectionChanged="MascotasListView_SelectionChanged">
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border
-                                        Background="#FFFFF7EC"
-                                        CornerRadius="10"
-                                        Padding="10"
-                                        Margin="2">
-                                        <StackPanel Spacing="4">
-                                            <TextBlock
-                                                Text="{Binding Titulo}"
-                                                FontWeight="SemiBold"
-                                                FontSize="14"
-                                                Foreground="#FF392719"
-                                                TextWrapping="Wrap"/>
-
-                                            <TextBlock
-                                                Text="{Binding Detalle}"
-                                                FontSize="12"
-                                                Foreground="#FF8A7A68"
-                                                TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="ID de mascota" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtIDMascota"
-                                Style="{StaticResource EntradaTexto}"
-                                IsReadOnly="True"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Nombre de la mascota" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtNombreMascota"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="Nombre de la mascota"
-                                MaxLength="50"
-                                TextChanging="TxtNombreMascota_TextChanging"/>
-                        </StackPanel>
-
-                        <Grid ColumnSpacing="12" RowSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0" Grid.Column="0" Spacing="6">
-                                <TextBlock Text="Especie" Style="{StaticResource TextoCampo}"/>
-                                <TextBox
-                                    x:Name="TxtEspecieMascota"
-                                    Style="{StaticResource EntradaTexto}"
-                                    PlaceholderText="Ej. Perro"
-                                    MaxLength="30"
-                                    TextChanging="TxtEspecieMascota_TextChanging"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="6">
-                                <TextBlock Text="Raza" Style="{StaticResource TextoCampo}"/>
-                                <TextBox
-                                    x:Name="TxtRazaMascota"
-                                    Style="{StaticResource EntradaTexto}"
-                                    PlaceholderText="Ej. Labrador"
-                                    MaxLength="60"
-                                    TextChanging="TxtRazaMascota_TextChanging"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="1" Grid.Column="0" Spacing="6">
-                                <TextBlock Text="Edad" Style="{StaticResource TextoCampo}"/>
-                                <TextBox
-                                    x:Name="TxtEdadMascota"
-                                    Style="{StaticResource EntradaTexto}"
-                                    PlaceholderText="Ej. 3 años"
-                                    MaxLength="12"
-                                    TextChanging="TxtEdadMascota_TextChanging"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="6">
-                                <TextBlock Text="Sexo" Style="{StaticResource TextoCampo}"/>
-                                <TextBox
-                                    x:Name="TxtSexoMascota"
-                                    Style="{StaticResource EntradaTexto}"
-                                    PlaceholderText="Macho o hembra"
-                                    MaxLength="10"
-                                    TextChanging="TxtSexoMascota_TextChanging"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Peso (kg)" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtPesoMascota"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="Ej. 12.5"
-                                MaxLength="8"
-                                TextChanging="TxtPesoMascota_TextChanging"/>
-                        </StackPanel>
-
-                        <Grid ColumnSpacing="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button
-                                Grid.Column="0"
-                                Style="{StaticResource BotonPrincipal}"
-                                Content="Guardar mascota"
-                                Click="BtnGuardarMascota_Click"
-                                HorizontalAlignment="Stretch"/>
-
-                            <Button
-                                Grid.Column="1"
-                                Style="{StaticResource BotonPeligro}"
-                                Content="Eliminar mascota"
-                                Click="BtnEliminarMascota_Click"
-                                HorizontalAlignment="Stretch"/>
-                        </Grid>
-
-                        <Button
-                            Style="{StaticResource BotonSecundario}"
-                            Content="Abrir expediente médico"
-                            Click="BtnVerExpediente_Click"
-                            HorizontalAlignment="Stretch"/>
-
-                        <Border
-                            Background="#FFFFF8EE"
-                            CornerRadius="12"
-                            Padding="13">
-                            <StackPanel Orientation="Horizontal" Spacing="9">
-                                <FontIcon
-                                    Glyph="&#xE946;"
-                                    FontSize="17"
-                                    Foreground="#FFB77A27"
-                                    VerticalAlignment="Top"/>
-
-                                <TextBlock
-                                    Text="No se podrá eliminar una mascota que tenga citas registradas."
-                                    FontSize="12"
-                                    Foreground="#FF786A5A"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 4. CITAS -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <Grid>
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="70"
-                        Height="70"
-                        Opacity="0.055"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"/>
-
-                    <StackPanel Spacing="15">
-
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Border
-                                Width="42"
-                                Height="42"
-                                CornerRadius="21"
-                                Background="#FFFF9A1F">
-                                <FontIcon
-                                    Glyph="&#xE787;"
-                                    FontSize="19"
-                                    Foreground="White"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-
-                            <StackPanel VerticalAlignment="Center" Spacing="2">
-                                <TextBlock
-                                    Text="4. Citas de sus mascotas"
-                                    FontSize="20"
-                                    FontWeight="Bold"
-                                    Foreground="#FF1F140A"/>
-
-                                <TextBlock
-                                    Text="Consulta, modifica o elimina citas registradas."
-                                    FontSize="12"
-                                    Foreground="#FF8A7A68"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <TextBlock
-                            Text="Citas registradas"
-                            Style="{StaticResource TextoCampo}"/>
-
-                        <ListView
-                            x:Name="CitasListView"
-                            Style="{StaticResource ListaRegistros}"
-                            SelectionMode="Single"
-                            MaxHeight="250"
-                            SelectionChanged="CitasListView_SelectionChanged">
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border
-                                        Background="#FFFFF7EC"
-                                        CornerRadius="10"
-                                        Padding="10"
-                                        Margin="2">
-                                        <StackPanel Spacing="4">
-                                            <TextBlock
-                                                Text="{Binding Titulo}"
-                                                FontWeight="SemiBold"
-                                                FontSize="14"
-                                                Foreground="#FF392719"
-                                                TextWrapping="Wrap"/>
-
-                                            <TextBlock
-                                                Text="{Binding Detalle}"
-                                                FontSize="12"
-                                                Foreground="#FF8A7A68"
-                                                TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="ID de cita" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtIDCita"
-                                Style="{StaticResource EntradaTexto}"
-                                IsReadOnly="True"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="ID de la mascota" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtMascotaCita"
-                                Style="{StaticResource EntradaTexto}"
-                                IsReadOnly="True"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Fecha de la cita" Style="{StaticResource TextoCampo}"/>
-                            <DatePicker
-                                x:Name="FechaCitaPicker"
-                                HorizontalAlignment="Stretch"
-                                MinWidth="0"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Hora (formato 24 horas)" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtHoraCita"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="Ej. 14:30"
-                                MaxLength="5"
-                                TextChanging="TxtHoraCita_TextChanging"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Servicio" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtServicioCita"
-                                Style="{StaticResource EntradaTexto}"
-                                PlaceholderText="Servicio veterinario"
-                                MaxLength="100"
-                                TextChanging="TxtServicioCita_TextChanging"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Observaciones" Style="{StaticResource TextoCampo}"/>
-                            <TextBox
-                                x:Name="TxtObservacionesCita"
-                                Background="#FFFFFBF5"
-                                BorderBrush="#FFE9D8C0"
-                                BorderThickness="1"
-                                CornerRadius="10"
-                                Padding="12,10"
-                                FontSize="14"
-                                Foreground="#FF1F140A"
-                                AcceptsReturn="True"
-                                TextWrapping="Wrap"
-                                MaxLength="500"
-                                MinHeight="100"
-                                PlaceholderText="Observaciones de la cita"/>
-                        </StackPanel>
-
-                        <Grid ColumnSpacing="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button
-                                Grid.Column="0"
-                                Style="{StaticResource BotonPrincipal}"
-                                Content="Guardar cita"
-                                Click="BtnGuardarCita_Click"
-                                HorizontalAlignment="Stretch"/>
-
-                            <Button
-                                Grid.Column="1"
-                                Style="{StaticResource BotonPeligro}"
-                                Content="Eliminar cita"
-                                Click="BtnEliminarCita_Click"
-                                HorizontalAlignment="Stretch"/>
-                        </Grid>
-
-                        <Border
-                            Background="#FFFFF8EE"
-                            CornerRadius="12"
-                            Padding="13">
-                            <StackPanel Orientation="Horizontal" Spacing="9">
-                                <FontIcon
-                                    Glyph="&#xE946;"
-                                    FontSize="17"
-                                    Foreground="#FFB77A27"
-                                    VerticalAlignment="Top"/>
-
-                                <TextBlock
-                                    Text="Al modificar una cita, la nueva fecha y hora deben ser futuras y no estar ocupadas por otra cita."
-                                    FontSize="12"
-                                    Foreground="#FF786A5A"
-                                    TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- ESTADO DE LA OPERACIÓN -->
-            <Border
-                Background="#FFFFFFFF"
-                BorderBrush="#FFF6E6CF"
-                BorderThickness="1"
-                CornerRadius="18"
-                Padding="20">
-
-                <StackPanel Spacing="9">
-                    <StackPanel Orientation="Horizontal" Spacing="9">
-                        <FontIcon
-                            Glyph="&#xE946;"
-                            FontSize="18"
-                            Foreground="#FFFF9A1F"/>
-
-                        <TextBlock
-                            Text="Estado de la operación"
-                            FontSize="16"
-                            FontWeight="Bold"
-                            Foreground="#FF1F140A"/>
-                    </StackPanel>
-
-                    <TextBlock
-                        x:Name="TxtMensaje"
-                        Text="Selecciona un cliente para comenzar."
-                        FontSize="13"
-                        Foreground="#FF5A4E42"
-                        TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-
-            <!-- VOLVER -->
-            <Button
-                Style="{StaticResource BotonSecundario}"
-                Content="Volver a Búsqueda / Consultas"
-                Click="BtnIrBusqueda_Click"
-                HorizontalAlignment="Stretch"/>
-
-            <!-- DECORACIÓN INFERIOR -->
             <StackPanel
-                Orientation="Horizontal"
-                HorizontalAlignment="Center"
-                Spacing="13"
-                Opacity="0.35"
-                Margin="0,4,0,10">
+                HorizontalAlignment="Stretch"
+                Spacing="22">
 
-                <Image
-                    Source="/Assets/huella.png"
-                    Width="22"
-                    Height="22"/>
+                <!-- ENCABEZADO -->
 
-                <Image
-                    Source="/Assets/huella.png"
-                    Width="22"
-                    Height="22"
-                    Margin="0,9,0,0"/>
+                <Border
+                    Padding="26,22"
+                    CornerRadius="26"
+                    BorderThickness="1"
+                    BorderBrush="#FFF5D4A9"
+                    HorizontalAlignment="Stretch">
 
-                <Image
-                    Source="/Assets/huella.png"
-                    Width="22"
-                    Height="22"/>
+                    <Border.Background>
+                        <LinearGradientBrush
+                            StartPoint="0,0"
+                            EndPoint="1,1">
+
+                            <GradientStop
+                                Color="#FFFFF0DB"
+                                Offset="0"/>
+
+                            <GradientStop
+                                Color="#FFFFD9A6"
+                                Offset="0.55"/>
+
+                            <GradientStop
+                                Color="#FFFFB866"
+                                Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="95"
+                            Height="95"
+                            Opacity="0.09"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Stretch="Uniform"/>
+
+                        <StackPanel
+                            Spacing="15"
+                            HorizontalAlignment="Stretch">
+
+                            <Border
+                                Width="78"
+                                Height="78"
+                                CornerRadius="39"
+                                Background="#FFFFFFFF"
+                                BorderBrush="#FFFFE5C3"
+                                BorderThickness="2"
+                                HorizontalAlignment="Left">
+
+                                <Image
+                                    Source="/Assets/logo_servetsur.png"
+                                    Width="65"
+                                    Height="65"
+                                    Stretch="Uniform"/>
+                            </Border>
+
+                            <StackPanel Spacing="5">
+
+                                <TextBlock
+                                    Text="Administración integral"
+                                    FontSize="29"
+                                    FontWeight="Bold"
+                                    Foreground="#FF1F140A"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="Gestiona clientes, mascotas y citas desde un solo lugar."
+                                    FontSize="14"
+                                    Foreground="#FF5A4030"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="VETERINARIA SERVETSUR MTY"
+                                    FontSize="11"
+                                    FontWeight="Bold"
+                                    CharacterSpacing="150"
+                                    Foreground="#FF81532C"
+                                    Margin="0,7,0,0"/>
+                            </StackPanel>
+
+                            <Border
+                                Background="#CCFFFFFF"
+                                CornerRadius="20"
+                                Padding="13,7"
+                                HorizontalAlignment="Left">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+
+                                    <FontIcon
+                                        Glyph="&#xE70F;"
+                                        FontSize="14"
+                                        Foreground="#FFB66A16"/>
+
+                                    <TextBlock
+                                        Text="Modificar y eliminar registros"
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="#FF68431E"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 1. SELECCIÓN DEL CLIENTE -->
+
+                <Border Style="{StaticResource TarjetaSeccion}">
+
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="70"
+                            Height="70"
+                            Opacity="0.055"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+
+                        <StackPanel
+                            Spacing="15"
+                            HorizontalAlignment="Stretch">
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
+
+                                <Border
+                                    Width="42"
+                                    Height="42"
+                                    CornerRadius="21"
+                                    Background="#FFFF9A1F">
+
+                                    <FontIcon
+                                        Glyph="&#xE77B;"
+                                        FontSize="19"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="1. Seleccionar cliente"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="#FF1F140A"/>
+
+                                    <TextBlock
+                                        Text="Busca y selecciona el propietario."
+                                        FontSize="12"
+                                        Foreground="#FF8A7A68"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Style="{StaticResource CajaInfo}">
+
+                                <StackPanel
+                                    Spacing="9"
+                                    HorizontalAlignment="Stretch">
+
+                                    <TextBlock
+                                        Text="Buscar por nombre o ID"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <TextBox
+                                        x:Name="TxtBuscarCliente"
+                                        Style="{StaticResource EntradaTexto}"
+                                        PlaceholderText="Escribe el nombre o ID del cliente"
+                                        BeforeTextChanging="TxtBuscarCliente_BeforeTextChanging"
+                                        TextChanged="TxtBuscarCliente_TextChanged"/>
+
+                                    <TextBlock
+                                        Text="Cliente disponible"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <ComboBox
+                                        x:Name="ClienteCombo"
+                                        Style="{StaticResource Selector}"
+                                        PlaceholderText="Selecciona un cliente"
+                                        DisplayMemberPath="TextoMostrar"
+                                        SelectionChanged="ClienteCombo_SelectionChanged"/>
+
+                                    <TextBlock
+                                        x:Name="TxtEstadoCliente"
+                                        Text="Selecciona un cliente para comenzar."
+                                        FontSize="12"
+                                        Foreground="#FF8A6A43"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. INFORMACIÓN DEL CLIENTE -->
+
+                <Border Style="{StaticResource TarjetaSeccion}">
+
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="70"
+                            Height="70"
+                            Opacity="0.055"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+
+                        <StackPanel
+                            Spacing="15"
+                            HorizontalAlignment="Stretch">
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
+
+                                <Border
+                                    Width="42"
+                                    Height="42"
+                                    CornerRadius="21"
+                                    Background="#FFFF9A1F">
+
+                                    <FontIcon
+                                        Glyph="&#xE77B;"
+                                        FontSize="19"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="2. Información del cliente"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="#FF1F140A"/>
+
+                                    <TextBlock
+                                        Text="Consulta y actualiza sus datos personales."
+                                        FontSize="12"
+                                        Foreground="#FF8A7A68"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="ID del cliente"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtIDCliente"
+                                    Style="{StaticResource EntradaTexto}"
+                                    IsReadOnly="True"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Nombre completo"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtNombreCliente"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="Nombre del cliente"
+                                    MaxLength="80"
+                                    TextChanging="TxtNombreCliente_TextChanging"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Teléfono"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtTelefonoCliente"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="10 dígitos"
+                                    MaxLength="10"
+                                    InputScope="Number"
+                                    TextChanging="TxtTelefonoCliente_TextChanging"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Correo electrónico"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtCorreoCliente"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="ejemplo@correo.com"
+                                    MaxLength="100"
+                                    InputScope="EmailSmtpAddress"
+                                    TextChanging="TxtCorreoCliente_TextChanging"/>
+                            </StackPanel>
+
+                            <Border
+                                Background="#FFFFF1DD"
+                                CornerRadius="12"
+                                Padding="13,11">
+
+                                <TextBlock
+                                    x:Name="TxtEstadoBaja"
+                                    FontWeight="SemiBold"
+                                    FontSize="13"
+                                    Foreground="#FF8A5A22"
+                                    TextWrapping="Wrap"/>
+                            </Border>
+
+                            <Grid
+                                ColumnSpacing="10"
+                                HorizontalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    Grid.Column="0"
+                                    Style="{StaticResource BotonPrincipal}"
+                                    Content="Guardar cliente"
+                                    Click="BtnGuardarCliente_Click"/>
+
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="BtnDarBajaCliente"
+                                    Style="{StaticResource BotonSecundario}"
+                                    Content="Dar de baja"
+                                    IsEnabled="False"
+                                    Click="BtnDarBajaCliente_Click"/>
+                            </Grid>
+
+                            <Button
+                                x:Name="BtnEliminarCliente"
+                                Style="{StaticResource BotonPeligro}"
+                                Content="Eliminar cliente definitivamente"
+                                IsEnabled="False"
+                                Click="BtnEliminarCliente_Click"/>
+
+                            <Border
+                                Background="#FFFFF8EE"
+                                CornerRadius="12"
+                                Padding="13">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE946;"
+                                        FontSize="17"
+                                        Foreground="#FFB77A27"
+                                        VerticalAlignment="Top"/>
+
+                                    <TextBlock
+                                        Text="Si el cliente tiene mascotas registradas, no podrá eliminarse definitivamente. Puedes darlo de baja para conservar su información."
+                                        FontSize="12"
+                                        Foreground="#FF786A5A"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 3. MASCOTAS -->
+
+                <Border Style="{StaticResource TarjetaSeccion}">
+
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="70"
+                            Height="70"
+                            Opacity="0.055"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+
+                        <StackPanel
+                            Spacing="15"
+                            HorizontalAlignment="Stretch">
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
+
+                                <Border
+                                    Width="42"
+                                    Height="42"
+                                    CornerRadius="21"
+                                    Background="#FFFF9A1F">
+
+                                    <FontIcon
+                                        Glyph="&#xEED8;"
+                                        FontSize="20"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="3. Mascotas del cliente"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="#FF1F140A"/>
+
+                                    <TextBlock
+                                        Text="Selecciona una mascota para editar su información."
+                                        FontSize="12"
+                                        Foreground="#FF8A7A68"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock
+                                Text="Mascotas registradas"
+                                Style="{StaticResource TextoCampo}"/>
+
+                            <ListView
+                                x:Name="MascotasListView"
+                                Style="{StaticResource ListaRegistros}"
+                                SelectionMode="Single"
+                                MaxHeight="240"
+                                SelectionChanged="MascotasListView_SelectionChanged">
+
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+
+                                        <Border
+                                            Background="#FFFFF7EC"
+                                            CornerRadius="10"
+                                            Padding="10"
+                                            Margin="2">
+
+                                            <StackPanel Spacing="4">
+
+                                                <TextBlock
+                                                    Text="{Binding Titulo}"
+                                                    FontWeight="SemiBold"
+                                                    FontSize="14"
+                                                    Foreground="#FF392719"
+                                                    TextWrapping="Wrap"/>
+
+                                                <TextBlock
+                                                    Text="{Binding Detalle}"
+                                                    FontSize="12"
+                                                    Foreground="#FF8A7A68"
+                                                    TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="ID de mascota"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtIDMascota"
+                                    Style="{StaticResource EntradaTexto}"
+                                    IsReadOnly="True"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Nombre de la mascota"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtNombreMascota"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="Nombre de la mascota"
+                                    MaxLength="50"
+                                    TextChanging="TxtNombreMascota_TextChanging"/>
+                            </StackPanel>
+
+                            <Grid
+                                ColumnSpacing="12"
+                                RowSpacing="12"
+                                HorizontalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="6">
+
+                                    <TextBlock
+                                        Text="Especie"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <TextBox
+                                        x:Name="TxtEspecieMascota"
+                                        Style="{StaticResource EntradaTexto}"
+                                        PlaceholderText="Ej. Perro"
+                                        MaxLength="40"
+                                        TextChanging="TxtEspecieMascota_TextChanging"/>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="6">
+
+                                    <TextBlock
+                                        Text="Raza"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <TextBox
+                                        x:Name="TxtRazaMascota"
+                                        Style="{StaticResource EntradaTexto}"
+                                        PlaceholderText="Ej. Labrador"
+                                        MaxLength="60"
+                                        TextChanging="TxtRazaMascota_TextChanging"/>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Spacing="6">
+
+                                    <TextBlock
+                                        Text="Edad (años)"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <TextBox
+                                        x:Name="TxtEdadMascota"
+                                        Style="{StaticResource EntradaTexto}"
+                                        PlaceholderText="Ej. 3"
+                                        MaxLength="3"
+                                        InputScope="Number"
+                                        TextChanging="TxtEdadMascota_TextChanging"/>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Spacing="6">
+
+                                    <TextBlock
+                                        Text="Sexo"
+                                        Style="{StaticResource TextoCampo}"/>
+
+                                    <TextBox
+                                        x:Name="TxtSexoMascota"
+                                        Style="{StaticResource EntradaTexto}"
+                                        PlaceholderText="Macho o hembra"
+                                        MaxLength="10"
+                                        TextChanging="TxtSexoMascota_TextChanging"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Peso (kg)"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtPesoMascota"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="Ej. 12.5"
+                                    MaxLength="7"
+                                    InputScope="Number"
+                                    TextChanging="TxtPesoMascota_TextChanging"/>
+                            </StackPanel>
+
+                            <Grid
+                                ColumnSpacing="10"
+                                HorizontalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    Grid.Column="0"
+                                    Style="{StaticResource BotonPrincipal}"
+                                    Content="Guardar mascota"
+                                    Click="BtnGuardarMascota_Click"/>
+
+                                <Button
+                                    Grid.Column="1"
+                                    Style="{StaticResource BotonPeligro}"
+                                    Content="Eliminar mascota"
+                                    Click="BtnEliminarMascota_Click"/>
+                            </Grid>
+
+                            <Button
+                                Style="{StaticResource BotonSecundario}"
+                                Content="Abrir expediente médico"
+                                Click="BtnVerExpediente_Click"/>
+
+                            <Border
+                                Background="#FFFFF8EE"
+                                CornerRadius="12"
+                                Padding="13">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE946;"
+                                        FontSize="17"
+                                        Foreground="#FFB77A27"
+                                        VerticalAlignment="Top"/>
+
+                                    <TextBlock
+                                        Text="No se podrá eliminar una mascota que tenga citas, historial médico o registros de cartilla médica."
+                                        FontSize="12"
+                                        Foreground="#FF786A5A"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 4. CITAS -->
+
+                <Border Style="{StaticResource TarjetaSeccion}">
+
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="70"
+                            Height="70"
+                            Opacity="0.055"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+
+                        <StackPanel
+                            Spacing="15"
+                            HorizontalAlignment="Stretch">
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
+
+                                <Border
+                                    Width="42"
+                                    Height="42"
+                                    CornerRadius="21"
+                                    Background="#FFFF9A1F">
+
+                                    <FontIcon
+                                        Glyph="&#xE787;"
+                                        FontSize="19"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="4. Citas de sus mascotas"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="#FF1F140A"/>
+
+                                    <TextBlock
+                                        Text="Consulta, modifica o elimina citas registradas."
+                                        FontSize="12"
+                                        Foreground="#FF8A7A68"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock
+                                Text="Citas registradas"
+                                Style="{StaticResource TextoCampo}"/>
+
+                            <ListView
+                                x:Name="CitasListView"
+                                Style="{StaticResource ListaRegistros}"
+                                SelectionMode="Single"
+                                MaxHeight="270"
+                                SelectionChanged="CitasListView_SelectionChanged">
+
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+
+                                        <Border
+                                            Background="#FFFFF7EC"
+                                            CornerRadius="10"
+                                            Padding="10"
+                                            Margin="2">
+
+                                            <StackPanel Spacing="4">
+
+                                                <TextBlock
+                                                    Text="{Binding Titulo}"
+                                                    FontWeight="SemiBold"
+                                                    FontSize="14"
+                                                    Foreground="#FF392719"
+                                                    TextWrapping="Wrap"/>
+
+                                                <TextBlock
+                                                    Text="{Binding Detalle}"
+                                                    FontSize="12"
+                                                    Foreground="#FF8A7A68"
+                                                    TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="ID de cita"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtIDCita"
+                                    Style="{StaticResource EntradaTexto}"
+                                    IsReadOnly="True"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="ID de la mascota"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtMascotaCita"
+                                    Style="{StaticResource EntradaTexto}"
+                                    IsReadOnly="True"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Fecha de la cita"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <DatePicker
+                                    x:Name="FechaCitaPicker"
+                                    HorizontalAlignment="Stretch"
+                                    MinWidth="0"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Hora (formato 24 horas)"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TimePicker
+                                    x:Name="TpHoraCita"
+                                    Language="es-MX"
+                                    ClockIdentifier="24HourClock"
+                                    MinuteIncrement="5"
+                                    HorizontalAlignment="Stretch"
+                                    MinWidth="0"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Servicio"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtServicioCita"
+                                    Style="{StaticResource EntradaTexto}"
+                                    PlaceholderText="Servicio veterinario"
+                                    MaxLength="80"
+                                    TextChanging="TxtServicioCita_TextChanging"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock
+                                    Text="Observaciones"
+                                    Style="{StaticResource TextoCampo}"/>
+
+                                <TextBox
+                                    x:Name="TxtObservacionesCita"
+                                    Background="#FFFFFBF5"
+                                    BorderBrush="#FFE9D8C0"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12,10"
+                                    FontSize="14"
+                                    Foreground="#FF1F140A"
+                                    HorizontalAlignment="Stretch"
+                                    AcceptsReturn="True"
+                                    TextWrapping="Wrap"
+                                    MaxLength="500"
+                                    MinHeight="100"
+                                    PlaceholderText="Observaciones de la cita"/>
+                            </StackPanel>
+
+                            <Grid
+                                ColumnSpacing="10"
+                                HorizontalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    Grid.Column="0"
+                                    Style="{StaticResource BotonPrincipal}"
+                                    Content="Guardar cita"
+                                    Click="BtnGuardarCita_Click"/>
+
+                                <Button
+                                    Grid.Column="1"
+                                    Style="{StaticResource BotonPeligro}"
+                                    Content="Eliminar cita"
+                                    Click="BtnEliminarCita_Click"/>
+                            </Grid>
+
+                            <Border
+                                Background="#FFFFF8EE"
+                                CornerRadius="12"
+                                Padding="13">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE946;"
+                                        FontSize="17"
+                                        Foreground="#FFB77A27"
+                                        VerticalAlignment="Top"/>
+
+                                    <TextBlock
+                                        Text="Al modificar una cita, la nueva fecha y hora deben ser futuras y no estar ocupadas por otra cita."
+                                        FontSize="12"
+                                        Foreground="#FF786A5A"
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ESTADO DE LA OPERACIÓN -->
+
+                <Border
+                    Background="#FFFFFFFF"
+                    BorderBrush="#FFF6E6CF"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    Padding="20"
+                    HorizontalAlignment="Stretch">
+
+                    <StackPanel Spacing="9">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="9">
+
+                            <FontIcon
+                                Glyph="&#xE946;"
+                                FontSize="18"
+                                Foreground="#FFFF9A1F"/>
+
+                            <TextBlock
+                                Text="Estado de la operación"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Foreground="#FF1F140A"/>
+                        </StackPanel>
+
+                        <TextBlock
+                            x:Name="TxtMensaje"
+                            Text="Selecciona un cliente para comenzar."
+                            FontSize="13"
+                            Foreground="#FF5A4E42"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- VOLVER -->
+
+                <Button
+                    Style="{StaticResource BotonSecundario}"
+                    Content="Volver a Búsqueda / Consultas"
+                    Click="BtnIrBusqueda_Click"/>
+
+                <!-- DECORACIÓN INFERIOR -->
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="13"
+                    Opacity="0.35"
+                    Margin="0,4,0,10">
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="22"
+                        Height="22"/>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="22"
+                        Height="22"
+                        Margin="0,9,0,0"/>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="22"
+                        Height="22"/>
+                </StackPanel>
 
             </StackPanel>
-
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Page>

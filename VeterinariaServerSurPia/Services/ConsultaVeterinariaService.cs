@@ -25,16 +25,19 @@ namespace VeterinariaServerSurPia.Services
             public string Raza { get; set; } = "";
         }
 
+        private sealed class CitaHorario
+        {
+            public TimeSpan HoraInicio { get; set; }
+            public TimeSpan HoraFin { get; set; }
+            public string IdCita { get; set; } = "";
+            public string HoraOriginal { get; set; } = "";
+        }
+
         public ConsultaVeterinariaService(DatabaseService database)
         {
             _database = database ?? throw new ArgumentNullException(nameof(database));
         }
 
-        /// <summary>
-        /// Busca mascotas cuyo nombre completo o ID aparezca
-        /// expresamente en la pregunta del usuario.
-        /// No utiliza coincidencias parciales de palabras.
-        /// </summary>
         public async Task<List<MascotaCoincidencia>> BuscarMascotasMencionadasAsync(
             string pregunta)
         {
@@ -140,6 +143,202 @@ namespace VeterinariaServerSurPia.Services
                 " ").Trim();
         }
 
+        // =========================================================
+        // DISPONIBILIDAD DE CITAS
+        // =========================================================
+
+        /// <summary>
+        /// Calcula los horarios disponibles para una fecha.
+        /// Horario de atención: 08:00 a 17:00.
+        /// Duración de cada cita: 30 minutos.
+        /// No modifica ni reserva horarios.
+        /// </summary>
+        public async Task<string> ObtenerDisponibilidadAsync(DateTime fecha)
+        {
+            const int duracionMinutos = 30;
+
+            TimeSpan apertura = new(8, 0, 0);
+            TimeSpan cierre = new(17, 0, 0);
+            TimeSpan duracion = TimeSpan.FromMinutes(duracionMinutos);
+
+            if (fecha.Date < DateTime.Today)
+            {
+                return "La fecha solicitada ya pasó. " +
+                       "Indica una fecha de hoy en adelante.";
+            }
+
+            using SqliteConnection connection = await _database.OpenConnectionAsync();
+            using SqliteCommand command = connection.CreateCommand();
+
+            string fechaSql = fecha.ToString(
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture);
+
+            command.CommandText = @"
+                SELECT IdCita, Hora
+                FROM Citas
+                WHERE date(Fecha) = date($fecha)
+                ORDER BY Hora ASC;";
+
+            command.Parameters.AddWithValue("$fecha", fechaSql);
+
+            using SqliteDataReader reader = await command.ExecuteReaderAsync();
+
+            List<CitaHorario> citas = new();
+            int citasSinHoraValida = 0;
+
+            while (await reader.ReadAsync())
+            {
+                string idCita = Valor(reader, 0);
+                string horaTexto = Valor(reader, 1);
+
+                if (!TryParseHora(horaTexto, out TimeSpan horaInicio))
+                {
+                    citasSinHoraValida++;
+                    continue;
+                }
+
+                TimeSpan horaFin = horaInicio.Add(duracion);
+
+                citas.Add(new CitaHorario
+                {
+                    IdCita = idCita,
+                    HoraOriginal = horaTexto,
+                    HoraInicio = horaInicio,
+                    HoraFin = horaFin
+                });
+            }
+
+            List<(TimeSpan Inicio, TimeSpan Fin)> disponibles = new();
+
+            for (TimeSpan inicio = apertura;
+                 inicio.Add(duracion) <= cierre;
+                 inicio = inicio.Add(duracion))
+            {
+                TimeSpan fin = inicio.Add(duracion);
+
+                bool ocupado = citas.Exists(c =>
+                    c.HoraInicio < fin &&
+                    c.HoraFin > inicio);
+
+                if (!ocupado)
+                {
+                    disponibles.Add((inicio, fin));
+                }
+            }
+
+            StringBuilder resultado = new();
+
+            resultado.AppendLine("DISPONIBILIDAD DE CITAS");
+            resultado.AppendLine(
+                $"Fecha consultada: {fecha:dddd dd/MM/yyyy}");
+            resultado.AppendLine("Horario de atención: 08:00 a 17:00");
+            resultado.AppendLine("Duración por cita: 30 minutos");
+            resultado.AppendLine();
+
+            resultado.AppendLine(
+                $"Citas registradas con hora válida: {citas.Count}");
+
+            resultado.AppendLine(
+                $"Horarios disponibles: {disponibles.Count}");
+
+            resultado.AppendLine();
+
+            if (disponibles.Count == 0)
+            {
+                resultado.AppendLine(
+                    "No hay intervalos libres de 30 minutos dentro del horario de atención.");
+            }
+            else
+            {
+                resultado.AppendLine("HORARIOS DISPONIBLES:");
+
+                foreach (var horario in disponibles)
+                {
+                    resultado.AppendLine(
+                        $"{horario.Inicio:hh\\:mm} - {horario.Fin:hh\\:mm}");
+                }
+            }
+
+            if (citasSinHoraValida > 0)
+            {
+                resultado.AppendLine();
+                resultado.AppendLine(
+                    $"Aviso: {citasSinHoraValida} cita(s) tienen una hora vacía " +
+                    "o con un formato que no se pudo interpretar. " +
+                    "No fue posible bloquear esos intervalos. " +
+                    "Revisa esos registros antes de confirmar una nueva cita.");
+            }
+
+            resultado.AppendLine();
+            resultado.AppendLine(
+                "La disponibilidad se calculó con las citas guardadas actualmente en SQLite.");
+
+            resultado.AppendLine(
+                "La consulta no reserva ni modifica ningún horario.");
+
+            return resultado.ToString();
+        }
+
+        private static bool TryParseHora(
+            string texto,
+            out TimeSpan hora)
+        {
+            hora = TimeSpan.Zero;
+
+            if (string.IsNullOrWhiteSpace(texto) ||
+                texto.Equals("No registrado", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            texto = texto.Trim();
+
+            string[] formatos =
+            {
+                @"h\:mm",
+                @"hh\:mm",
+                @"h\:mm\:ss",
+                @"hh\:mm\:ss"
+            };
+
+            if (TimeSpan.TryParseExact(
+                texto,
+                formatos,
+                CultureInfo.InvariantCulture,
+                out hora))
+            {
+                return hora >= TimeSpan.Zero &&
+                       hora < TimeSpan.FromDays(1);
+            }
+
+            if (DateTime.TryParse(
+                texto,
+                CultureInfo.CurrentCulture,
+                DateTimeStyles.None,
+                out DateTime fechaHora))
+            {
+                hora = fechaHora.TimeOfDay;
+                return true;
+            }
+
+            if (DateTime.TryParse(
+                texto,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out fechaHora))
+            {
+                hora = fechaHora.TimeOfDay;
+                return true;
+            }
+
+            return false;
+        }
+
+        // =========================================================
+        // RESUMEN GENERAL
+        // =========================================================
+
         public async Task<string> ObtenerResumenGeneralAsync()
         {
             using SqliteConnection connection = await _database.OpenConnectionAsync();
@@ -162,6 +361,10 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado.ToString();
         }
+
+        // =========================================================
+        // PRÓXIMAS CITAS REGISTRADAS
+        // =========================================================
 
         public async Task<string> ObtenerProximasCitasAsync(int limite = 30)
         {
@@ -227,6 +430,10 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado.ToString();
         }
+
+        // =========================================================
+        // CARTILLA MÉDICA
+        // =========================================================
 
         public async Task<string> ObtenerProximasFechasCartillaAsync(int limite = 50)
         {
@@ -294,6 +501,10 @@ namespace VeterinariaServerSurPia.Services
             return resultado.ToString();
         }
 
+        // =========================================================
+        // LISTADO DE MASCOTAS
+        // =========================================================
+
         public async Task<string> ObtenerListadoMascotasAsync(int limite = 100)
         {
             limite = Math.Clamp(limite, 1, 500);
@@ -344,6 +555,10 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado.ToString();
         }
+
+        // =========================================================
+        // MÉTODOS AUXILIARES
+        // =========================================================
 
         private static async Task<long> ContarAsync(
             SqliteConnection connection,

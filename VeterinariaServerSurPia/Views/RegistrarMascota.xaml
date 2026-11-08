@@ -6,22 +6,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     RequestedTheme="Light"
-    Background="#FFFFF6EA">
+    Background="#FFFFF6EA"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
 
     <Page.Resources>
 
-        <!-- ================= ESTILOS REUTILIZABLES ================= -->
-
-        <!-- Tarjeta blanca -->
         <Style x:Key="TarjetaSeccion" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="22"/>
-            <Setter Property="Padding" Value="26,24"/>
+            <Setter Property="Padding" Value="30,26"/>
         </Style>
 
-        <!-- Círculo naranja con el número de la sección -->
         <Style x:Key="InsigniaNumero" TargetType="Border">
             <Setter Property="Width" Value="42"/>
             <Setter Property="Height" Value="42"/>
@@ -30,23 +28,20 @@
             <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
 
-        <!-- Caja durazno para información -->
         <Style x:Key="CajaInfo" TargetType="Border">
             <Setter Property="Background" Value="#FFFFF1DD"/>
             <Setter Property="BorderBrush" Value="#FFF8E2C2"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Padding" Value="16,13"/>
+            <Setter Property="Padding" Value="18,15"/>
         </Style>
 
-        <!-- Título de sección -->
         <Style x:Key="TituloSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="21"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#FF1F140A"/>
         </Style>
 
-        <!-- Descripción de sección -->
         <Style x:Key="DescripcionSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="#FF6B5E50"/>
@@ -54,7 +49,7 @@
             <Setter Property="LineHeight" Value="20"/>
         </Style>
 
-        <!-- ================= CAMPOS DE TEXTO ================= -->
+        <!-- Campos de texto -->
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -69,7 +64,7 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- ================= LISTAS DESPLEGABLES ================= -->
+        <!-- Listas desplegables -->
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -82,7 +77,7 @@
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
 
-        <!-- ================= BOTONES (naranja) ================= -->
+        <!-- Botones -->
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
@@ -95,162 +90,342 @@
         <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent"/>
         <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent"/>
         <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent"/>
+
     </Page.Resources>
 
-    <ScrollViewer
-        Padding="30,24,30,24"
-        HorizontalScrollMode="Disabled"
-        HorizontalScrollBarVisibility="Disabled"
-        VerticalScrollMode="Enabled"
-        VerticalScrollBarVisibility="Auto">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-        <StackPanel
-            Spacing="22"
-            MaxWidth="820"
-            HorizontalAlignment="Center">
+        <ScrollViewer
+            HorizontalScrollMode="Disabled"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
 
-            <!-- =====================================================
-                 ENCABEZADO
-                 ===================================================== -->
-            <Border
-                CornerRadius="26"
-                Padding="26,20">
+            <StackPanel
+                Spacing="22"
+                HorizontalAlignment="Stretch"
+                Padding="30,24,30,30">
 
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#FFFFF0DB" Offset="0"/>
-                        <GradientStop Color="#FFFFD9A6" Offset="0.6"/>
-                        <GradientStop Color="#FFFFB866" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
+                <!-- ENCABEZADO -->
+                <Border
+                    CornerRadius="26"
+                    Padding="30,24"
+                    HorizontalAlignment="Stretch">
 
-                <Grid ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#FFFFF0DB" Offset="0"/>
+                            <GradientStop Color="#FFFFD9A6" Offset="0.6"/>
+                            <GradientStop Color="#FFFFB866" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
 
-                    <!-- Huellitas decorativas -->
-                    <Image
-                        Grid.ColumnSpan="3"
-                        Source="/Assets/huella.png"
-                        Width="62"
-                        Height="62"
-                        Opacity="0.5"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Margin="0,0,170,0"
-                        RenderTransformOrigin="0.5,0.5"
-                        IsHitTestVisible="False">
-                        <Image.RenderTransform>
-                            <RotateTransform Angle="-15"/>
-                        </Image.RenderTransform>
-                    </Image>
+                    <Grid ColumnSpacing="22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Image
-                        Grid.ColumnSpan="3"
-                        Source="/Assets/huella.png"
-                        Width="38"
-                        Height="38"
-                        Opacity="0.4"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Margin="0,0,250,-6"
-                        RenderTransformOrigin="0.5,0.5"
-                        IsHitTestVisible="False">
-                        <Image.RenderTransform>
-                            <RotateTransform Angle="20"/>
-                        </Image.RenderTransform>
-                    </Image>
-
-                    <!-- Logo -->
-                    <Border
-                        Width="78"
-                        Height="78"
-                        CornerRadius="39"
-                        Background="White"
-                        BorderBrush="#FFFFE6CC"
-                        BorderThickness="3"
-                        Padding="12"
-                        VerticalAlignment="Center">
                         <Image
-                            Source="/Assets/logo_servetsur.png"
-                            Stretch="Uniform"/>
-                    </Border>
+                            Grid.ColumnSpan="3"
+                            Source="/Assets/huella.png"
+                            Width="75"
+                            Height="75"
+                            Opacity="0.35"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,210,0"
+                            IsHitTestVisible="False"/>
 
-                    <!-- Títulos -->
-                    <StackPanel
-                        Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Spacing="4">
+                        <Border
+                            Width="82"
+                            Height="82"
+                            CornerRadius="41"
+                            Background="White"
+                            BorderBrush="#FFFFE6CC"
+                            BorderThickness="3"
+                            Padding="12"
+                            VerticalAlignment="Center">
 
-                        <TextBlock
-                            Text="Registro de Mascotas"
-                            FontSize="30"
-                            FontWeight="Bold"
-                            Foreground="#FF1F140A"/>
-
-                        <TextBlock
-                            Text="Registra una mascota y relaciónala con su propietario."
-                            FontSize="14"
-                            Foreground="#FF2B1A0A"
-                            TextWrapping="Wrap"/>
-
-                        <TextBlock
-                            Text="VETERINARIA SERVETSUR MTY"
-                            FontSize="10"
-                            FontWeight="Bold"
-                            CharacterSpacing="150"
-                            Foreground="#FFB4621C"
-                            Margin="0,5,0,0"/>
-                    </StackPanel>
-
-                    <!-- Chip -->
-                    <Border
-                        Grid.Column="2"
-                        Background="White"
-                        BorderBrush="#FFF3D9B8"
-                        BorderThickness="1"
-                        CornerRadius="20"
-                        Padding="16,9"
-                        VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Spacing="9">
                             <Image
-                                Source="/Assets/huella.png"
-                                Width="16"
-                                Height="16"
-                                VerticalAlignment="Center"/>
+                                Source="/Assets/logo_servetsur.png"
+                                Stretch="Uniform"/>
+                        </Border>
+
+                        <StackPanel
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Spacing="4">
+
                             <TextBlock
-                                Text="Nueva mascota"
-                                FontSize="13"
-                                FontWeight="SemiBold"
+                                Text="Registro de Mascotas"
+                                FontSize="30"
+                                FontWeight="Bold"
                                 Foreground="#FF1F140A"
-                                VerticalAlignment="Center"/>
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock
+                                Text="Registra una mascota y relaciónala con su propietario."
+                                FontSize="14"
+                                Foreground="#FF2B1A0A"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock
+                                Text="VETERINARIA SERVETSUR MTY"
+                                FontSize="10"
+                                FontWeight="Bold"
+                                CharacterSpacing="150"
+                                Foreground="#FFB4621C"
+                                Margin="0,5,0,0"/>
                         </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
 
-            <!-- =====================================================
-                 1. DATOS DE LA MASCOTA
-                 ===================================================== -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <Grid>
+                        <Border
+                            Grid.Column="2"
+                            Background="White"
+                            BorderBrush="#FFF3D9B8"
+                            BorderThickness="1"
+                            CornerRadius="20"
+                            Padding="16,10"
+                            VerticalAlignment="Center">
 
-                    <!-- Huella decorativa de la tarjeta -->
-                    <Image
-                        Source="/Assets/huella.png"
-                        Width="84"
-                        Height="84"
-                        Stretch="Uniform"
-                        Opacity="0.5"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="0,0,4,0"
-                        IsHitTestVisible="False"/>
+                            <StackPanel Orientation="Horizontal" Spacing="9">
+                                <Image
+                                    Source="/Assets/huella.png"
+                                    Width="16"
+                                    Height="16"
+                                    VerticalAlignment="Center"/>
 
-                    <StackPanel Spacing="18">
+                                <TextBlock
+                                    Text="Nueva mascota"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Foreground="#FF1F140A"
+                                    VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- 1. DATOS DE LA MASCOTA -->
+                <Border
+                    Style="{StaticResource TarjetaSeccion}"
+                    HorizontalAlignment="Stretch">
+
+                    <Grid>
+                        <Image
+                            Source="/Assets/huella.png"
+                            Width="90"
+                            Height="90"
+                            Stretch="Uniform"
+                            Opacity="0.35"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0,0,4,0"
+                            IsHitTestVisible="False"/>
+
+                        <StackPanel Spacing="20">
+
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Style="{StaticResource InsigniaNumero}">
+                                    <TextBlock
+                                        Text="1"
+                                        FontSize="20"
+                                        FontWeight="Bold"
+                                        Foreground="White"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </Border>
+
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Spacing="3"
+                                    Margin="0,0,100,0">
+
+                                    <TextBlock
+                                        Text="Datos de la mascota"
+                                        Style="{StaticResource TituloSeccion}"/>
+
+                                    <TextBlock
+                                        Text="Completa la información básica de la mascota."
+                                        Style="{StaticResource DescripcionSeccion}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- ID -->
+                            <Border Style="{StaticResource CajaInfo}">
+                                <Grid ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <FontIcon
+                                        Glyph="&#xE8EC;"
+                                        FontSize="20"
+                                        Foreground="#FFE0710F"
+                                        VerticalAlignment="Center"/>
+
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        Spacing="1"
+                                        VerticalAlignment="Center">
+
+                                        <TextBlock
+                                            Text="ID de la Mascota"
+                                            FontSize="14"
+                                            FontWeight="SemiBold"
+                                            Foreground="#FF2B2118"/>
+
+                                        <TextBlock
+                                            Text="Se asigna automáticamente"
+                                            FontSize="12"
+                                            Foreground="#FF7A6A58"/>
+                                    </StackPanel>
+
+                                    <TextBlock
+                                        x:Name="TxtIdMascota"
+                                        Grid.Column="2"
+                                        Text="M0001"
+                                        FontSize="24"
+                                        FontWeight="Bold"
+                                        Foreground="#FFE0710F"
+                                        VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Nombre -->
+                            <TextBox
+                                x:Name="TxtNombreMascota"
+                                Header="Nombre de la mascota"
+                                PlaceholderText="Ej. Max"
+                                MaxLength="50"
+                                MinHeight="48"
+                                CornerRadius="12"
+                                HorizontalAlignment="Stretch"
+                                TextChanging="TxtNombreMascota_TextChanging"/>
+
+                            <!-- Especie y raza -->
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox
+                                    x:Name="CmbEspecie"
+                                    Grid.Column="0"
+                                    Header="Especie"
+                                    PlaceholderText="Selecciona la especie"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    HorizontalAlignment="Stretch">
+
+                                    <x:String>Perro</x:String>
+                                    <x:String>Gato</x:String>
+                                    <x:String>Ave</x:String>
+                                    <x:String>Conejo</x:String>
+                                    <x:String>Hámster</x:String>
+                                    <x:String>Reptil</x:String>
+                                    <x:String>Otra</x:String>
+                                </ComboBox>
+
+                                <TextBox
+                                    x:Name="TxtRaza"
+                                    Grid.Column="1"
+                                    Header="Raza"
+                                    PlaceholderText="Ej. Labrador o Mestizo"
+                                    MaxLength="60"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    HorizontalAlignment="Stretch"
+                                    TextChanging="TxtRaza_TextChanging"/>
+                            </Grid>
+
+                            <!-- Edad -->
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox
+                                    x:Name="TxtEdad"
+                                    Grid.Column="0"
+                                    Header="Edad (cantidad)"
+                                    PlaceholderText="Ej. 3"
+                                    MaxLength="3"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    InputScope="Number"
+                                    HorizontalAlignment="Stretch"
+                                    TextChanging="TxtEdad_TextChanging"/>
+
+                                <ComboBox
+                                    x:Name="CmbUnidadEdad"
+                                    Grid.Column="1"
+                                    Header="Unidad de edad"
+                                    PlaceholderText="Selecciona una unidad"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    HorizontalAlignment="Stretch">
+
+                                    <x:String>Meses</x:String>
+                                    <x:String>Años</x:String>
+                                </ComboBox>
+                            </Grid>
+
+                            <!-- Sexo y peso -->
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox
+                                    x:Name="CmbSexo"
+                                    Grid.Column="0"
+                                    Header="Sexo"
+                                    PlaceholderText="Selecciona el sexo"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    HorizontalAlignment="Stretch">
+
+                                    <x:String>Macho</x:String>
+                                    <x:String>Hembra</x:String>
+                                </ComboBox>
+
+                                <TextBox
+                                    x:Name="TxtPeso"
+                                    Grid.Column="1"
+                                    Header="Peso (kg)"
+                                    PlaceholderText="Ej. 15.5"
+                                    MaxLength="8"
+                                    MinHeight="48"
+                                    CornerRadius="12"
+                                    InputScope="Number"
+                                    HorizontalAlignment="Stretch"
+                                    TextChanging="TxtPeso_TextChanging"/>
+                            </Grid>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. PROPIETARIO -->
+                <Border
+                    Style="{StaticResource TarjetaSeccion}"
+                    HorizontalAlignment="Stretch">
+
+                    <StackPanel Spacing="20">
 
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
@@ -260,7 +435,7 @@
 
                             <Border Style="{StaticResource InsigniaNumero}">
                                 <TextBlock
-                                    Text="1"
+                                    Text="2"
                                     FontSize="20"
                                     FontWeight="Bold"
                                     Foreground="White"
@@ -268,225 +443,98 @@
                                     VerticalAlignment="Center"/>
                             </Border>
 
-                            <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,90,0">
+                            <StackPanel
+                                Grid.Column="1"
+                                Spacing="3">
+
                                 <TextBlock
-                                    Text="Datos de la mascota"
+                                    Text="Propietario"
                                     Style="{StaticResource TituloSeccion}"/>
+
                                 <TextBlock
-                                    Text="Completa la información básica de la mascota."
+                                    Text="Selecciona al cliente dueño de la mascota. Si no aparece, regístralo primero en Registrar Cliente."
                                     Style="{StaticResource DescripcionSeccion}"/>
                             </StackPanel>
                         </Grid>
 
-                        <!-- ID automático -->
-                        <Border Style="{StaticResource CajaInfo}">
-                            <Grid ColumnSpacing="14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                        <Grid ColumnSpacing="18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                                <FontIcon
-                                    Glyph="&#xE8EC;"
-                                    FontSize="20"
-                                    Foreground="#FFE0710F"
-                                    VerticalAlignment="Center"/>
+                            <ComboBox
+                                x:Name="CmbPropietario"
+                                Grid.Column="0"
+                                Header="Propietario"
+                                PlaceholderText="Selecciona un cliente"
+                                DisplayMemberPath="TextoMostrar"
+                                MinHeight="48"
+                                CornerRadius="12"
+                                HorizontalAlignment="Stretch"/>
 
-                                <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                                    <TextBlock
-                                        Text="ID de la Mascota"
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Foreground="#FF2B2118"/>
-                                    <TextBlock
-                                        Text="Se asigna automáticamente"
-                                        FontSize="12"
-                                        Foreground="#FF7A6A58"/>
+                            <Button
+                                Grid.Column="1"
+                                Click="BtnActualizarClientes_Click"
+                                Height="48"
+                                Padding="22,0"
+                                CornerRadius="24"
+                                FontWeight="SemiBold"
+                                BorderThickness="1.2"
+                                VerticalAlignment="Bottom">
+
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFFFE3BF"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#FFF28C28"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#FFF28C28"/>
+                                    <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
+                                </Button.Resources>
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <FontIcon Glyph="&#xE895;" FontSize="15"/>
+                                    <TextBlock Text="Actualizar lista de clientes"/>
                                 </StackPanel>
-
-                                <TextBlock
-                                    x:Name="TxtIdMascota"
-                                    Grid.Column="2"
-                                    Text="M0001"
-                                    FontSize="24"
-                                    FontWeight="Bold"
-                                    Foreground="#FFE0710F"
-                                    VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- Nombre -->
-                        <TextBox
-                            x:Name="TxtNombreMascota"
-                            Header="Nombre de la mascota"
-                            PlaceholderText="Ej. Max"
-                            MaxLength="50"
-                            MinHeight="44"
-                            CornerRadius="12"
-                            TextChanging="TxtNombreMascota_TextChanging"/>
-
-                        <!-- Especie y raza -->
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <ComboBox
-                                x:Name="CmbEspecie"
-                                Grid.Column="0"
-                                Header="Especie"
-                                PlaceholderText="Selecciona la especie"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                HorizontalAlignment="Stretch">
-
-                                <x:String>Perro</x:String>
-                                <x:String>Gato</x:String>
-                                <x:String>Ave</x:String>
-                                <x:String>Conejo</x:String>
-                                <x:String>Hámster</x:String>
-                                <x:String>Reptil</x:String>
-                                <x:String>Otra</x:String>
-                            </ComboBox>
-
-                            <TextBox
-                                x:Name="TxtRaza"
-                                Grid.Column="1"
-                                Header="Raza"
-                                PlaceholderText="Ej. Labrador o Mestizo"
-                                MaxLength="60"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                TextChanging="TxtRaza_TextChanging"/>
+                            </Button>
                         </Grid>
-
-                        <!-- Edad y unidad -->
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBox
-                                x:Name="TxtEdad"
-                                Grid.Column="0"
-                                Header="Edad (cantidad)"
-                                PlaceholderText="Ej. 3"
-                                MaxLength="3"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                InputScope="Number"
-                                TextChanging="TxtEdad_TextChanging"/>
-
-                            <ComboBox
-                                x:Name="CmbUnidadEdad"
-                                Grid.Column="1"
-                                Header="Unidad de edad"
-                                PlaceholderText="Selecciona una unidad"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                HorizontalAlignment="Stretch">
-
-                                <x:String>Meses</x:String>
-                                <x:String>Años</x:String>
-                            </ComboBox>
-                        </Grid>
-
-                        <!-- Sexo y peso -->
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <ComboBox
-                                x:Name="CmbSexo"
-                                Grid.Column="0"
-                                Header="Sexo"
-                                PlaceholderText="Selecciona el sexo"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                HorizontalAlignment="Stretch">
-
-                                <x:String>Macho</x:String>
-                                <x:String>Hembra</x:String>
-                            </ComboBox>
-
-                            <TextBox
-                                x:Name="TxtPeso"
-                                Grid.Column="1"
-                                Header="Peso (kg)"
-                                PlaceholderText="Ej. 15.5"
-                                MaxLength="8"
-                                MinHeight="44"
-                                CornerRadius="12"
-                                InputScope="Number"
-                                TextChanging="TxtPeso_TextChanging"/>
-                        </Grid>
-
                     </StackPanel>
-                </Grid>
-            </Border>
+                </Border>
 
-            <!-- =====================================================
-                 2. PROPIETARIO
-                 ===================================================== -->
-            <Border Style="{StaticResource TarjetaSeccion}">
-                <StackPanel Spacing="18">
+                <!-- BOTONES Y MENSAJES -->
+                <StackPanel Spacing="16" HorizontalAlignment="Stretch">
 
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Style="{StaticResource InsigniaNumero}">
-                            <TextBlock
-                                Text="2"
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Foreground="White"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
-                        </Border>
-
-                        <StackPanel Grid.Column="1" Spacing="3">
-                            <TextBlock
-                                Text="Propietario"
-                                Style="{StaticResource TituloSeccion}"/>
-                            <TextBlock
-                                Text="Selecciona al cliente dueño de la mascota. Si no aparece, regístralo primero en Registrar Cliente."
-                                Style="{StaticResource DescripcionSeccion}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <ComboBox
-                            x:Name="CmbPropietario"
+                        <Button
+                            x:Name="BtnGuardarMascota"
                             Grid.Column="0"
-                            Header="Propietario"
-                            PlaceholderText="Selecciona un cliente"
-                            DisplayMemberPath="TextoMostrar"
-                            MinHeight="44"
-                            CornerRadius="12"
-                            HorizontalAlignment="Stretch"/>
+                            Click="BtnGuardarMascota_Click"
+                            HorizontalAlignment="Stretch"
+                            Height="54"
+                            CornerRadius="27"
+                            FontSize="15"
+                            FontWeight="SemiBold">
+
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <FontIcon Glyph="&#xE74E;" FontSize="17"/>
+                                <TextBlock Text="Guardar mascota"/>
+                            </StackPanel>
+                        </Button>
 
                         <Button
                             Grid.Column="1"
-                            Click="BtnActualizarClientes_Click"
-                            Height="46"
-                            Padding="22,0"
-                            CornerRadius="23"
+                            Click="BtnIrClientes_Click"
+                            HorizontalAlignment="Stretch"
+                            Height="54"
+                            CornerRadius="27"
+                            FontSize="15"
                             FontWeight="SemiBold"
-                            BorderThickness="1.2"
-                            VerticalAlignment="Bottom">
+                            BorderThickness="1.2">
 
                             <Button.Resources>
                                 <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
@@ -497,149 +545,110 @@
                                 <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
                             </Button.Resources>
 
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE895;" FontSize="15"/>
-                                <TextBlock Text="Actualizar lista de clientes"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <TextBlock Text="Ir a Registrar Cliente"/>
+                                <FontIcon Glyph="&#xE72A;" FontSize="16"/>
                             </StackPanel>
                         </Button>
                     </Grid>
 
+                    <Border
+                        x:Name="PanelMensaje"
+                        Visibility="Collapsed"
+                        CornerRadius="14"
+                        BorderThickness="1"
+                        Padding="18,14"
+                        HorizontalAlignment="Stretch">
+
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon
+                                x:Name="IconoMensaje"
+                                FontSize="20"
+                                VerticalAlignment="Top"/>
+
+                            <TextBlock
+                                x:Name="TxtMensaje"
+                                Grid.Column="1"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                LineHeight="22"
+                                TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
                 </StackPanel>
-            </Border>
 
-            <!-- =====================================================
-                 BOTONES Y MENSAJES
-                 ===================================================== -->
-            <StackPanel Spacing="16">
+                <!-- DECORACIÓN INFERIOR -->
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="46"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,24">
 
-                <Grid ColumnSpacing="14">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="36"
+                        Height="36"
+                        Opacity="0.35"
+                        Margin="0,32,0,0"
+                        IsHitTestVisible="False">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="-25"/>
+                        </Image.RenderTransform>
+                    </Image>
 
-                    <Button
-                        x:Name="BtnGuardarMascota"
-                        Grid.Column="0"
-                        Click="BtnGuardarMascota_Click"
-                        HorizontalAlignment="Stretch"
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="44"
+                        Height="44"
+                        Opacity="0.45"
+                        IsHitTestVisible="False">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="15"/>
+                        </Image.RenderTransform>
+                    </Image>
+
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="52"
                         Height="52"
-                        CornerRadius="26"
-                        FontSize="15"
-                        FontWeight="SemiBold">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <FontIcon Glyph="&#xE74E;" FontSize="17"/>
-                            <TextBlock Text="Guardar mascota"/>
-                        </StackPanel>
-                    </Button>
+                        Opacity="0.55"
+                        Margin="0,36,0,0"
+                        IsHitTestVisible="False">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="-15"/>
+                        </Image.RenderTransform>
+                    </Image>
 
-                    <Button
-                        Grid.Column="1"
-                        Click="BtnIrClientes_Click"
-                        HorizontalAlignment="Stretch"
-                        Height="52"
-                        CornerRadius="26"
-                        FontSize="15"
-                        FontWeight="SemiBold"
-                        BorderThickness="1.2">
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="44"
+                        Height="44"
+                        Opacity="0.45"
+                        IsHitTestVisible="False">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="20"/>
+                        </Image.RenderTransform>
+                    </Image>
 
-                        <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
-                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFFFE3BF"/>
-                            <SolidColorBrush x:Key="ButtonBorderBrush" Color="#FFF28C28"/>
-                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#FFF28C28"/>
-                            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
-                        </Button.Resources>
-
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <TextBlock Text="Ir a Registrar Cliente"/>
-                            <FontIcon Glyph="&#xE72A;" FontSize="16"/>
-                        </StackPanel>
-                    </Button>
-                </Grid>
-
-                <!-- Mensaje (éxito o error) -->
-                <Border
-                    x:Name="PanelMensaje"
-                    Visibility="Collapsed"
-                    CornerRadius="14"
-                    BorderThickness="1"
-                    Padding="18,14">
-
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <FontIcon
-                            x:Name="IconoMensaje"
-                            FontSize="20"
-                            VerticalAlignment="Top"/>
-
-                        <TextBlock
-                            x:Name="TxtMensaje"
-                            Grid.Column="1"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            LineHeight="22"
-                            TextWrapping="Wrap"/>
-                    </Grid>
-                </Border>
+                    <Image
+                        Source="/Assets/huella.png"
+                        Width="36"
+                        Height="36"
+                        Opacity="0.35"
+                        Margin="0,32,0,0"
+                        IsHitTestVisible="False">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="-20"/>
+                        </Image.RenderTransform>
+                    </Image>
+                </StackPanel>
 
             </StackPanel>
-
-            <!-- =====================================================
-                 CAMINITO DE HUELLAS (decoración)
-                 ===================================================== -->
-            <StackPanel
-                Orientation="Horizontal"
-                Spacing="46"
-                HorizontalAlignment="Center"
-                Margin="0,0,0,24">
-
-                <Image Source="/Assets/huella.png"
-                       Width="36" Height="36" Opacity="0.35" Margin="0,32,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                    <Image.RenderTransform>
-                        <RotateTransform Angle="-25"/>
-                    </Image.RenderTransform>
-                </Image>
-
-                <Image Source="/Assets/huella.png"
-                       Width="44" Height="44" Opacity="0.45"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                    <Image.RenderTransform>
-                        <RotateTransform Angle="15"/>
-                    </Image.RenderTransform>
-                </Image>
-
-                <Image Source="/Assets/huella.png"
-                       Width="52" Height="52" Opacity="0.55" Margin="0,36,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                    <Image.RenderTransform>
-                        <RotateTransform Angle="-15"/>
-                    </Image.RenderTransform>
-                </Image>
-
-                <Image Source="/Assets/huella.png"
-                       Width="44" Height="44" Opacity="0.45"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                    <Image.RenderTransform>
-                        <RotateTransform Angle="20"/>
-                    </Image.RenderTransform>
-                </Image>
-
-                <Image Source="/Assets/huella.png"
-                       Width="36" Height="36" Opacity="0.35" Margin="0,32,0,0"
-                       RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                    <Image.RenderTransform>
-                        <RotateTransform Angle="-20"/>
-                    </Image.RenderTransform>
-                </Image>
-            </StackPanel>
-
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Page>

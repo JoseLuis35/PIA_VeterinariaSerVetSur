@@ -1,2 +1,0 @@
-C001, Juan Pérez, 8112345678, juan@mail.com
-C002, María López, 8187654321, maria@mail.com

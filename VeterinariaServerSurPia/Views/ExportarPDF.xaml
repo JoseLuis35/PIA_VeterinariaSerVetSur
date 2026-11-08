@@ -3,7 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     RequestedTheme="Light"
-    Background="#FFFFF6EA">
+    Background="#FFFFF6EA"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch"
+    Loaded="ExportarPDF_Loaded">
 
     <Page.Resources>
 
@@ -13,6 +16,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="22"/>
             <Setter Property="Padding" Value="26,24"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="TituloSeccion" TargetType="TextBlock">
@@ -37,6 +41,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="BotonSecundario" TargetType="Button">
@@ -49,6 +54,7 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="CampoSeleccion" TargetType="ComboBox">
@@ -58,6 +64,7 @@
             <Setter Property="BorderBrush" Value="#FFF0D9BB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="#FF3D2B1B"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
         <Style x:Key="OpcionExportacion" TargetType="CheckBox">
@@ -68,20 +75,25 @@
 
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        HorizontalScrollBarVisibility="Disabled"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch">
 
         <StackPanel
-            MaxWidth="1000"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Stretch"
             Spacing="20"
-            Margin="24,24,24,32">
+            Margin="24,20,24,30">
 
             <!-- ENCABEZADO -->
+
             <Border
                 CornerRadius="26"
                 Padding="26,22"
                 BorderThickness="1"
-                BorderBrush="#FFFFD9A6">
+                BorderBrush="#FFFFD9A6"
+                HorizontalAlignment="Stretch">
 
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -152,6 +164,7 @@
             </Border>
 
             <!-- INFORMACIÓN QUE SE INCLUIRÁ -->
+
             <Border Style="{StaticResource TarjetaSeccion}">
                 <StackPanel Spacing="16">
 
@@ -196,7 +209,8 @@
                         BorderBrush="#FFF3E5D3"
                         BorderThickness="1"
                         CornerRadius="14"
-                        Padding="16">
+                        Padding="16"
+                        HorizontalAlignment="Stretch">
 
                         <StackPanel Spacing="5">
 
@@ -239,6 +253,7 @@
             </Border>
 
             <!-- EXPEDIENTE INDIVIDUAL -->
+
             <Border Style="{StaticResource TarjetaSeccion}">
                 <StackPanel Spacing="16">
 
@@ -283,7 +298,8 @@
                         BorderBrush="#FFF3E5D3"
                         BorderThickness="1"
                         CornerRadius="14"
-                        Padding="16">
+                        Padding="16"
+                        HorizontalAlignment="Stretch">
 
                         <StackPanel Spacing="10">
 
@@ -303,9 +319,11 @@
                     </Border>
 
                     <Button
+                        x:Name="BtnExportarExpediente"
                         Style="{StaticResource BotonSecundario}"
                         Click="BtnExportarExpediente_Click"
-                        HorizontalAlignment="Stretch">
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="False">
 
                         <StackPanel
                             Orientation="Horizontal"
@@ -324,6 +342,7 @@
             </Border>
 
             <!-- REPORTE GENERAL -->
+
             <Border Style="{StaticResource TarjetaSeccion}">
                 <StackPanel Spacing="16">
 
@@ -368,7 +387,8 @@
                         BorderBrush="#FFF3E5D3"
                         BorderThickness="1"
                         CornerRadius="14"
-                        Padding="16">
+                        Padding="16"
+                        HorizontalAlignment="Stretch">
 
                         <StackPanel
                             Orientation="Horizontal"
@@ -399,9 +419,11 @@
                     </Border>
 
                     <Button
+                        x:Name="BtnExportarTodo"
                         Style="{StaticResource BotonPrincipal}"
                         Click="BtnExportarTodo_Click"
-                        HorizontalAlignment="Stretch">
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="False">
 
                         <StackPanel
                             Orientation="Horizontal"
@@ -420,12 +442,14 @@
             </Border>
 
             <!-- ESTADO DE EXPORTACIÓN -->
+
             <Border
                 Background="#FFFFF1DD"
                 BorderBrush="#FFFFD9A6"
                 BorderThickness="1"
                 CornerRadius="16"
-                Padding="17">
+                Padding="17"
+                HorizontalAlignment="Stretch">
 
                 <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
@@ -460,7 +484,7 @@
 
                         <TextBlock
                             x:Name="TxtEstado"
-                            Text="Listo para exportar."
+                            Text="Cargando información de la veterinaria..."
                             FontSize="14"
                             FontWeight="SemiBold"
                             Foreground="#FF684A2E"
@@ -470,6 +494,7 @@
             </Border>
 
             <!-- PIE -->
+
             <StackPanel
                 HorizontalAlignment="Center"
                 Spacing="7"

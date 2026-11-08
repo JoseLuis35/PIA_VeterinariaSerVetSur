@@ -38,6 +38,7 @@
             <Setter Property="FontSize" Value="21"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#FF1F140A"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <Style x:Key="DescripcionSeccion" TargetType="TextBlock">
@@ -87,9 +88,16 @@
         <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent"/>
     </Page.Resources>
 
-    <ScrollViewer Padding="30,24,30,24">
-        <StackPanel Spacing="22" MaxWidth="1100" HorizontalAlignment="Center">
+    <ScrollViewer
+        Padding="24,20,24,24"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
 
+        <StackPanel
+            Spacing="22"
+            HorizontalAlignment="Stretch">
+
+            <!-- AVISO DE IMÁGENES -->
             <Border
                 x:Name="PanelAvisoImagenes"
                 Visibility="Collapsed"
@@ -98,6 +106,7 @@
                 BorderThickness="1"
                 CornerRadius="14"
                 Padding="18,12">
+
                 <TextBlock
                     x:Name="TxtAvisoImagenes"
                     FontSize="13"
@@ -106,101 +115,115 @@
                     TextWrapping="Wrap"/>
             </Border>
 
-            <Viewbox Stretch="Uniform" StretchDirection="Both">
-                <Border Width="785" Height="202" CornerRadius="16">
-                    <Border.Background>
-                        <ImageBrush
-                            ImageSource="/Assets/FONDO_ENCABEZADO.png"
-                            Stretch="Fill"
-                            ImageFailed="FondoEncabezado_ImageFailed"/>
-                    </Border.Background>
+            <!-- ENCABEZADO -->
+            <Border
+                Height="202"
+                HorizontalAlignment="Stretch"
+                CornerRadius="16">
 
-                    <Grid>
-                        <Border
-                            Width="122"
-                            Height="122"
-                            CornerRadius="61"
-                            Background="White"
-                            BorderBrush="#FFFFE6CC"
-                            BorderThickness="3"
-                            Padding="18"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Margin="19,32,0,0">
-                            <Image
-                                Source="/Assets/logo_servetsur.png"
-                                Tag="logo_servetsur.png"
-                                ImageFailed="Imagen_ImageFailed"
-                                Stretch="Uniform"/>
-                        </Border>
+                <Border.Background>
+                    <ImageBrush
+                        ImageSource="/Assets/FONDO_ENCABEZADO.png"
+                        Stretch="UniformToFill"
+                        ImageFailed="FondoEncabezado_ImageFailed"/>
+                </Border.Background>
 
+                <Grid Padding="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border
+                        Width="122"
+                        Height="122"
+                        CornerRadius="61"
+                        Background="White"
+                        BorderBrush="#FFFFE6CC"
+                        BorderThickness="3"
+                        Padding="18"
+                        VerticalAlignment="Center">
+
+                        <Image
+                            Source="/Assets/logo_servetsur.png"
+                            Tag="logo_servetsur.png"
+                            ImageFailed="Imagen_ImageFailed"
+                            Stretch="Uniform"/>
+                    </Border>
+
+                    <StackPanel
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Margin="22,0,0,0"
+                        Spacing="7">
+
+                        <TextBlock
+                            Text="VetSmart AI"
+                            FontSize="38"
+                            FontWeight="Bold"
+                            Foreground="#FF1F140A"/>
+
+                        <TextBlock
+                            Text="Asistente de conocimiento veterinario basado en observaciones clínicas y antecedentes registrados."
+                            FontSize="13"
+                            LineHeight="19"
+                            Foreground="#FF2B1A0A"
+                            TextWrapping="Wrap"/>
+
+                        <!-- INDICADORES DEL SISTEMA -->
                         <StackPanel
-                            Width="335"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Margin="160,0,0,0"
-                            Spacing="6">
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            Margin="0,5,0,0">
 
-                            <TextBlock
-                                Text="VetSmart AI"
-                                FontSize="38"
-                                FontWeight="Bold"
-                                Foreground="#FF1F140A"/>
+                            <Border
+                                Background="White"
+                                BorderBrush="#FFF3D9B8"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                Padding="11,5">
 
-                            <TextBlock
-                                Text="Asistente de conocimiento veterinario basado en observaciones clínicas y antecedentes registrados."
-                                FontSize="12.5"
-                                LineHeight="17"
-                                Foreground="#FF2B1A0A"
-                                TextWrapping="Wrap"/>
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <FontIcon
+                                        Glyph="&#xE950;"
+                                        FontSize="12"
+                                        Foreground="#FF3A2A1A"/>
 
-                            <StackPanel
-                                Orientation="Horizontal"
-                                Spacing="8"
-                                Margin="0,6,0,0">
+                                    <TextBlock
+                                        Text="Modelo local · qwen2.5:3b"
+                                        FontSize="10.5"
+                                        FontWeight="SemiBold"
+                                        Foreground="#FF1F140A"/>
+                                </StackPanel>
+                            </Border>
 
-                                <Border
-                                    Background="White"
-                                    BorderBrush="#FFF3D9B8"
-                                    BorderThickness="1"
-                                    CornerRadius="16"
-                                    Padding="11,5">
-                                    <StackPanel Orientation="Horizontal" Spacing="7">
-                                        <FontIcon Glyph="&#xE950;" FontSize="12" Foreground="#FF3A2A1A"/>
-                                        <TextBlock
-                                            Text="Modelo local · qwen3:4b"
-                                            FontSize="10.5"
-                                            FontWeight="SemiBold"
-                                            Foreground="#FF1F140A"/>
-                                    </StackPanel>
-                                </Border>
+                            <Border
+                                Background="White"
+                                BorderBrush="#FFF3D9B8"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                Padding="11,5">
 
-                                <Border
-                                    Background="White"
-                                    BorderBrush="#FFF3D9B8"
-                                    BorderThickness="1"
-                                    CornerRadius="16"
-                                    Padding="11,5">
-                                    <StackPanel Orientation="Horizontal" Spacing="7">
-                                        <Path
-                                            Data="M0,4 A8,3 0 0 1 16,4 L16,14 A8,3 0 0 1 0,14 Z"
-                                            Fill="#FF3A2A1A"
-                                            Stretch="Fill"
-                                            Width="10"
-                                            Height="12"
-                                            VerticalAlignment="Center"/>
-                                        <TextBlock
-                                            Text="Base de datos SQLite"
-                                            FontSize="10.5"
-                                            FontWeight="SemiBold"
-                                            Foreground="#FF1F140A"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <Path
+                                        Data="M0,4 A8,3 0 0 1 16,4 L16,14 A8,3 0 0 1 0,14 Z"
+                                        Fill="#FF3A2A1A"
+                                        Stretch="Fill"
+                                        Width="10"
+                                        Height="12"
+                                        VerticalAlignment="Center"/>
+
+                                    <TextBlock
+                                        Text="Base de datos SQLite"
+                                        FontSize="10.5"
+                                        FontWeight="SemiBold"
+                                        Foreground="#FF1F140A"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Grid>
-                </Border>
-            </Viewbox>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
             <!-- 1. SELECCIONAR MASCOTA -->
             <Border Style="{StaticResource TarjetaSeccion}">
@@ -236,24 +259,34 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3">
-                                <TextBlock Text="Seleccionar Mascota" Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Seleccionar Mascota"
+                                    Style="{StaticResource TituloSeccion}"/>
+
                                 <TextBlock
                                     Text="Elige a qué mascota corresponde la consulta."
                                     Style="{StaticResource DescripcionSeccion}"/>
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Orientation="Horizontal" Spacing="16">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
                             <ComboBox
                                 x:Name="CmbMascotas"
                                 PlaceholderText="Selecciona una mascota"
                                 DisplayMemberPath="TextoMostrar"
                                 SelectionChanged="CmbMascotas_SelectionChanged"
                                 CornerRadius="12"
-                                Width="380"
-                                Height="46"/>
+                                Height="46"
+                                HorizontalAlignment="Stretch"
+                                MinWidth="200"/>
 
                             <Button
+                                Grid.Column="1"
                                 Content="Actualizar Lista de Mascotas"
                                 Click="BtnActualizarMascotas_Click"
                                 Height="46"
@@ -261,6 +294,7 @@
                                 CornerRadius="23"
                                 FontWeight="SemiBold"
                                 BorderThickness="1.2">
+
                                 <Button.Resources>
                                     <SolidColorBrush x:Key="ButtonBackground" Color="White"/>
                                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFFFF1DD"/>
@@ -270,7 +304,7 @@
                                     <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#FFE67E14"/>
                                 </Button.Resources>
                             </Button>
-                        </StackPanel>
+                        </Grid>
 
                         <TextBlock
                             x:Name="TxtMensajeMascotas"
@@ -286,7 +320,12 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="#FFE0710F" VerticalAlignment="Top"/>
+                                <FontIcon
+                                    Glyph="&#xE946;"
+                                    FontSize="20"
+                                    Foreground="#FFE0710F"
+                                    VerticalAlignment="Top"/>
+
                                 <TextBlock
                                     x:Name="TxtDatosMascota"
                                     Grid.Column="1"
@@ -331,6 +370,7 @@
                                     <TextBlock
                                         Text="Consultar a VetSmart AI (modelo local)"
                                         Style="{StaticResource TituloSeccion}"/>
+
                                     <TextBlock
                                         Text="Haz preguntas a VetSmart AI. El asistente consulta los registros disponibles de clientes, mascotas, citas, historial médico y cartilla en la base SQLite local, y utiliza Ollama para redactar la respuesta."
                                         Style="{StaticResource DescripcionSeccion}"/>
@@ -356,6 +396,7 @@
                                 CornerRadius="25"
                                 FontSize="15"
                                 FontWeight="SemiBold">
+
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <FontIcon Glyph="&#xE8BD;" FontSize="18"/>
                                     <TextBlock Text="Consultar IA local"/>
@@ -377,7 +418,7 @@
 
                     <TextBlock
                         x:Name="TxtEstadoOllama"
-                        Text="Modelo esperado: qwen3:4b. Ollama debe estar ejecutándose."
+                        Text="Modelo esperado: qwen2.5:3b. Ollama debe estar ejecutándose."
                         FontSize="13"
                         Foreground="#FF7A6A58"
                         TextWrapping="Wrap"/>
@@ -389,7 +430,12 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <FontIcon Glyph="&#xE735;" FontSize="20" Foreground="#FFFF9A1F" VerticalAlignment="Top"/>
+                            <FontIcon
+                                Glyph="&#xE735;"
+                                FontSize="20"
+                                Foreground="#FFFF9A1F"
+                                VerticalAlignment="Top"/>
+
                             <TextBlock
                                 x:Name="TxtRespuestaOllama"
                                 Grid.Column="1"
@@ -438,7 +484,10 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock Text="Nueva Observación Veterinaria" Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Nueva Observación Veterinaria"
+                                    Style="{StaticResource TituloSeccion}"/>
+
                                 <TextBlock
                                     Text="Describe libremente los síntomas, hallazgos, evolución y tratamiento indicado durante la consulta."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -465,6 +514,7 @@
                             TextChanging="TextoLibre_TextChanging"/>
 
                         <Button
+                            x:Name="BtnGuardarObservacion"
                             Content="Guardar Observación"
                             Click="BtnGuardarObservacion_Click"
                             HorizontalAlignment="Left"
@@ -517,7 +567,10 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock Text="Historial de la Mascota" Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="Historial de la Mascota"
+                                    Style="{StaticResource TituloSeccion}"/>
+
                                 <TextBlock
                                     Text="Observaciones registradas anteriormente para la mascota seleccionada."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -525,13 +578,20 @@
                         </Grid>
 
                         <Border Style="{StaticResource CajaInfo}">
-                            <TextBlock
-                                x:Name="TxtHistorial"
-                                Text="Selecciona una mascota para consultar su historial."
-                                FontSize="14"
-                                LineHeight="24"
-                                Foreground="#FF2B2118"
-                                TextWrapping="Wrap"/>
+                            <StackPanel Spacing="10">
+                                <TextBlock
+                                    x:Name="TxtHistorial"
+                                    Text="Selecciona una mascota para consultar su historial."
+                                    FontSize="14"
+                                    LineHeight="24"
+                                    Foreground="#FF2B2118"
+                                    TextWrapping="Wrap"
+                                    IsTextSelectionEnabled="True"/>
+
+                                <StackPanel
+                                    x:Name="PanelHistorial"
+                                    Spacing="10"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -571,7 +631,10 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" Spacing="3" Margin="0,0,100,0">
-                                <TextBlock Text="VetSmart AI - Casos Relacionados" Style="{StaticResource TituloSeccion}"/>
+                                <TextBlock
+                                    Text="VetSmart AI - Casos Relacionados"
+                                    Style="{StaticResource TituloSeccion}"/>
+
                                 <TextBlock
                                     Text="Escribe los síntomas o el motivo de consulta para buscar antecedentes similares registrados por veterinarios."
                                     Style="{StaticResource DescripcionSeccion}"/>
@@ -590,6 +653,7 @@
                             TextChanging="TextoLibre_TextChanging"/>
 
                         <Button
+                            x:Name="BtnBuscarSimilares"
                             Content="Buscar Casos Similares"
                             Click="BtnBuscarSimilares_Click"
                             HorizontalAlignment="Left"
@@ -614,7 +678,11 @@
             </Border>
 
             <!-- AVISO -->
-            <Border Background="#FFFFEBD3" CornerRadius="16" Padding="20,15">
+            <Border
+                Background="#FFFFEBD3"
+                CornerRadius="16"
+                Padding="20,15">
+
                 <Grid ColumnSpacing="14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -655,6 +723,7 @@
                     Margin="0,34,0,0"
                     RenderTransformOrigin="0.5,0.5"
                     IsHitTestVisible="False">
+
                     <Image.RenderTransform>
                         <RotateTransform Angle="-25"/>
                     </Image.RenderTransform>
@@ -667,9 +736,8 @@
                     Width="46"
                     Height="46"
                     Opacity="0.45"
-                    Margin="0,0,0,0"
-                    RenderTransformOrigin="0.5,0.5"
                     IsHitTestVisible="False">
+
                     <Image.RenderTransform>
                         <RotateTransform Angle="15"/>
                     </Image.RenderTransform>
@@ -685,6 +753,7 @@
                     Margin="0,38,0,0"
                     RenderTransformOrigin="0.5,0.5"
                     IsHitTestVisible="False">
+
                     <Image.RenderTransform>
                         <RotateTransform Angle="-15"/>
                     </Image.RenderTransform>
@@ -697,9 +766,8 @@
                     Width="46"
                     Height="46"
                     Opacity="0.45"
-                    Margin="0,0,0,0"
-                    RenderTransformOrigin="0.5,0.5"
                     IsHitTestVisible="False">
+
                     <Image.RenderTransform>
                         <RotateTransform Angle="20"/>
                     </Image.RenderTransform>
@@ -715,6 +783,7 @@
                     Margin="0,34,0,0"
                     RenderTransformOrigin="0.5,0.5"
                     IsHitTestVisible="False">
+
                     <Image.RenderTransform>
                         <RotateTransform Angle="-20"/>
                     </Image.RenderTransform>

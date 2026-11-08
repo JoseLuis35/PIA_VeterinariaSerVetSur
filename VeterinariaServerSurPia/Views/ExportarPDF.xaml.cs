@@ -1,3 +1,5 @@
+
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using PdfSharp.Drawing;
@@ -5,12 +7,12 @@ using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using VeterinariaServerSurPia;
 
 namespace VeterinariaServerSurPia.Views
 {
@@ -40,6 +42,10 @@ namespace VeterinariaServerSurPia.Views
         private readonly HashSet<string> clientesInactivos =
             new(StringComparer.OrdinalIgnoreCase);
 
+        private bool _datosCargados;
+        private bool _cargando;
+        private bool _exportando;
+
         static ExportarPDF()
         {
             GlobalFontSettings.UseWindowsFontsUnderWindows = true;
@@ -48,53 +54,331 @@ namespace VeterinariaServerSurPia.Views
         public ExportarPDF()
         {
             InitializeComponent();
-            CargarDatos();
-            CargarSelectorMascotas();
         }
 
-        private static string Ruta(string archivo) =>
-            Path.Combine(AppContext.BaseDirectory, archivo);
+        // =========================================================
+        // CARGA INICIAL
+        // =========================================================
 
-        private static List<string[]> LeerArchivo(
-            string archivo, char separador)
+        private async void ExportarPDF_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
-            string ruta = Ruta(archivo);
+            Loaded -= ExportarPDF_Loaded;
 
-            if (!File.Exists(ruta))
-                return new List<string[]>();
-
-            return File.ReadAllLines(ruta)
-                .Where(linea => !string.IsNullOrWhiteSpace(linea))
-                .Select(linea => linea.Split(separador))
-                .ToList();
+            await CargarDatosAsync();
         }
 
-        private void CargarDatos()
+        // =========================================================
+        // CARGAR INFORMACIÓN DESDE SQLITE
+        // =========================================================
+
+        private async Task CargarDatosAsync()
+        {
+            if (_cargando || _exportando)
+                return;
+
+            _cargando = true;
+            _datosCargados = false;
+
+            BtnExportarTodo.IsEnabled = false;
+            BtnExportarExpediente.IsEnabled = false;
+
+            TxtEstado.Text =
+                "Cargando información desde la base de datos...";
+
+            try
+            {
+                LimpiarDatos();
+
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
+
+                if (conexion.State != System.Data.ConnectionState.Open)
+                {
+                    throw new InvalidOperationException(
+                        "No se pudo establecer una conexión con la base de datos.");
+                }
+
+                // CLIENTES
+                using (SqliteCommand comando = conexion.CreateCommand())
+                {
+                    comando.CommandText = @"
+                        SELECT
+                            IdCliente,
+                            Nombre,
+                            Telefono,
+                            Correo,
+                            Activo
+                        FROM Clientes
+                        ORDER BY Nombre;";
+
+                    using SqliteDataReader reader =
+                        await comando.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        string id = LeerTexto(reader, 0);
+                        string nombre = LeerTexto(reader, 1);
+                        string telefono = LeerTexto(reader, 2);
+                        string correo = LeerTexto(reader, 3);
+                        string activo = LeerTexto(reader, 4);
+
+                        if (string.IsNullOrWhiteSpace(id))
+                            continue;
+
+                        clientes.Add(new[]
+                        {
+                            id,
+                            nombre,
+                            telefono,
+                            correo
+                        });
+
+                        if (activo == "0")
+                            clientesInactivos.Add(id);
+                    }
+                }
+
+                // MASCOTAS
+                using (SqliteCommand comando = conexion.CreateCommand())
+                {
+                    comando.CommandText = @"
+                        SELECT
+                            IdMascota,
+                            Nombre,
+                            Especie,
+                            Raza,
+                            Edad,
+                            Sexo,
+                            Peso,
+                            IdCliente
+                        FROM Mascotas
+                        ORDER BY Nombre;";
+
+                    using SqliteDataReader reader =
+                        await comando.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        string id = LeerTexto(reader, 0);
+                        string nombre = LeerTexto(reader, 1);
+
+                        if (string.IsNullOrWhiteSpace(id) ||
+                            string.IsNullOrWhiteSpace(nombre))
+                        {
+                            continue;
+                        }
+
+                        mascotas.Add(new[]
+                        {
+                            id,
+                            nombre,
+                            LeerTexto(reader, 2),
+                            LeerTexto(reader, 3),
+                            LeerTexto(reader, 4),
+                            LeerTexto(reader, 5),
+                            LeerNumero(reader, 6),
+                            LeerTexto(reader, 7)
+                        });
+                    }
+                }
+
+                // CITAS
+                using (SqliteCommand comando = conexion.CreateCommand())
+                {
+                    comando.CommandText = @"
+                        SELECT
+                            IdCita,
+                            IdMascota,
+                            Fecha,
+                            Hora,
+                            Servicio,
+                            Observaciones
+                        FROM Citas
+                        ORDER BY Fecha, Hora;";
+
+                    using SqliteDataReader reader =
+                        await comando.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        citas.Add(new[]
+                        {
+                            LeerTexto(reader, 0),
+                            LeerTexto(reader, 1),
+                            LeerTexto(reader, 2),
+                            LeerTexto(reader, 3),
+                            LeerTexto(reader, 4),
+                            LeerTexto(reader, 5)
+                        });
+                    }
+                }
+
+                // HISTORIAL MÉDICO
+                using (SqliteCommand comando = conexion.CreateCommand())
+                {
+                    comando.CommandText = @"
+                        SELECT
+                            IdRegistro,
+                            IdMascota,
+                            Fecha,
+                            Peso,
+                            Motivo,
+                            Sintomas,
+                            Diagnostico,
+                            Tratamiento,
+                            Alergias,
+                            Antecedentes,
+                            Observaciones
+                        FROM HistorialMedico
+                        ORDER BY Fecha DESC;";
+
+                    using SqliteDataReader reader =
+                        await comando.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        historial.Add(new[]
+                        {
+                            LeerTexto(reader, 0),
+                            LeerTexto(reader, 1),
+                            LeerTexto(reader, 2),
+                            LeerNumero(reader, 3),
+                            LeerTexto(reader, 4),
+                            LeerTexto(reader, 5),
+                            LeerTexto(reader, 6),
+                            LeerTexto(reader, 7),
+                            LeerTexto(reader, 8),
+                            LeerTexto(reader, 9),
+                            LeerTexto(reader, 10)
+                        });
+                    }
+                }
+
+                // CARTILLA MÉDICA
+                using (SqliteCommand comando = conexion.CreateCommand())
+                {
+                    comando.CommandText = @"
+                        SELECT
+                            IdRegistro,
+                            IdMascota,
+                            Tipo,
+                            Producto,
+                            FechaAplicacion,
+                            ProximaFecha,
+                            Observaciones
+                        FROM CartillaMedica
+                        ORDER BY FechaAplicacion DESC;";
+
+                    using SqliteDataReader reader =
+                        await comando.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        cartilla.Add(new[]
+                        {
+                            LeerTexto(reader, 0),
+                            LeerTexto(reader, 1),
+                            LeerTexto(reader, 2),
+                            LeerTexto(reader, 3),
+                            LeerTexto(reader, 4),
+                            LeerTexto(reader, 5),
+                            LeerTexto(reader, 6)
+                        });
+                    }
+                }
+
+                CargarSelectorMascotas();
+
+                _datosCargados = true;
+
+                BtnExportarTodo.IsEnabled = true;
+                BtnExportarExpediente.IsEnabled =
+                    mascotas.Count > 0;
+
+                TxtEstado.Text =
+                    "Información cargada correctamente.\n" +
+                    $"Clientes: {clientes.Count} | " +
+                    $"Mascotas: {mascotas.Count} | " +
+                    $"Citas: {citas.Count} | " +
+                    $"Consultas: {historial.Count} | " +
+                    $"Cartilla: {cartilla.Count}.";
+            }
+            catch (Exception ex)
+            {
+                _datosCargados = false;
+
+                BtnExportarTodo.IsEnabled = false;
+                BtnExportarExpediente.IsEnabled = false;
+
+                TxtEstado.Text =
+                    "No se pudo cargar la información desde SQLite.";
+
+                await MostrarAviso(
+                    "Ocurrió un error al consultar la base de datos:\n\n" +
+                    ex.Message);
+            }
+            finally
+            {
+                _cargando = false;
+            }
+        }
+
+        private void LimpiarDatos()
         {
             clientes.Clear();
             mascotas.Clear();
             citas.Clear();
             historial.Clear();
             cartilla.Clear();
+
             clientesInactivos.Clear();
 
-            clientes.AddRange(LeerArchivo("clientes.txt", ','));
-            mascotas.AddRange(LeerArchivo("mascotas.txt", ','));
-            citas.AddRange(LeerArchivo("citas.txt", ','));
-            historial.AddRange(LeerArchivo("historial_medico.txt", '|'));
-            cartilla.AddRange(LeerArchivo("cartilla_medica.txt", '|'));
-
-            string rutaInactivos = Ruta("clientes_inactivos.txt");
-
-            if (File.Exists(rutaInactivos))
-            {
-                foreach (string linea in File.ReadAllLines(rutaInactivos))
-                {
-                    if (!string.IsNullOrWhiteSpace(linea))
-                        clientesInactivos.Add(linea.Trim());
-                }
-            }
+            MascotaCombo.ItemsSource = null;
+            MascotaCombo.SelectedItem = null;
         }
+
+        private static string LeerTexto(
+            SqliteDataReader reader,
+            int indice)
+        {
+            if (reader.IsDBNull(indice))
+                return "";
+
+            return Convert.ToString(
+                reader.GetValue(indice),
+                CultureInfo.InvariantCulture)?.Trim() ?? "";
+        }
+
+        private static string LeerNumero(
+            SqliteDataReader reader,
+            int indice)
+        {
+            if (reader.IsDBNull(indice))
+                return "";
+
+            object valor = reader.GetValue(indice);
+
+            if (decimal.TryParse(
+                Convert.ToString(valor, CultureInfo.InvariantCulture),
+                NumberStyles.Any,
+                CultureInfo.InvariantCulture,
+                out decimal numero))
+            {
+                return numero.ToString(
+                    "0.##",
+                    CultureInfo.InvariantCulture);
+            }
+
+            return Convert.ToString(
+                valor,
+                CultureInfo.InvariantCulture) ?? "";
+        }
+
+        // =========================================================
+        // SELECTOR DE MASCOTAS
+        // =========================================================
 
         private void CargarSelectorMascotas()
         {
@@ -112,40 +396,60 @@ namespace VeterinariaServerSurPia.Views
                     IDCliente = p[7].Trim(),
                     Propietario = ObtenerNombreCliente(p[7].Trim())
                 })
+                .Where(m =>
+                    !string.IsNullOrWhiteSpace(m.ID) &&
+                    !string.IsNullOrWhiteSpace(m.Nombre))
                 .OrderBy(m => m.Nombre)
                 .ToList();
 
             MascotaCombo.ItemsSource = lista;
 
             if (lista.Count == 0)
-                TxtEstado.Text = "No hay mascotas registradas para exportar.";
+            {
+                TxtEstado.Text =
+                    "No hay mascotas registradas para exportar.";
+            }
         }
 
         private string ObtenerNombreCliente(string idCliente)
         {
+            if (string.IsNullOrWhiteSpace(idCliente))
+                return "Propietario no registrado";
+
             string[]? cliente = clientes.FirstOrDefault(p =>
                 p.Length >= 2 &&
                 p[0].Trim().Equals(
-                    idCliente, StringComparison.OrdinalIgnoreCase));
+                    idCliente,
+                    StringComparison.OrdinalIgnoreCase));
 
-            return cliente == null
+            return cliente == null ||
+                   string.IsNullOrWhiteSpace(cliente[1])
                 ? "Propietario no encontrado"
                 : cliente[1].Trim();
         }
 
         private string ObtenerEstadoCliente(string idCliente)
         {
+            if (string.IsNullOrWhiteSpace(idCliente))
+                return "Sin información";
+
             return clientesInactivos.Contains(idCliente)
                 ? "Inactivo (dado de baja)"
                 : "Activo";
         }
 
+        // =========================================================
+        // FILTROS DE INFORMACIÓN
+        // =========================================================
+
         private List<string[]> ObtenerCitasMascota(string idMascota)
         {
             return citas
-                .Where(p => p.Length >= 5 &&
+                .Where(p =>
+                    p.Length >= 5 &&
                     p[1].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase))
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase))
                 .OrderBy(p => p[2])
                 .ThenBy(p => p[3])
                 .ToList();
@@ -154,9 +458,11 @@ namespace VeterinariaServerSurPia.Views
         private List<string[]> ObtenerHistorialMascota(string idMascota)
         {
             return historial
-                .Where(p => p.Length >= 11 &&
+                .Where(p =>
+                    p.Length >= 11 &&
                     p[1].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase))
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(p => p[2])
                 .ToList();
         }
@@ -164,16 +470,34 @@ namespace VeterinariaServerSurPia.Views
         private List<string[]> ObtenerCartillaMascota(string idMascota)
         {
             return cartilla
-                .Where(p => p.Length >= 7 &&
+                .Where(p =>
+                    p.Length >= 7 &&
                     p[1].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase))
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(p => p[4])
                 .ToList();
         }
 
+        // =========================================================
+        // VALIDACIONES Y BOTONES
+        // =========================================================
+
         private async void BtnExportarTodo_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
+            if (!_datosCargados)
+            {
+                await MostrarAviso(
+                    "La información todavía no está disponible. " +
+                    "Espera a que termine la carga.");
+                return;
+            }
+
+            if (_cargando || _exportando)
+                return;
+
             if (!HaySeccionesSeleccionadas())
             {
                 await MostrarAviso(
@@ -185,12 +509,44 @@ namespace VeterinariaServerSurPia.Views
         }
 
         private async void BtnExportarExpediente_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
+            if (!_datosCargados)
+            {
+                await MostrarAviso(
+                    "La información todavía no está disponible. " +
+                    "Espera a que termine la carga.");
+                return;
+            }
+
+            if (_cargando || _exportando)
+                return;
+
             if (MascotaCombo.SelectedItem is not MascotaParaPDF mascota)
             {
                 await MostrarAviso(
                     "Selecciona una mascota antes de exportar su expediente.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(mascota.ID))
+            {
+                await MostrarAviso(
+                    "No se pudo identificar la mascota seleccionada.");
+                return;
+            }
+
+            bool existe = mascotas.Any(p =>
+                p.Length >= 2 &&
+                p[0].Trim().Equals(
+                    mascota.ID,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (!existe)
+            {
+                await MostrarAviso(
+                    "La mascota seleccionada ya no se encuentra en los registros. Actualiza la información.");
                 return;
             }
 
@@ -206,34 +562,58 @@ namespace VeterinariaServerSurPia.Views
                    ChkCartilla.IsChecked == true;
         }
 
+        // =========================================================
+        // EXPORTACIÓN PRINCIPAL
+        // =========================================================
+
         private async Task ExportarPDFAsync(
             MascotaParaPDF? mascotaIndividual)
         {
+            if (_exportando)
+                return;
+
+            _exportando = true;
+
+            BtnExportarTodo.IsEnabled = false;
+            BtnExportarExpediente.IsEnabled = false;
+
             try
             {
-                CargarDatos();
+                TxtEstado.Text = "Preparando documento PDF...";
+
+                string nombreArchivo = mascotaIndividual == null
+                    ? $"Reporte_Veterinaria_{DateTime.Now:yyyyMMdd_HHmm}"
+                    : $"Expediente_{LimpiarNombre(mascotaIndividual.Nombre)}_{DateTime.Now:yyyyMMdd}";
 
                 var picker = new FileSavePicker
                 {
                     SuggestedStartLocation =
                         PickerLocationId.DocumentsLibrary,
 
-                    SuggestedFileName = mascotaIndividual == null
-                        ? $"Reporte_Veterinaria_{DateTime.Now:yyyyMMdd_HHmm}"
-                        : $"Expediente_{LimpiarNombre(mascotaIndividual.Nombre)}_{DateTime.Now:yyyyMMdd}"
+                    SuggestedFileName = nombreArchivo
                 };
 
                 picker.FileTypeChoices.Add(
                     "Documento PDF",
                     new List<string> { ".pdf" });
 
+                var ventana = MainWindow.Current;
+
+                if (ventana == null)
+                {
+                    throw new InvalidOperationException(
+                        "No se encontró la ventana principal de la aplicación.");
+                }
+
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(
-                    MainWindow.Current);
+                    ventana);
 
                 WinRT.Interop.InitializeWithWindow.Initialize(
-                    picker, hwnd);
+                    picker,
+                    hwnd);
 
-                StorageFile? archivo = await picker.PickSaveFileAsync();
+                StorageFile? archivo =
+                    await picker.PickSaveFileAsync();
 
                 if (archivo == null)
                 {
@@ -241,13 +621,15 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                using (var documento = new PdfDocument())
+                using (PdfDocument documento = new PdfDocument())
                 {
                     documento.Info.Title = mascotaIndividual == null
                         ? "Reporte general de SERVETSUR"
                         : $"Expediente médico de {mascotaIndividual.Nombre}";
 
                     documento.Info.Author = "SERVETSUR";
+                    documento.Info.Subject =
+                        "Reporte de información veterinaria";
 
                     var escritor = new EscritorPDF(documento);
 
@@ -275,11 +657,24 @@ namespace VeterinariaServerSurPia.Views
                     {
                         escritor.NuevaPagina();
                         escritor.Encabezado("EXPEDIENTE MÉDICO");
-                        ExportarIdentificacion(escritor, mascotaIndividual);
-                        ExportarExpedienteMascota(escritor, mascotaIndividual);
+
+                        ExportarIdentificacion(
+                            escritor,
+                            mascotaIndividual);
+
+                        ExportarExpedienteMascota(
+                            escritor,
+                            mascotaIndividual);
                     }
 
                     escritor.Finalizar();
+
+                    if (documento.PageCount == 0)
+                    {
+                        throw new InvalidOperationException(
+                            "El documento no contiene páginas para guardar.");
+                    }
+
                     documento.Save(archivo.Path);
                 }
 
@@ -287,58 +682,130 @@ namespace VeterinariaServerSurPia.Views
                     $"PDF creado correctamente: {archivo.Name}";
 
                 await MostrarAviso(
-                    $"El PDF se guardó correctamente en:\n{archivo.Path}");
+                    $"El PDF se guardó correctamente en:\n\n{archivo.Path}");
             }
             catch (Exception ex)
             {
-                TxtEstado.Text = "No se pudo generar el PDF.";
+                TxtEstado.Text =
+                    "No se pudo generar el PDF.";
 
                 await MostrarAviso(
-                    "Ocurrió un error al generar el PDF:\n" + ex.Message);
+                    "Ocurrió un error al generar el PDF:\n\n" +
+                    ex.Message);
+            }
+            finally
+            {
+                _exportando = false;
+
+                BtnExportarTodo.IsEnabled = _datosCargados;
+
+                BtnExportarExpediente.IsEnabled =
+                    _datosCargados && mascotas.Count > 0;
             }
         }
 
+        // =========================================================
+        // EXPEDIENTE INDIVIDUAL
+        // =========================================================
+
         private void ExportarIdentificacion(
-            EscritorPDF pdf, MascotaParaPDF mascota)
+            EscritorPDF pdf,
+            MascotaParaPDF mascota)
         {
             pdf.Subtitulo("DATOS DE LA MASCOTA");
-            pdf.Texto($"Nombre: {mascota.Nombre}");
-            pdf.Texto($"Número de expediente: {mascota.ID}");
-            pdf.Texto($"Especie: {mascota.Especie}");
-            pdf.Texto($"Raza: {mascota.Raza}");
-            pdf.Texto($"Edad: {mascota.Edad}");
-            pdf.Texto($"Sexo: {mascota.Sexo}");
-            pdf.Texto($"Peso actual registrado: {mascota.Peso} kg");
+
+            pdf.Texto($"Nombre: {Dato(mascota.Nombre)}");
+            pdf.Texto($"Número de expediente: {Dato(mascota.ID)}");
+            pdf.Texto($"Especie: {Dato(mascota.Especie)}");
+            pdf.Texto($"Raza: {Dato(mascota.Raza)}");
+            pdf.Texto($"Edad: {Dato(mascota.Edad)}");
+            pdf.Texto($"Sexo: {Dato(mascota.Sexo)}");
+
+            pdf.Texto(
+                $"Peso actual registrado: " +
+                $"{(string.IsNullOrWhiteSpace(mascota.Peso) ? "Sin registro" : mascota.Peso + " kg")}");
 
             pdf.EspacioPequeno();
+
             pdf.Subtitulo("DATOS DEL PROPIETARIO");
-            pdf.Texto($"Nombre: {mascota.Propietario}");
-            pdf.Texto($"ID del propietario: {mascota.IDCliente}");
+
+            pdf.Texto($"Nombre: {Dato(mascota.Propietario)}");
+            pdf.Texto($"ID del propietario: {Dato(mascota.IDCliente)}");
+
             pdf.Texto(
                 $"Estado: {ObtenerEstadoCliente(mascota.IDCliente)}");
 
+            pdf.EspacioPequeno();
         }
 
-        private static string LimpiarNombre(string nombre)
+        private void ExportarExpedienteMascota(
+            EscritorPDF pdf,
+            MascotaParaPDF mascota)
         {
-            foreach (char c in Path.GetInvalidFileNameChars())
-                nombre = nombre.Replace(c, '_');
+            // CITAS
+            pdf.Titulo("HISTORIAL DE CITAS");
 
-            return nombre.Replace(' ', '_');
-        }
+            var citasMascota = ObtenerCitasMascota(mascota.ID);
 
-        private async Task MostrarAviso(string mensaje)
-        {
-            var dialogo = new ContentDialog
+            if (citasMascota.Count == 0)
             {
-                Title = "Exportación PDF",
-                Content = mensaje,
-                CloseButtonText = "Aceptar",
-                XamlRoot = this.XamlRoot
-            };
+                pdf.Texto(
+                    "No hay citas registradas para esta mascota.");
+            }
 
-            await dialogo.ShowAsync();
+            foreach (string[] p in citasMascota)
+            {
+                pdf.Subtitulo($"Cita {Dato(p[0])}");
+                pdf.Texto($"Fecha: {Dato(p[2])} — Hora: {Dato(p[3])}");
+                pdf.Texto($"Servicio: {Dato(p[4])}");
+                pdf.Texto($"Observaciones: {Dato(p[5])}");
+
+                pdf.EspacioPequeno();
+            }
+
+            // HISTORIAL CLÍNICO
+            pdf.Titulo("HISTORIAL CLÍNICO");
+
+            var consultas = ObtenerHistorialMascota(mascota.ID);
+
+            if (consultas.Count == 0)
+            {
+                pdf.Texto(
+                    "No hay consultas clínicas registradas.");
+            }
+
+            foreach (string[] p in consultas)
+            {
+                pdf.Subtitulo($"Consulta del {Dato(p[2])}");
+                EscribirDatosClinicos(pdf, p);
+                pdf.EspacioPequeno();
+            }
+
+            // CARTILLA MÉDICA
+            pdf.Titulo("CARTILLA MÉDICA");
+
+            var registros = ObtenerCartillaMascota(mascota.ID);
+
+            if (registros.Count == 0)
+            {
+                pdf.Texto(
+                    "No hay registros de vacunas o desparasitación.");
+            }
+
+            foreach (string[] p in registros)
+            {
+                pdf.Subtitulo($"{Dato(p[2])} — {Dato(p[3])}");
+                pdf.Texto($"Fecha de aplicación: {Dato(p[4])}");
+                pdf.Texto($"Próxima fecha: {Dato(p[5])}");
+                pdf.Texto($"Observaciones: {Dato(p[6])}");
+
+                pdf.EspacioPequeno();
+            }
         }
+
+        // =========================================================
+        // REPORTE DE CLIENTES
+        // =========================================================
 
         private void ExportarClientes(EscritorPDF pdf)
         {
@@ -355,13 +822,22 @@ namespace VeterinariaServerSurPia.Views
                 if (p.Length < 4)
                     continue;
 
-                pdf.Subtitulo($"{p[1].Trim()} — ID {p[0].Trim()}");
-                pdf.Texto($"Teléfono: {p[2].Trim()}");
-                pdf.Texto($"Correo: {p[3].Trim()}");
-                pdf.Texto($"Estado: {ObtenerEstadoCliente(p[0].Trim())}");
+                pdf.Subtitulo(
+                    $"{Dato(p[1])} — ID {Dato(p[0])}");
+
+                pdf.Texto($"Teléfono: {Dato(p[2])}");
+                pdf.Texto($"Correo: {Dato(p[3])}");
+
+                pdf.Texto(
+                    $"Estado: {ObtenerEstadoCliente(p[0].Trim())}");
+
                 pdf.EspacioPequeno();
             }
         }
+
+        // =========================================================
+        // REPORTE DE MASCOTAS
+        // =========================================================
 
         private void ExportarMascotas(EscritorPDF pdf)
         {
@@ -378,16 +854,27 @@ namespace VeterinariaServerSurPia.Views
                 if (p.Length < 8)
                     continue;
 
-                pdf.Subtitulo($"{p[1].Trim()} — ID {p[0].Trim()}");
-                pdf.Texto($"Especie: {p[2].Trim()}");
-                pdf.Texto($"Raza: {p[3].Trim()}");
-                pdf.Texto($"Edad: {p[4].Trim()}");
-                pdf.Texto($"Sexo: {p[5].Trim()}");
-                pdf.Texto($"Peso: {p[6].Trim()} kg");
-                pdf.Texto($"Propietario: {ObtenerNombreCliente(p[7].Trim())}");
+                pdf.Subtitulo(
+                    $"{Dato(p[1])} — ID {Dato(p[0])}");
+
+                pdf.Texto($"Especie: {Dato(p[2])}");
+                pdf.Texto($"Raza: {Dato(p[3])}");
+                pdf.Texto($"Edad: {Dato(p[4])}");
+                pdf.Texto($"Sexo: {Dato(p[5])}");
+
+                pdf.Texto(
+                    $"Peso: {(string.IsNullOrWhiteSpace(p[6]) ? "Sin registro" : p[6] + " kg")}");
+
+                pdf.Texto(
+                    $"Propietario: {ObtenerNombreCliente(p[7].Trim())}");
+
                 pdf.EspacioPequeno();
             }
         }
+
+        // =========================================================
+        // REPORTE DE CITAS
+        // =========================================================
 
         private void ExportarCitas(EscritorPDF pdf)
         {
@@ -399,17 +886,18 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            foreach (string[] p in citas.OrderBy(p => p.Length > 2 ? p[2] : ""))
+            foreach (string[] p in citas
+                .Where(p => p.Length >= 5)
+                .OrderBy(p => p[2])
+                .ThenBy(p => p[3]))
             {
-                if (p.Length < 5)
-                    continue;
-
                 string idMascota = p[1].Trim();
 
                 string[]? mascota = mascotas.FirstOrDefault(m =>
                     m.Length >= 8 &&
                     m[0].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase));
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase));
 
                 string nombreMascota = mascota != null
                     ? mascota[1].Trim()
@@ -420,19 +908,24 @@ namespace VeterinariaServerSurPia.Views
                     : "No encontrado";
 
                 string observaciones = p.Length > 5
-                    ? string.Join(",", p.Skip(5)).Trim()
+                    ? Dato(p[5])
                     : "Sin observaciones";
 
-                pdf.Subtitulo($"Cita {p[0].Trim()}");
-                pdf.Texto($"Fecha: {p[2].Trim()}");
-                pdf.Texto($"Hora: {p[3].Trim()}");
-                pdf.Texto($"Servicio: {p[4].Trim()}");
+                pdf.Subtitulo($"Cita {Dato(p[0])}");
+                pdf.Texto($"Fecha: {Dato(p[2])}");
+                pdf.Texto($"Hora: {Dato(p[3])}");
+                pdf.Texto($"Servicio: {Dato(p[4])}");
                 pdf.Texto($"Mascota: {nombreMascota}");
                 pdf.Texto($"Propietario: {propietario}");
                 pdf.Texto($"Observaciones: {observaciones}");
+
                 pdf.EspacioPequeno();
             }
         }
+
+        // =========================================================
+        // REPORTE DE HISTORIAL CLÍNICO
+        // =========================================================
 
         private void ExportarHistorialGeneral(EscritorPDF pdf)
         {
@@ -440,43 +933,59 @@ namespace VeterinariaServerSurPia.Views
 
             if (historial.Count == 0)
             {
-                pdf.Texto("No hay consultas clínicas registradas.");
+                pdf.Texto(
+                    "No hay consultas clínicas registradas.");
                 return;
             }
 
-            foreach (string[] p in historial.OrderByDescending(
-                p => p.Length > 2 ? p[2] : ""))
+            foreach (string[] p in historial
+                .Where(p => p.Length >= 11)
+                .OrderByDescending(p => p[2]))
             {
-                if (p.Length < 11)
-                    continue;
-
                 string idMascota = p[1].Trim();
 
                 string[]? mascota = mascotas.FirstOrDefault(m =>
                     m.Length >= 8 &&
                     m[0].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase));
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase));
 
-                pdf.Subtitulo($"Consulta del {p[2]}");
-                pdf.Texto($"Mascota: {(mascota != null ? mascota[1].Trim() : idMascota)}");
-                pdf.Texto($"Propietario: {(mascota != null ? ObtenerNombreCliente(mascota[7].Trim()) : "No encontrado")}");
+                pdf.Subtitulo($"Consulta del {Dato(p[2])}");
+
+                pdf.Texto(
+                    $"Mascota: {(mascota != null ? Dato(mascota[1]) : idMascota)}");
+
+                pdf.Texto(
+                    $"Propietario: {(mascota != null ? ObtenerNombreCliente(mascota[7].Trim()) : "No encontrado")}");
 
                 EscribirDatosClinicos(pdf, p);
+
                 pdf.EspacioPequeno();
             }
         }
 
-        private void EscribirDatosClinicos(EscritorPDF pdf, string[] p)
+        private void EscribirDatosClinicos(
+            EscritorPDF pdf,
+            string[] p)
         {
-            pdf.Texto($"Peso: {p[3]} kg");
-            pdf.Texto($"Motivo: {p[4]}");
-            pdf.Texto($"Síntomas: {p[5]}");
-            pdf.Texto($"Diagnóstico: {p[6]}");
-            pdf.Texto($"Tratamiento: {p[7]}");
-            pdf.Texto($"Alergias: {p[8]}");
-            pdf.Texto($"Antecedentes: {p[9]}");
-            pdf.Texto($"Observaciones: {p[10]}");
+            if (p.Length < 11)
+                return;
+
+            pdf.Texto(
+                $"Peso: {(string.IsNullOrWhiteSpace(p[3]) ? "Sin registro" : p[3] + " kg")}");
+
+            pdf.Texto($"Motivo: {Dato(p[4])}");
+            pdf.Texto($"Síntomas: {Dato(p[5])}");
+            pdf.Texto($"Diagnóstico: {Dato(p[6])}");
+            pdf.Texto($"Tratamiento: {Dato(p[7])}");
+            pdf.Texto($"Alergias: {Dato(p[8])}");
+            pdf.Texto($"Antecedentes: {Dato(p[9])}");
+            pdf.Texto($"Observaciones: {Dato(p[10])}");
         }
+
+        // =========================================================
+        // REPORTE DE CARTILLA MÉDICA
+        // =========================================================
 
         private void ExportarCartillaGeneral(EscritorPDF pdf)
         {
@@ -484,92 +993,90 @@ namespace VeterinariaServerSurPia.Views
 
             if (cartilla.Count == 0)
             {
-                pdf.Texto("No hay registros en la cartilla médica.");
+                pdf.Texto(
+                    "No hay registros en la cartilla médica.");
                 return;
             }
 
-            foreach (string[] p in cartilla.OrderByDescending(
-                p => p.Length > 4 ? p[4] : ""))
+            foreach (string[] p in cartilla
+                .Where(p => p.Length >= 7)
+                .OrderByDescending(p => p[4]))
             {
-                if (p.Length < 7)
-                    continue;
-
                 string idMascota = p[1].Trim();
 
                 string[]? mascota = mascotas.FirstOrDefault(m =>
                     m.Length >= 8 &&
                     m[0].Trim().Equals(
-                        idMascota, StringComparison.OrdinalIgnoreCase));
+                        idMascota,
+                        StringComparison.OrdinalIgnoreCase));
 
-                pdf.Subtitulo($"{p[2]} — {p[3]}");
-                pdf.Texto($"Mascota: {(mascota != null ? mascota[1].Trim() : idMascota)}");
-                pdf.Texto($"Fecha de aplicación: {p[4]}");
-                pdf.Texto($"Próxima fecha: {p[5]}");
-                pdf.Texto($"Observaciones: {p[6]}");
+                pdf.Subtitulo($"{Dato(p[2])} — {Dato(p[3])}");
+
+                pdf.Texto(
+                    $"Mascota: {(mascota != null ? Dato(mascota[1]) : idMascota)}");
+
+                pdf.Texto($"Fecha de aplicación: {Dato(p[4])}");
+                pdf.Texto($"Próxima fecha: {Dato(p[5])}");
+                pdf.Texto($"Observaciones: {Dato(p[6])}");
+
                 pdf.EspacioPequeno();
             }
         }
 
-        private void ExportarExpedienteMascota(
-            EscritorPDF pdf, MascotaParaPDF mascota)
+        // =========================================================
+        // UTILIDADES
+        // =========================================================
+
+        private static string Dato(string? valor)
         {
-            pdf.Titulo("HISTORIAL DE CITAS");
+            return string.IsNullOrWhiteSpace(valor)
+                ? "Sin registro"
+                : valor.Trim();
+        }
 
-            var citasMascota = ObtenerCitasMascota(mascota.ID);
+        private static string LimpiarNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return "Mascota";
 
-            if (citasMascota.Count == 0)
-                pdf.Texto("No hay citas registradas para esta mascota.");
+            foreach (char c in Path.GetInvalidFileNameChars())
+                nombre = nombre.Replace(c, '_');
 
-            foreach (string[] p in citasMascota)
+            nombre = nombre.Trim().Replace(' ', '_');
+
+            return string.IsNullOrWhiteSpace(nombre)
+                ? "Mascota"
+                : nombre;
+        }
+
+        private async Task MostrarAviso(string mensaje)
+        {
+            if (XamlRoot == null)
+                return;
+
+            var dialogo = new ContentDialog
             {
-                string observaciones = p.Length > 5
-                    ? string.Join(",", p.Skip(5))
-                    : "Sin observaciones";
+                Title = "Exportación PDF",
+                Content = mensaje,
+                CloseButtonText = "Aceptar",
+                XamlRoot = XamlRoot
+            };
 
-                pdf.Subtitulo($"Cita {p[0]}");
-                pdf.Texto($"Fecha: {p[2]} — Hora: {p[3]}");
-                pdf.Texto($"Servicio: {p[4]}");
-                pdf.Texto($"Observaciones: {observaciones}");
-                pdf.EspacioPequeno();
-            }
-
-            pdf.Titulo("HISTORIAL CLÍNICO");
-
-            var consultas = ObtenerHistorialMascota(mascota.ID);
-
-            if (consultas.Count == 0)
-                pdf.Texto("No hay consultas clínicas registradas.");
-
-            foreach (string[] p in consultas)
-            {
-                pdf.Subtitulo($"Consulta del {p[2]}");
-                EscribirDatosClinicos(pdf, p);
-                pdf.EspacioPequeno();
-            }
-
-            pdf.Titulo("CARTILLA MÉDICA");
-
-            var registros = ObtenerCartillaMascota(mascota.ID);
-
-            if (registros.Count == 0)
-                pdf.Texto("No hay registros de vacunas o desparasitación.");
-
-            foreach (string[] p in registros)
-            {
-                pdf.Subtitulo($"{p[2]} — {p[3]}");
-                pdf.Texto($"Fecha de aplicación: {p[4]}");
-                pdf.Texto($"Próxima fecha: {p[5]}");
-                pdf.Texto($"Observaciones: {p[6]}");
-                pdf.EspacioPequeno();
-            }
+            await dialogo.ShowAsync();
         }
     }
+
+    // =============================================================
+    // CLASE PARA ESCRIBIR EL CONTENIDO DEL PDF
+    // =============================================================
 
     internal sealed class EscritorPDF
     {
         private readonly PdfDocument documento;
+
         private PdfPage? pagina;
         private XGraphics? grafico;
+
         private double y;
 
         private const double Margen = 45;
@@ -601,12 +1108,13 @@ namespace VeterinariaServerSurPia.Views
 
             pagina = documento.AddPage();
             pagina.Size = PdfSharp.PageSize.A4;
+
             grafico = XGraphics.FromPdfPage(pagina);
 
             y = Margen;
+
             DibujarLogo();
         }
-
 
         private void DibujarLogo()
         {
@@ -615,7 +1123,15 @@ namespace VeterinariaServerSurPia.Views
 
             string rutaLogo = Path.Combine(
                 AppContext.BaseDirectory,
+                "Assets",
                 "logo_servetsur.png");
+
+            if (!File.Exists(rutaLogo))
+            {
+                rutaLogo = Path.Combine(
+                    AppContext.BaseDirectory,
+                    "logo_servetsur.png");
+            }
 
             if (File.Exists(rutaLogo))
             {
@@ -626,7 +1142,6 @@ namespace VeterinariaServerSurPia.Views
                     double anchoMaximo = 125;
                     double altoMaximo = 65;
 
-                    // Conserva la proporción original del logo.
                     double proporcion = Math.Min(
                         anchoMaximo / logo.PointWidth,
                         altoMaximo / logo.PointHeight);
@@ -643,20 +1158,12 @@ namespace VeterinariaServerSurPia.Views
                 }
                 catch
                 {
-                    grafico.DrawString(
-                        "SERVETSUR",
-                        tituloGrande,
-                        new XSolidBrush(Naranja),
-                        new XPoint(Margen, 55));
+                    DibujarNombreVeterinaria();
                 }
             }
             else
             {
-                grafico.DrawString(
-                    "SERVETSUR",
-                    tituloGrande,
-                    new XSolidBrush(Naranja),
-                    new XPoint(Margen, 55));
+                DibujarNombreVeterinaria();
             }
 
             grafico.DrawLine(
@@ -669,6 +1176,17 @@ namespace VeterinariaServerSurPia.Views
             y = 112;
         }
 
+        private void DibujarNombreVeterinaria()
+        {
+            if (grafico == null)
+                return;
+
+            grafico.DrawString(
+                "SERVETSUR",
+                tituloGrande,
+                new XSolidBrush(Naranja),
+                new XPoint(Margen, 55));
+        }
 
         public void Encabezado(string texto)
         {
@@ -693,7 +1211,6 @@ namespace VeterinariaServerSurPia.Views
 
             y += 25;
         }
-
 
         public void Titulo(string texto)
         {
@@ -748,7 +1265,7 @@ namespace VeterinariaServerSurPia.Views
         {
             AsegurarPagina();
 
-            if (grafico == null)
+            if (grafico == null || pagina == null)
                 return;
 
             RevisarSalto(10);
@@ -757,7 +1274,7 @@ namespace VeterinariaServerSurPia.Views
                 new XPen(Naranja, 1),
                 Margen,
                 y,
-                pagina!.Width.Point - Margen,
+                pagina.Width.Point - Margen,
                 y);
 
             y += 12;
@@ -792,41 +1309,133 @@ namespace VeterinariaServerSurPia.Views
 
             texto ??= "";
 
-            string[] palabras = texto.Split(
-                new[] { ' ' },
-                StringSplitOptions.RemoveEmptyEntries);
+            // Permite conservar saltos de línea en observaciones.
+            string[] parrafos = texto.Replace("\r\n", "\n")
+                .Replace('\r', '\n')
+                .Split('\n');
 
-            if (palabras.Length == 0)
+            foreach (string parrafo in parrafos)
             {
-                y += alturaLinea;
-                RevisarSalto(alturaLinea);
-                return;
-            }
+                string[] palabras = parrafo.Split(
+                    new[] { ' ' },
+                    StringSplitOptions.RemoveEmptyEntries);
 
-            string linea = "";
-
-            foreach (string palabra in palabras)
-            {
-                string candidata = string.IsNullOrEmpty(linea)
-                    ? palabra
-                    : linea + " " + palabra;
-
-                if (grafico.MeasureString(candidata, tipoFuente).Width
-                        > AnchoUtil &&
-                    !string.IsNullOrEmpty(linea))
+                if (palabras.Length == 0)
                 {
-                    DibujarLinea(linea, tipoFuente, alturaLinea, pincel);
-                    linea = palabra;
+                    DibujarLinea(
+                        "",
+                        tipoFuente,
+                        alturaLinea,
+                        pincel);
+
+                    continue;
+                }
+
+                string linea = "";
+
+                foreach (string palabra in palabras)
+                {
+                    // Evitar que una palabra demasiado larga
+                    // salga de los márgenes del documento.
+                    if (grafico.MeasureString(
+                        palabra,
+                        tipoFuente).Width > AnchoUtil)
+                    {
+                        if (!string.IsNullOrEmpty(linea))
+                        {
+                            DibujarLinea(
+                                linea,
+                                tipoFuente,
+                                alturaLinea,
+                                pincel);
+
+                            linea = "";
+                        }
+
+                        DibujarPalabraLarga(
+                            palabra,
+                            tipoFuente,
+                            alturaLinea,
+                            pincel);
+
+                        continue;
+                    }
+
+                    string candidata = string.IsNullOrEmpty(linea)
+                        ? palabra
+                        : linea + " " + palabra;
+
+                    if (grafico.MeasureString(
+                            candidata,
+                            tipoFuente).Width > AnchoUtil
+                        && !string.IsNullOrEmpty(linea))
+                    {
+                        DibujarLinea(
+                            linea,
+                            tipoFuente,
+                            alturaLinea,
+                            pincel);
+
+                        linea = palabra;
+                    }
+                    else
+                    {
+                        linea = candidata;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(linea))
+                {
+                    DibujarLinea(
+                        linea,
+                        tipoFuente,
+                        alturaLinea,
+                        pincel);
+                }
+            }
+        }
+
+        private void DibujarPalabraLarga(
+            string palabra,
+            XFont tipoFuente,
+            double alturaLinea,
+            XBrush pincel)
+        {
+            if (grafico == null)
+                return;
+
+            string fragmento = "";
+
+            foreach (char caracter in palabra)
+            {
+                string candidato = fragmento + caracter;
+
+                if (grafico.MeasureString(
+                        candidato,
+                        tipoFuente).Width > AnchoUtil
+                    && fragmento.Length > 0)
+                {
+                    DibujarLinea(
+                        fragmento,
+                        tipoFuente,
+                        alturaLinea,
+                        pincel);
+
+                    fragmento = caracter.ToString();
                 }
                 else
                 {
-                    linea = candidata;
+                    fragmento = candidato;
                 }
             }
 
-            if (!string.IsNullOrEmpty(linea))
+            if (!string.IsNullOrEmpty(fragmento))
             {
-                DibujarLinea(linea, tipoFuente, alturaLinea, pincel);
+                DibujarLinea(
+                    fragmento,
+                    tipoFuente,
+                    alturaLinea,
+                    pincel);
             }
         }
 
@@ -841,11 +1450,14 @@ namespace VeterinariaServerSurPia.Views
             if (grafico == null)
                 return;
 
-            grafico.DrawString(
-                texto,
-                tipoFuente,
-                pincel,
-                new XPoint(Margen, y));
+            if (!string.IsNullOrEmpty(texto))
+            {
+                grafico.DrawString(
+                    texto,
+                    tipoFuente,
+                    pincel,
+                    new XPoint(Margen, y));
+            }
 
             y += alturaLinea;
         }
@@ -873,6 +1485,7 @@ namespace VeterinariaServerSurPia.Views
         public void Finalizar()
         {
             grafico?.Dispose();
+
             grafico = null;
             pagina = null;
         }

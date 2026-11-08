@@ -1,11 +1,13 @@
 
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
+using Windows.UI;
 
 namespace VeterinariaServerSurPia.Views
 {
@@ -19,7 +21,8 @@ namespace VeterinariaServerSurPia.Views
         public string IDCliente { get; set; } = "";
         public string Propietario { get; set; } = "";
 
-        public string TextoMostrar => $"{IDMascota} - {Nombre}";
+        public string TextoMostrar =>
+            $"{IDMascota} - {Nombre}";
     }
 
     public sealed class ElementoHistorial
@@ -32,99 +35,271 @@ namespace VeterinariaServerSurPia.Views
     {
         private readonly List<MascotaHistorial> mascotas = new();
 
-        private string Ruta(string archivo)
-        {
-            return Path.Combine(AppContext.BaseDirectory, archivo);
-        }
+        private bool cargandoMascotas = false;
+        private bool cargandoExpediente = false;
 
         public ConsultarHistorial()
         {
             InitializeComponent();
-            CargarMascotas();
+
+            Loaded += ConsultarHistorial_Loaded;
         }
 
-        private void CargarMascotas()
+        // =========================================================
+        // CARGA INICIAL
+        // =========================================================
+
+        private async void ConsultarHistorial_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
-            string rutaClientes = Ruta("clientes.txt");
-            string rutaMascotas = Ruta("mascotas.txt");
+            Loaded -= ConsultarHistorial_Loaded;
 
-            var clientes = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
-
-            if (File.Exists(rutaClientes))
+            try
             {
-                foreach (string linea in File.ReadAllLines(rutaClientes))
-                {
-                    string[] p = linea.Split(',');
+                TxtEstado.Text = "Cargando mascotas...";
 
-                    if (p.Length >= 2 && !string.IsNullOrWhiteSpace(p[0]))
-                    {
-                        clientes[p[0].Trim()] = p[1].Trim();
-                    }
-                }
+                await CargarMascotasAsync();
             }
-
-            if (File.Exists(rutaMascotas))
+            catch (Exception ex)
             {
-                foreach (string linea in File.ReadAllLines(rutaMascotas))
+                MostrarEstado(
+                    $"No se pudieron cargar las mascotas: {ex.Message}",
+                    true);
+
+                LimpiarVista();
+            }
+        }
+
+        // =========================================================
+        // LECTURA SEGURA DE DATOS SQLITE
+        // =========================================================
+
+        private static string LeerTexto(
+            SqliteDataReader reader,
+            int indice)
+        {
+            if (reader.IsDBNull(indice))
+                return "";
+
+            return Convert.ToString(
+                reader.GetValue(indice),
+                CultureInfo.InvariantCulture)?.Trim() ?? "";
+        }
+
+        // =========================================================
+        // CARGAR MASCOTAS
+        // =========================================================
+
+        private async Task CargarMascotasAsync()
+        {
+            if (cargandoMascotas)
+                return;
+
+            cargandoMascotas = true;
+
+            MascotaCombo.IsEnabled = false;
+
+            try
+            {
+                mascotas.Clear();
+
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
+
+                using SqliteCommand comando =
+                    conexion.CreateCommand();
+
+                comando.CommandText = @"
+                    SELECT
+                        m.IdMascota,
+                        m.Nombre,
+                        m.Especie,
+                        m.Raza,
+                        m.Peso,
+                        m.IdCliente,
+                        c.Nombre AS Propietario
+                    FROM Mascotas m
+                    LEFT JOIN Clientes c
+                        ON c.IdCliente = m.IdCliente
+                    ORDER BY m.Nombre;";
+
+                using SqliteDataReader reader =
+                    await comando.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    string[] p = linea.Split(',');
+                    string idMascota = LeerTexto(reader, 0);
+                    string nombre = LeerTexto(reader, 1);
 
-                    if (p.Length < 8)
+                    // No agregar registros sin identificador o nombre.
+                    if (string.IsNullOrWhiteSpace(idMascota) ||
+                        string.IsNullOrWhiteSpace(nombre))
+                    {
                         continue;
+                    }
 
-                    string idCliente = p[7].Trim();
+                    string peso = "";
+
+                    if (!reader.IsDBNull(4))
+                    {
+                        peso = Convert.ToString(
+                            reader.GetValue(4),
+                            CultureInfo.InvariantCulture) ?? "";
+                    }
 
                     mascotas.Add(new MascotaHistorial
                     {
-                        IDMascota = p[0].Trim(),
-                        Nombre = p[1].Trim(),
-                        Especie = p[2].Trim(),
-                        Raza = p[3].Trim(),
-                        Peso = p[6].Trim(),
-                        IDCliente = idCliente,
-                        Propietario = clientes.TryGetValue(
-                            idCliente, out string? nombre)
-                                ? nombre
-                                : "Propietario no encontrado"
+                        IDMascota = idMascota,
+                        Nombre = nombre,
+                        Especie = LeerTexto(reader, 2),
+                        Raza = LeerTexto(reader, 3),
+                        Peso = peso,
+                        IDCliente = LeerTexto(reader, 5),
+                        Propietario = string.IsNullOrWhiteSpace(
+                            LeerTexto(reader, 6))
+                                ? "Propietario no encontrado"
+                                : LeerTexto(reader, 6)
                     });
                 }
+
+                MascotaCombo.SelectedItem = null;
+                MascotaCombo.ItemsSource = null;
+                MascotaCombo.ItemsSource = mascotas;
+
+                LimpiarVista();
+
+                if (mascotas.Count == 0)
+                {
+                    MostrarEstado(
+                        "No hay mascotas registradas. Registra una mascota primero.",
+                        true);
+                }
+                else
+                {
+                    MostrarEstado(
+                        $"Mascotas disponibles: {mascotas.Count}. Selecciona una para consultar su expediente.",
+                        false);
+                }
             }
-
-            MascotaCombo.ItemsSource = mascotas;
-
-            if (mascotas.Count == 0)
+            finally
             {
-                TxtEstado.Text =
-                    "No hay mascotas registradas. Registra una mascota primero.";
+                cargandoMascotas = false;
+                MascotaCombo.IsEnabled = true;
             }
         }
 
-        private void MascotaCombo_SelectionChanged(
+        // =========================================================
+        // SELECCIÓN DE MASCOTA
+        // =========================================================
+
+        private async void MascotaCombo_SelectionChanged(
             object sender,
             SelectionChangedEventArgs e)
         {
+            if (cargandoMascotas || cargandoExpediente)
+                return;
+
             if (MascotaCombo.SelectedItem is not MascotaHistorial mascota)
             {
                 LimpiarVista();
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(mascota.IDMascota))
+            {
+                MostrarEstado(
+                    "La mascota seleccionada no tiene un identificador válido.",
+                    true);
+
+                LimpiarVista();
+                return;
+            }
+
+            await CargarExpedienteAsync(mascota);
+        }
+
+        // =========================================================
+        // CARGAR EXPEDIENTE COMPLETO
+        // =========================================================
+
+        private async Task CargarExpedienteAsync(
+            MascotaHistorial mascota)
+        {
+            if (cargandoExpediente)
+                return;
+
+            cargandoExpediente = true;
+            MascotaCombo.IsEnabled = false;
+
+            try
+            {
+                MostrarEstado(
+                    $"Cargando expediente de {mascota.Nombre}...",
+                    false);
+
+                MostrarInformacionMascota(mascota);
+
+                HistorialListView.ItemsSource = null;
+                CartillaListView.ItemsSource = null;
+
+                TxtAlergias.Text = "Consultando información...";
+                TxtAntecedentes.Text = "Consultando información...";
+
+                await CargarConsultasAsync(mascota.IDMascota);
+                await CargarCartillaAsync(mascota.IDMascota);
+
+                MostrarEstado(
+                    $"Expediente cargado correctamente para {mascota.Nombre}.",
+                    false);
+            }
+            catch (Exception ex)
+            {
+                HistorialListView.ItemsSource = null;
+                CartillaListView.ItemsSource = null;
+
+                TxtAlergias.Text = "No se pudo consultar la información.";
+                TxtAntecedentes.Text = "No se pudo consultar la información.";
+
+                MostrarEstado(
+                    $"No se pudo cargar el expediente: {ex.Message}",
+                    true);
+            }
+            finally
+            {
+                cargandoExpediente = false;
+                MascotaCombo.IsEnabled = true;
+            }
+        }
+
+        // =========================================================
+        // MOSTRAR DATOS GENERALES DE LA MASCOTA
+        // =========================================================
+
+        private void MostrarInformacionMascota(
+            MascotaHistorial mascota)
+        {
             TxtIdMascota.Text = mascota.IDMascota;
             TxtNombreMascota.Text = mascota.Nombre;
-            TxtEspecie.Text = mascota.Especie;
-            TxtRaza.Text = mascota.Raza;
+
+            TxtEspecie.Text = string.IsNullOrWhiteSpace(mascota.Especie)
+                ? "Sin especie registrada"
+                : mascota.Especie;
+
+            TxtRaza.Text = string.IsNullOrWhiteSpace(mascota.Raza)
+                ? "Sin raza registrada"
+                : mascota.Raza;
+
             TxtPesoActual.Text = string.IsNullOrWhiteSpace(mascota.Peso)
                 ? "Sin peso registrado"
                 : $"{mascota.Peso} kg";
+
             TxtPropietario.Text = mascota.Propietario;
-
-            CargarConsultas(mascota.IDMascota);
-            CargarCartilla(mascota.IDMascota);
-
-            TxtEstado.Text =
-                $"Expediente cargado para {mascota.Nombre}.";
         }
+
+        // =========================================================
+        // LIMPIAR INFORMACIÓN
+        // =========================================================
 
         private void LimpiarVista()
         {
@@ -134,135 +309,288 @@ namespace VeterinariaServerSurPia.Views
             TxtRaza.Text = "—";
             TxtPesoActual.Text = "—";
             TxtPropietario.Text = "—";
+
             TxtAlergias.Text = "Sin información registrada.";
             TxtAntecedentes.Text = "Sin información registrada.";
+
             HistorialListView.ItemsSource = null;
             CartillaListView.ItemsSource = null;
         }
 
-        private void CargarConsultas(string idMascota)
+        // =========================================================
+        // CONVERTIR FECHAS
+        // =========================================================
+
+        private static DateTime ObtenerFecha(string texto)
         {
-            string ruta = Ruta("historial_medico.txt");
-            var registros = new List<string[]>();
+            if (string.IsNullOrWhiteSpace(texto))
+                return DateTime.MinValue;
 
-            if (File.Exists(ruta))
+            string[] formatos =
             {
-                foreach (string linea in File.ReadAllLines(ruta))
-                {
-                    string[] p = linea.Split('|');
+                "yyyy-MM-dd",
+                "yyyy-M-d",
+                "dd/MM/yyyy",
+                "d/M/yyyy",
+                "dd-MM-yyyy",
+                "d-M-yyyy"
+            };
 
-                    if (p.Length >= 11 &&
-                        p[1].Equals(
-                            idMascota,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        registros.Add(p);
-                    }
+            if (DateTime.TryParseExact(
+                texto.Trim(),
+                formatos,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out DateTime fecha))
+            {
+                return fecha.Date;
+            }
+
+            if (DateTime.TryParse(
+                texto.Trim(),
+                new CultureInfo("es-MX"),
+                DateTimeStyles.None,
+                out fecha))
+            {
+                return fecha.Date;
+            }
+
+            return DateTime.MinValue;
+        }
+
+        // =========================================================
+        // FORMATEAR FECHAS PARA MOSTRAR
+        // =========================================================
+
+        private static string FormatearFecha(string texto)
+        {
+            DateTime fecha = ObtenerFecha(texto);
+
+            return fecha == DateTime.MinValue
+                ? (string.IsNullOrWhiteSpace(texto)
+                    ? "Sin fecha"
+                    : texto)
+                : fecha.ToString("dd/MM/yyyy");
+        }
+
+        // =========================================================
+        // CARGAR HISTORIAL CLÍNICO
+        // =========================================================
+
+        private async Task CargarConsultasAsync(string idMascota)
+        {
+            if (string.IsNullOrWhiteSpace(idMascota))
+                throw new ArgumentException(
+                    "El identificador de la mascota no es válido.");
+
+            List<ElementoHistorial> registros = new();
+
+            string ultimaAlergia = "Sin información registrada.";
+            string ultimoAntecedente = "Sin información registrada.";
+
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
+
+            using SqliteCommand comando =
+                conexion.CreateCommand();
+
+            comando.CommandText = @"
+                SELECT
+                    Fecha,
+                    Peso,
+                    Motivo,
+                    Sintomas,
+                    Diagnostico,
+                    Tratamiento,
+                    Alergias,
+                    Antecedentes,
+                    Observaciones
+                FROM HistorialMedico
+                WHERE IdMascota = $id
+                ORDER BY Fecha DESC, rowid DESC;";
+
+            comando.Parameters.AddWithValue("$id", idMascota);
+
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            bool primerRegistro = true;
+
+            while (await reader.ReadAsync())
+            {
+                string fecha = LeerTexto(reader, 0);
+                string peso = LeerTexto(reader, 1);
+                string motivo = LeerTexto(reader, 2);
+                string sintomas = LeerTexto(reader, 3);
+                string diagnostico = LeerTexto(reader, 4);
+                string tratamiento = LeerTexto(reader, 5);
+                string alergias = LeerTexto(reader, 6);
+                string antecedentes = LeerTexto(reader, 7);
+                string observaciones = LeerTexto(reader, 8);
+
+                string fechaMostrar = FormatearFecha(fecha);
+
+                string pesoMostrar =
+                    string.IsNullOrWhiteSpace(peso)
+                        ? "Sin peso registrado"
+                        : $"{peso} kg";
+
+                registros.Add(new ElementoHistorial
+                {
+                    Titulo = $"Consulta médica · {fechaMostrar}",
+
+                    Detalle =
+                        $"Peso: {pesoMostrar}\n" +
+                        $"Motivo: {ValorOAlternativa(motivo)}\n" +
+                        $"Síntomas: {ValorOAlternativa(sintomas)}\n" +
+                        $"Diagnóstico: {ValorOAlternativa(diagnostico)}\n" +
+                        $"Tratamiento: {ValorOAlternativa(tratamiento)}\n" +
+                        $"Alergias: {ValorOAlternativa(alergias)}\n" +
+                        $"Antecedentes: {ValorOAlternativa(antecedentes)}\n" +
+                        $"Observaciones: {ValorOAlternativa(observaciones)}"
+                });
+
+                // El primer registro corresponde al más reciente.
+                if (primerRegistro)
+                {
+                    ultimaAlergia = string.IsNullOrWhiteSpace(alergias)
+                        ? "Sin información registrada."
+                        : alergias;
+
+                    ultimoAntecedente =
+                        string.IsNullOrWhiteSpace(antecedentes)
+                            ? "Sin información registrada."
+                            : antecedentes;
+
+                    primerRegistro = false;
                 }
             }
 
-            var ordenados = registros
-                .OrderByDescending(p => ObtenerFecha(p[2]))
-                .ToList();
+            HistorialListView.ItemsSource = registros;
 
-            HistorialListView.ItemsSource = ordenados
-                .Select(p => new ElementoHistorial
-                {
-                    Titulo = $"Consulta médica · {p[2]}",
-                    Detalle =
-                        $"Peso: {p[3]} kg\n" +
-                        $"Motivo: {p[4]}\n" +
-                        $"Síntomas: {p[5]}\n" +
-                        $"Diagnóstico: {p[6]}\n" +
-                        $"Tratamiento: {p[7]}\n" +
-                        $"Alergias: {p[8]}\n" +
-                        $"Antecedentes: {p[9]}\n" +
-                        $"Observaciones: {p[10]}"
-                })
-                .ToList();
+            TxtAlergias.Text = ultimaAlergia;
+            TxtAntecedentes.Text = ultimoAntecedente;
 
-            string[]? ultimo = ordenados.FirstOrDefault();
-
-            if (ultimo != null)
-            {
-                TxtAlergias.Text = ultimo[8];
-                TxtAntecedentes.Text = ultimo[9];
-            }
-            else
+            if (registros.Count == 0)
             {
                 TxtAlergias.Text = "Sin información registrada.";
                 TxtAntecedentes.Text = "Sin información registrada.";
             }
         }
 
-        private DateTime ObtenerFecha(string texto)
-        {
-            return DateTime.TryParseExact(
-                texto,
-                "yyyy-MM-dd",
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None,
-                out DateTime fecha)
-                    ? fecha
-                    : DateTime.MinValue;
-        }
+        // =========================================================
+        // CARGAR CARTILLA MÉDICA
+        // =========================================================
 
-        private void CargarCartilla(string idMascota)
+        private async Task CargarCartillaAsync(string idMascota)
         {
-            string ruta = Ruta("cartilla_medica.txt");
-            var registros = new List<string[]>();
+            if (string.IsNullOrWhiteSpace(idMascota))
+                throw new ArgumentException(
+                    "El identificador de la mascota no es válido.");
 
-            if (File.Exists(ruta))
+            List<ElementoHistorial> registros = new();
+
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
+
+            using SqliteCommand comando =
+                conexion.CreateCommand();
+
+            comando.CommandText = @"
+                SELECT
+                    Tipo,
+                    Producto,
+                    FechaAplicacion,
+                    ProximaFecha,
+                    Observaciones
+                FROM CartillaMedica
+                WHERE IdMascota = $id
+                ORDER BY FechaAplicacion DESC, rowid DESC;";
+
+            comando.Parameters.AddWithValue("$id", idMascota);
+
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadAllLines(ruta))
-                {
-                    string[] p = linea.Split('|');
+                string tipo = LeerTexto(reader, 0);
+                string producto = LeerTexto(reader, 1);
+                string aplicacion = LeerTexto(reader, 2);
+                string proxima = LeerTexto(reader, 3);
+                string observaciones = LeerTexto(reader, 4);
 
-                    if (p.Length >= 7 &&
-                        p[1].Equals(
-                            idMascota,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        registros.Add(p);
-                    }
+                DateTime fechaProxima = ObtenerFecha(proxima);
+
+                string estado;
+
+                if (fechaProxima == DateTime.MinValue)
+                {
+                    estado = "Próxima fecha no especificada";
                 }
+                else if (fechaProxima.Date < DateTime.Today)
+                {
+                    estado = "Fecha programada vencida";
+                }
+                else if (fechaProxima.Date == DateTime.Today)
+                {
+                    estado = "Programada para hoy";
+                }
+                else
+                {
+                    estado = "Próxima fecha pendiente";
+                }
+
+                string tituloTipo =
+                    string.IsNullOrWhiteSpace(tipo)
+                        ? "Registro médico"
+                        : tipo;
+
+                string tituloProducto =
+                    string.IsNullOrWhiteSpace(producto)
+                        ? "Producto no especificado"
+                        : producto;
+
+                registros.Add(new ElementoHistorial
+                {
+                    Titulo = $"{tituloTipo} · {tituloProducto}",
+
+                    Detalle =
+                        $"Fecha de aplicación: {FormatearFecha(aplicacion)}\n" +
+                        $"Próxima fecha: {FormatearFecha(proxima)}\n" +
+                        $"Estado: {estado}\n" +
+                        $"Observaciones: {ValorOAlternativa(observaciones)}"
+                });
             }
 
-            CartillaListView.ItemsSource = registros
-                .OrderByDescending(p => ObtenerFecha(p[4]))
-                .Select(p =>
-                {
-                    DateTime proxima = ObtenerFecha(p[5]);
-                    string estado;
+            CartillaListView.ItemsSource = registros;
+        }
 
-                    if (proxima == DateTime.MinValue)
-                    {
-                        estado = "Próxima fecha no especificada";
-                    }
-                    else if (proxima.Date < DateTime.Today)
-                    {
-                        estado = "Fecha programada vencida";
-                    }
-                    else if (proxima.Date == DateTime.Today)
-                    {
-                        estado = "Programada para hoy";
-                    }
-                    else
-                    {
-                        estado = "Próxima fecha pendiente";
-                    }
+        // =========================================================
+        // EVITAR CAMPOS VACÍOS EN LOS REGISTROS
+        // =========================================================
 
-                    return new ElementoHistorial
-                    {
-                        Titulo = $"{p[2]} · {p[3]}",
-                        Detalle =
-                            $"Fecha de aplicación: {p[4]}\n" +
-                            $"Próxima fecha: {p[5]}\n" +
-                            $"Estado: {estado}\n" +
-                            $"Observaciones: {p[6]}"
-                    };
-                })
-                .ToList();
+        private static string ValorOAlternativa(string valor)
+        {
+            return string.IsNullOrWhiteSpace(valor)
+                ? "Sin información registrada."
+                : valor.Trim();
+        }
+
+        // =========================================================
+        // MOSTRAR ESTADO
+        // =========================================================
+
+        private void MostrarEstado(
+            string mensaje,
+            bool esError)
+        {
+            TxtEstado.Text = mensaje;
+
+            TxtEstado.Foreground = new SolidColorBrush(
+                esError
+                    ? Color.FromArgb(255, 192, 57, 43)
+                    : Color.FromArgb(255, 128, 105, 79));
         }
     }
 }

@@ -1,13 +1,16 @@
+
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Windows.UI;
 
 namespace VeterinariaServerSurPia.Views
 {
@@ -18,71 +21,110 @@ namespace VeterinariaServerSurPia.Views
             public string IDCliente { get; set; } = "";
             public string Nombre { get; set; } = "";
             public string TextoMostrar { get; set; } = "";
+
+            public override string ToString() => TextoMostrar;
         }
 
         private readonly List<ClienteOpcion> clientes = new();
 
         private bool _filtrando = false;
+        private bool _guardandoMascota = false;
 
         public RegistrarMascota()
         {
             InitializeComponent();
 
-            CargarClientes();
-            ActualizarIdMascota();
+            Loaded += RegistrarMascota_Loaded;
         }
 
-        private string ObtenerRuta(string archivo)
+        // =====================================================
+        // CARGA INICIAL
+        // =====================================================
+
+        private async void RegistrarMascota_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
-            return Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                archivo
-            );
+            Loaded -= RegistrarMascota_Loaded;
+
+            try
+            {
+                await CargarClientesAsync();
+                await ActualizarIdMascotaAsync();
+            }
+            catch (Exception ex)
+            {
+                MostrarMensaje(
+                    "No se pudieron cargar los datos: " + ex.Message,
+                    true
+                );
+            }
         }
 
-        private string GenerarIdMascota()
+        // =====================================================
+        // GENERAR ID AUTOMÁTICO DESDE SQLITE
+        // =====================================================
+
+        private async Task<string> GenerarIdMascotaAsync()
         {
-            string ruta = ObtenerRuta("mascotas.txt");
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
+
+            return await GenerarIdMascotaAsync(conexion, null);
+        }
+
+        private async Task<string> GenerarIdMascotaAsync(
+            SqliteConnection conexion,
+            SqliteTransaction? transaccion)
+        {
+            using SqliteCommand comando = conexion.CreateCommand();
+
+            comando.Transaction = transaccion;
+
+            comando.CommandText = @"
+                SELECT IdMascota
+                FROM Mascotas;
+            ";
+
             int maximo = 0;
 
-            if (File.Exists(ruta))
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadLines(ruta))
+                string id = reader.IsDBNull(0)
+                    ? ""
+                    : reader.GetString(0).Trim();
+
+                Match coincidencia = Regex.Match(
+                    id,
+                    @"^M(\d+)$",
+                    RegexOptions.IgnoreCase
+                );
+
+                if (coincidencia.Success &&
+                    int.TryParse(
+                        coincidencia.Groups[1].Value,
+                        out int numero))
                 {
-                    string[] datos = linea.Split(',');
-
-                    if (datos.Length == 0)
-                        continue;
-
-                    string id = datos[0].Trim();
-
-                    Match coincidencia = Regex.Match(
-                        id,
-                        @"^M(\d+)$",
-                        RegexOptions.IgnoreCase
-                    );
-
-                    if (coincidencia.Success &&
-                        int.TryParse(
-                            coincidencia.Groups[1].Value,
-                            out int numero))
-                    {
-                        maximo = Math.Max(maximo, numero);
-                    }
+                    maximo = Math.Max(maximo, numero);
                 }
             }
 
             return "M" + (maximo + 1).ToString("D4");
         }
 
-        private void ActualizarIdMascota()
+        private async Task ActualizarIdMascotaAsync()
         {
             try
             {
-                TxtIdMascota.Text = GenerarIdMascota();
+                TxtIdMascota.Text = await GenerarIdMascotaAsync();
             }
             catch (Exception ex)
             {
+                TxtIdMascota.Text = "";
+
                 MostrarMensaje(
                     "No se pudo generar el ID de la mascota: " + ex.Message,
                     true
@@ -90,38 +132,54 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // avisar = true cuando el usuario presiona "Actualizar lista".
-        // Al abrir la pantalla solo se avisa si no hay clientes.
-        private void CargarClientes(bool avisar = false)
+        // =====================================================
+        // CARGAR CLIENTES DESDE SQLITE
+        // =====================================================
+
+        private async Task CargarClientesAsync(bool avisar = false)
         {
             string? idAnterior =
                 (CmbPropietario.SelectedItem as ClienteOpcion)?.IDCliente;
 
             clientes.Clear();
 
-            string ruta = ObtenerRuta("clientes.txt");
+            using SqliteConnection conexion =
+                await App.Database.OpenConnectionAsync();
 
-            if (File.Exists(ruta))
+            using SqliteCommand comando = conexion.CreateCommand();
+
+            comando.CommandText = @"
+                SELECT IdCliente, Nombre
+                FROM Clientes
+                WHERE Activo = 1
+                ORDER BY Nombre;
+            ";
+
+            using SqliteDataReader reader =
+                await comando.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                foreach (string linea in File.ReadLines(ruta))
+                string id = reader.IsDBNull(0)
+                    ? ""
+                    : reader.GetString(0);
+
+                string nombre = reader.IsDBNull(1)
+                    ? ""
+                    : reader.GetString(1);
+
+                if (string.IsNullOrWhiteSpace(id) ||
+                    string.IsNullOrWhiteSpace(nombre))
                 {
-                    string[] datos = linea.Split(',');
-
-                    if (datos.Length >= 2 &&
-                        !string.IsNullOrWhiteSpace(datos[0]) &&
-                        !string.IsNullOrWhiteSpace(datos[1]))
-                    {
-                        string id = datos[0].Trim();
-                        string nombre = datos[1].Trim();
-
-                        clientes.Add(new ClienteOpcion
-                        {
-                            IDCliente = id,
-                            Nombre = nombre,
-                            TextoMostrar = $"{nombre} ({id})"
-                        });
-                    }
+                    continue;
                 }
+
+                clientes.Add(new ClienteOpcion
+                {
+                    IDCliente = id.Trim(),
+                    Nombre = nombre.Trim(),
+                    TextoMostrar = $"{nombre.Trim()} ({id.Trim()})"
+                });
             }
 
             CmbPropietario.ItemsSource = null;
@@ -156,43 +214,64 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        private void BtnActualizarClientes_Click(
+        // =====================================================
+        // ACTUALIZAR LISTA DE CLIENTES
+        // =====================================================
+
+        private async void BtnActualizarClientes_Click(
             object sender,
             RoutedEventArgs e)
         {
             try
             {
-                CargarClientes(true);
+                await CargarClientesAsync(true);
             }
             catch (Exception ex)
             {
                 MostrarMensaje(
-                    "No se pudo actualizar la lista de clientes: " + ex.Message,
+                    "No se pudo actualizar la lista de clientes: " +
+                    ex.Message,
                     true
                 );
             }
         }
 
-        private void BtnGuardarMascota_Click(
+        // =====================================================
+        // GUARDAR MASCOTA EN SQLITE
+        // =====================================================
+
+        private async void BtnGuardarMascota_Click(
             object sender,
             RoutedEventArgs e)
         {
+            if (_guardandoMascota)
+                return;
+
             string nombre = TxtNombreMascota.Text.Trim();
             string raza = TxtRaza.Text.Trim();
             string edadTexto = TxtEdad.Text.Trim();
             string pesoTexto = TxtPeso.Text.Trim();
 
-            string especie = CmbEspecie.SelectedItem?.ToString() ?? "";
-            string unidad = CmbUnidadEdad.SelectedItem?.ToString() ?? "";
-            string sexo = CmbSexo.SelectedItem?.ToString() ?? "";
+            string especie =
+                CmbEspecie.SelectedItem?.ToString() ?? "";
 
-            // Validación del nombre.
+            string unidad =
+                CmbUnidadEdad.SelectedItem?.ToString() ?? "";
+
+            string sexo =
+                CmbSexo.SelectedItem?.ToString() ?? "";
+
+            // ---------------------------------------------
+            // VALIDAR NOMBRE
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 MostrarMensaje(
                     "Ingresa el nombre de la mascota.",
                     true
                 );
+
                 TxtNombreMascota.Focus(FocusState.Programmatic);
                 return;
             }
@@ -203,22 +282,30 @@ namespace VeterinariaServerSurPia.Views
                     "El nombre solo debe contener letras y espacios, sin espacios dobles ni al inicio o al final.",
                     true
                 );
+
                 TxtNombreMascota.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación de la especie.
+            // ---------------------------------------------
+            // VALIDAR ESPECIE
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(especie))
             {
                 MostrarMensaje(
                     "Selecciona la especie de la mascota.",
                     true
                 );
+
                 CmbEspecie.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación de la raza.
+            // ---------------------------------------------
+            // VALIDAR RAZA
+            // ---------------------------------------------
+
             if (raza.Length > 60 ||
                 (raza.Length > 0 && !TextoRazaValido(raza)))
             {
@@ -226,17 +313,22 @@ namespace VeterinariaServerSurPia.Views
                     "La raza solo debe contener letras, espacios y guiones.",
                     true
                 );
+
                 TxtRaza.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación de la edad.
+            // ---------------------------------------------
+            // VALIDAR EDAD
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(edadTexto))
             {
                 MostrarMensaje(
                     "Ingresa la edad de la mascota.",
                     true
                 );
+
                 TxtEdad.Focus(FocusState.Programmatic);
                 return;
             }
@@ -248,6 +340,7 @@ namespace VeterinariaServerSurPia.Views
                     "La edad debe contener únicamente números.",
                     true
                 );
+
                 TxtEdad.Focus(FocusState.Programmatic);
                 return;
             }
@@ -258,6 +351,7 @@ namespace VeterinariaServerSurPia.Views
                     "Selecciona si la edad está expresada en meses o años.",
                     true
                 );
+
                 CmbUnidadEdad.Focus(FocusState.Programmatic);
                 return;
             }
@@ -268,6 +362,7 @@ namespace VeterinariaServerSurPia.Views
                     "La edad en meses no puede superar los 180.",
                     true
                 );
+
                 TxtEdad.Focus(FocusState.Programmatic);
                 return;
             }
@@ -278,33 +373,44 @@ namespace VeterinariaServerSurPia.Views
                     "La edad en años no puede superar los 150.",
                     true
                 );
+
                 TxtEdad.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación del sexo.
+            // ---------------------------------------------
+            // VALIDAR SEXO
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(sexo))
             {
                 MostrarMensaje(
                     "Selecciona el sexo de la mascota.",
                     true
                 );
+
                 CmbSexo.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación del peso.
+            // ---------------------------------------------
+            // VALIDAR PESO
+            // ---------------------------------------------
+
             if (string.IsNullOrWhiteSpace(pesoTexto))
             {
                 MostrarMensaje(
                     "Ingresa el peso de la mascota.",
                     true
                 );
+
                 TxtPeso.Focus(FocusState.Programmatic);
                 return;
             }
 
-            if (!Regex.IsMatch(pesoTexto, @"^\d{1,5}(\.\d{1,2})?$") ||
+            if (!Regex.IsMatch(
+                    pesoTexto,
+                    @"^\d{1,5}(\.\d{1,2})?$") ||
                 !decimal.TryParse(
                     pesoTexto,
                     NumberStyles.AllowDecimalPoint,
@@ -315,6 +421,7 @@ namespace VeterinariaServerSurPia.Views
                     "El peso debe contener números y, opcionalmente, un punto con máximo dos decimales.",
                     true
                 );
+
                 TxtPeso.Focus(FocusState.Programmatic);
                 return;
             }
@@ -325,110 +432,163 @@ namespace VeterinariaServerSurPia.Views
                     "El peso debe ser mayor a 0 y no puede superar los 1000 kg.",
                     true
                 );
+
                 TxtPeso.Focus(FocusState.Programmatic);
                 return;
             }
 
-            // Validación del propietario.
+            // ---------------------------------------------
+            // VALIDAR PROPIETARIO
+            // ---------------------------------------------
+
             if (CmbPropietario.SelectedItem is not ClienteOpcion propietario)
             {
                 MostrarMensaje(
                     "Selecciona un propietario registrado.",
                     true
                 );
+
                 CmbPropietario.Focus(FocusState.Programmatic);
                 return;
             }
 
+            _guardandoMascota = true;
+
+            if (sender is Button botonGuardar)
+                botonGuardar.IsEnabled = false;
+
             try
             {
-                string rutaClientes = ObtenerRuta("clientes.txt");
-                string rutaMascotas = ObtenerRuta("mascotas.txt");
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
 
-                bool clienteExiste = File.Exists(rutaClientes) &&
-                    File.ReadLines(rutaClientes).Any(linea =>
-                    {
-                        string[] datos = linea.Split(',');
+                using SqliteTransaction transaccion =
+                    conexion.BeginTransaction();
 
-                        return datos.Length >= 2 &&
-                            datos[0].Trim().Equals(
-                                propietario.IDCliente,
-                                StringComparison.OrdinalIgnoreCase
-                            );
-                    });
+                // ---------------------------------------------
+                // VERIFICAR QUE EL PROPIETARIO SIGA ACTIVO
+                // ---------------------------------------------
 
-                if (!clienteExiste)
+                using (SqliteCommand verificarCliente = conexion.CreateCommand())
                 {
-                    CargarClientes();
+                    verificarCliente.Transaction = transaccion;
 
-                    MostrarMensaje(
-                        "El propietario seleccionado ya no existe. Actualiza la lista de clientes.",
-                        true
+                    verificarCliente.CommandText = @"
+                        SELECT COUNT(*)
+                        FROM Clientes
+                        WHERE IdCliente = $id
+                          AND Activo = 1;
+                    ";
+
+                    verificarCliente.Parameters.AddWithValue(
+                        "$id",
+                        propietario.IDCliente
                     );
-                    return;
+
+                    object? resultado =
+                        await verificarCliente.ExecuteScalarAsync();
+
+                    long existe = Convert.ToInt64(
+                        resultado ?? 0L,
+                        CultureInfo.InvariantCulture
+                    );
+
+                    if (existe == 0)
+                    {
+                        transaccion.Rollback();
+
+                        await CargarClientesAsync();
+
+                        MostrarMensaje(
+                            "El propietario seleccionado ya no existe o está inactivo. Actualiza la lista de clientes.",
+                            true
+                        );
+
+                        return;
+                    }
                 }
 
-                // Generar nuevamente el ID antes de guardar.
-                string id = GenerarIdMascota();
+                // ---------------------------------------------
+                // GENERAR ID DESDE SQLITE
+                // ---------------------------------------------
+
+                string id = await GenerarIdMascotaAsync(
+                    conexion,
+                    transaccion
+                );
 
                 string edadGuardada =
                     $"{edad} {unidad.ToLowerInvariant()}";
 
-                string pesoGuardado =
-                    peso.ToString(CultureInfo.InvariantCulture);
+                // ---------------------------------------------
+                // INSERTAR MASCOTA
+                // ---------------------------------------------
 
-                string[] campos =
-                {
-                    id,
-                    nombre,
-                    especie,
-                    raza,
-                    edadGuardada,
-                    sexo,
-                    pesoGuardado,
-                    propietario.IDCliente
-                };
+                using SqliteCommand guardar = conexion.CreateCommand();
 
-                // Evitar alterar la estructura CSV.
-                if (campos.Any(c =>
-                    c.Contains(',') ||
-                    c.Contains('\n') ||
-                    c.Contains('\r')))
-                {
-                    MostrarMensaje(
-                        "Los datos contienen caracteres no permitidos.",
-                        true
+                guardar.Transaction = transaccion;
+
+                guardar.CommandText = @"
+                    INSERT INTO Mascotas
+                    (
+                        IdMascota,
+                        Nombre,
+                        Especie,
+                        Raza,
+                        Edad,
+                        Sexo,
+                        Peso,
+                        IdCliente
+                    )
+                    VALUES
+                    (
+                        $id,
+                        $nombre,
+                        $especie,
+                        $raza,
+                        $edad,
+                        $sexo,
+                        $peso,
+                        $idCliente
                     );
-                    return;
-                }
+                ";
 
-                string nuevaLinea = string.Join(",", campos);
-
-                if (File.Exists(rutaMascotas) &&
-                    new FileInfo(rutaMascotas).Length > 0)
-                {
-                    string contenido = File.ReadAllText(rutaMascotas);
-
-                    if (!contenido.EndsWith("\n") &&
-                        !contenido.EndsWith("\r"))
-                    {
-                        nuevaLinea =
-                            Environment.NewLine + nuevaLinea;
-                    }
-                }
-
-                File.AppendAllText(
-                    rutaMascotas,
-                    nuevaLinea + Environment.NewLine,
-                    Encoding.UTF8
+                guardar.Parameters.AddWithValue("$id", id);
+                guardar.Parameters.AddWithValue("$nombre", nombre);
+                guardar.Parameters.AddWithValue("$especie", especie);
+                guardar.Parameters.AddWithValue("$raza", raza);
+                guardar.Parameters.AddWithValue("$edad", edadGuardada);
+                guardar.Parameters.AddWithValue("$sexo", sexo);
+                guardar.Parameters.AddWithValue("$peso", (double)peso);
+                guardar.Parameters.AddWithValue(
+                    "$idCliente",
+                    propietario.IDCliente
                 );
 
+                await guardar.ExecuteNonQueryAsync();
+
+                // Confirmar el registro.
+                transaccion.Commit();
+
+                // ---------------------------------------------
+                // LIMPIAR Y ACTUALIZAR FORMULARIO
+                // ---------------------------------------------
+
                 LimpiarFormulario();
-                ActualizarIdMascota();
+
+                await ActualizarIdMascotaAsync();
 
                 MostrarMensaje(
                     $"Mascota {nombre} registrada correctamente con ID {id} y vinculada con {propietario.Nombre}.",
                     false
+                );
+            }
+            catch (SqliteException ex)
+            {
+                MostrarMensaje(
+                    "Error de base de datos al guardar la mascota: " +
+                    ex.Message,
+                    true
                 );
             }
             catch (Exception ex)
@@ -438,18 +598,27 @@ namespace VeterinariaServerSurPia.Views
                     true
                 );
             }
+            finally
+            {
+                _guardandoMascota = false;
+
+                if (sender is Button boton)
+                    boton.IsEnabled = true;
+            }
         }
+
+        // =====================================================
+        // VALIDACIONES DE TEXTO
+        // =====================================================
 
         private bool TextoNombreValido(string texto)
         {
-            if (string.IsNullOrWhiteSpace(texto))
+            if (string.IsNullOrWhiteSpace(texto) ||
+                texto != texto.Trim() ||
+                texto.Contains("  "))
+            {
                 return false;
-
-            if (texto != texto.Trim())
-                return false;
-
-            if (texto.Contains("  "))
-                return false;
+            }
 
             return texto.All(c =>
                 char.IsLetter(c) || c == ' '
@@ -458,14 +627,12 @@ namespace VeterinariaServerSurPia.Views
 
         private bool TextoRazaValido(string texto)
         {
-            if (string.IsNullOrWhiteSpace(texto))
+            if (string.IsNullOrWhiteSpace(texto) ||
+                texto != texto.Trim() ||
+                texto.Contains("  "))
+            {
                 return false;
-
-            if (texto != texto.Trim())
-                return false;
-
-            if (texto.Contains("  "))
-                return false;
+            }
 
             return texto.All(c =>
                 char.IsLetter(c) ||
@@ -474,43 +641,55 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // Muestra un mensaje en la caja de avisos.
-        // Verde cuando todo salió bien, rojo cuando hay un error.
-        private void MostrarMensaje(string texto, bool esError)
+        // =====================================================
+        // MENSAJES VISUALES
+        // =====================================================
+
+        private void MostrarMensaje(
+            string texto,
+            bool esError)
         {
             TxtMensaje.Text = texto;
 
             if (esError)
             {
                 PanelMensaje.Background = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 255, 232, 227));
+                    Color.FromArgb(255, 255, 232, 227)
+                );
 
                 PanelMensaje.BorderBrush = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 245, 198, 189));
+                    Color.FromArgb(255, 245, 198, 189)
+                );
 
                 TxtMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 192, 57, 43));
+                    Color.FromArgb(255, 192, 57, 43)
+                );
 
                 IconoMensaje.Glyph = "\uE7BA";
 
                 IconoMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 192, 57, 43));
+                    Color.FromArgb(255, 192, 57, 43)
+                );
             }
             else
             {
                 PanelMensaje.Background = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 233, 245, 230));
+                    Color.FromArgb(255, 233, 245, 230)
+                );
 
                 PanelMensaje.BorderBrush = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 195, 226, 189));
+                    Color.FromArgb(255, 195, 226, 189)
+                );
 
                 TxtMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 46, 107, 43));
+                    Color.FromArgb(255, 46, 107, 43)
+                );
 
                 IconoMensaje.Glyph = "\uE73E";
 
                 IconoMensaje.Foreground = new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 46, 107, 43));
+                    Color.FromArgb(255, 46, 107, 43)
+                );
             }
 
             PanelMensaje.Visibility = Visibility.Visible;
@@ -521,6 +700,10 @@ namespace VeterinariaServerSurPia.Views
             TxtMensaje.Text = string.Empty;
             PanelMensaje.Visibility = Visibility.Collapsed;
         }
+
+        // =====================================================
+        // LIMPIAR FORMULARIO
+        // =====================================================
 
         private void LimpiarFormulario()
         {
@@ -541,6 +724,10 @@ namespace VeterinariaServerSurPia.Views
             CmbPropietario.SelectedIndex = -1;
         }
 
+        // =====================================================
+        // NAVEGACIÓN
+        // =====================================================
+
         private void BtnIrClientes_Click(
             object sender,
             RoutedEventArgs e)
@@ -548,11 +735,15 @@ namespace VeterinariaServerSurPia.Views
             if (MainWindow.Current != null)
             {
                 MainWindow.Current.MostrarMenuPrincipal();
+
                 MainWindow.Current.SeleccionarPantalla("Clientes");
             }
         }
 
-        // FILTRO DEL NOMBRE DE LA MASCOTA.
+        // =====================================================
+        // FILTRAR NOMBRE DE MASCOTA
+        // =====================================================
+
         private void TxtNombreMascota_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -565,7 +756,10 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // FILTRO DE LA RAZA.
+        // =====================================================
+        // FILTRAR RAZA
+        // =====================================================
+
         private void TxtRaza_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -578,7 +772,10 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // FILTRO DE LA EDAD.
+        // =====================================================
+        // FILTRAR EDAD
+        // =====================================================
+
         private void TxtEdad_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -590,7 +787,10 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // FILTRO DEL PESO.
+        // =====================================================
+        // FILTRAR PESO
+        // =====================================================
+
         private void TxtPeso_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -601,8 +801,7 @@ namespace VeterinariaServerSurPia.Views
             string original = sender.Text;
             int posicionOriginal = sender.SelectionStart;
 
-            // Permitir que el usuario escriba coma o punto,
-            // pero almacenar siempre el punto decimal.
+            // Permitir coma o punto como separador decimal.
             string texto = original.Replace(',', '.');
 
             string filtrado = "";
@@ -662,7 +861,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // MÉTODO GENERAL PARA FILTRAR CARACTERES.
+        // =====================================================
+        // MÉTODO GENERAL PARA FILTRAR CARACTERES
+        // =====================================================
+
         private void Filtrar(
             TextBox caja,
             Func<char, bool> permitido,

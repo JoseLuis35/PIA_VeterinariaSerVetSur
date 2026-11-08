@@ -13,8 +13,31 @@ namespace VeterinariaServerSurPia
         public MainWindow()
         {
             InitializeComponent();
+            Title = "Servetsur Mty";
             Current = this;
+            AplicarIconoVentana();
             LoginFrame.Navigate(typeof(LoginPage));
+        }
+
+        // Ícono de la ventana (barra de título, barra de tareas y Alt+Tab)
+        private void AplicarIconoVentana()
+        {
+            try
+            {
+                string rutaIcono = System.IO.Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Assets",
+                    "AppIcon.ico");
+
+                if (System.IO.File.Exists(rutaIcono))
+                {
+                    AppWindow.SetIcon(rutaIcono);
+                }
+            }
+            catch
+            {
+                // Si el ícono no se puede cargar, la app sigue funcionando.
+            }
         }
 
         public static string CitaPendienteId { get; set; } = "";

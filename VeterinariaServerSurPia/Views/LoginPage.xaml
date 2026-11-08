@@ -306,6 +306,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="15"
                                         AutomationProperties.Name="Usuario"
+                                        BeforeTextChanging="TxtUsuario_BeforeTextChanging"
                                         KeyDown="TxtUsuario_KeyDown"/>
 
                                 </Grid>
@@ -345,6 +346,7 @@
                                         VerticalAlignment="Center"
                                         FontSize="15"
                                         AutomationProperties.Name="Contraseña"
+                                        PasswordChanged="TxtPassword_PasswordChanged"
                                         KeyDown="TxtPassword_KeyDown"/>
 
                                 </Grid>

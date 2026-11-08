@@ -1,12 +1,14 @@
 
+using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace VeterinariaServerSurPia.Views
 {
@@ -36,7 +38,15 @@ namespace VeterinariaServerSurPia.Views
         private readonly CultureInfo cultura =
             new CultureInfo("es-MX");
 
-        private bool calendarioInicializado = false;
+        private bool calendarioInicializado;
+        private bool cargandoCitas;
+        private bool actualizandoAgenda;
+
+        private static readonly Color ColorDiaConCita =
+            Color.FromArgb(255, 242, 140, 40);
+
+        private static readonly Color ColorTextoDiaConCita =
+            Color.FromArgb(255, 255, 255, 255);
 
         public CalendarioCitas()
         {
@@ -44,37 +54,98 @@ namespace VeterinariaServerSurPia.Views
 
             calendarioInicializado = true;
 
-            Calendario.SelectedDates.Clear();
-            Calendario.SelectedDates.Add(DateTimeOffset.Now);
+            CalendarView? calendario = ObtenerCalendario();
 
-            CargarCitas();
+            if (calendario != null)
+            {
+                calendario.SelectedDates.Clear();
+                calendario.SelectedDates.Add(
+                    new DateTimeOffset(DateTime.Today));
+            }
+
             MostrarAgenda(DateTime.Today);
+
+            Loaded += CalendarioCitas_Loaded;
         }
 
-        private string Ruta(string archivo)
+        // ==========================================
+        // OBTENER CALENDARIO
+        // ==========================================
+
+        private CalendarView? ObtenerCalendario()
         {
-            return Path.Combine(
-                AppContext.BaseDirectory,
-                archivo);
+            return FindName("Calendario") as CalendarView;
         }
 
-        private List<string[]> LeerArchivo(string archivo)
+        // ==========================================
+        // CARGA INICIAL
+        // ==========================================
+
+        private async void CalendarioCitas_Loaded(
+            object sender,
+            RoutedEventArgs e)
         {
-            string ruta = Ruta(archivo);
+            Loaded -= CalendarioCitas_Loaded;
 
-            if (!File.Exists(ruta))
-                return new List<string[]>();
+            try
+            {
+                TxtMensajeAgenda.Text = "Cargando citas...";
 
-            return File.ReadLines(ruta)
-                .Where(linea => !string.IsNullOrWhiteSpace(linea))
-                .Select(linea => linea.Split(','))
-                .ToList();
+                await CargarCitasAsync();
+
+                CalendarView? calendario = ObtenerCalendario();
+
+                DateTime fecha =
+                    calendario != null &&
+                    calendario.SelectedDates.Count > 0
+                        ? calendario.SelectedDates[0].Date
+                        : DateTime.Today;
+
+                MostrarAgenda(fecha);
+
+                RefrescarColoresCalendario();
+            }
+            catch (Exception ex)
+            {
+                TxtMensajeAgenda.Text =
+                    "No se pudieron cargar las citas.";
+
+                await MostrarAviso(
+                    $"No se pudieron cargar las citas: {ex.Message}");
+            }
         }
+
+        // ==========================================
+        // LEER TEXTO DE SQLITE
+        // ==========================================
+
+        private static string LeerTexto(
+            SqliteDataReader reader,
+            int indice)
+        {
+            if (reader.IsDBNull(indice))
+                return "";
+
+            return Convert.ToString(
+                reader.GetValue(indice),
+                CultureInfo.InvariantCulture) ?? "";
+        }
+
+        // ==========================================
+        // VALIDAR Y CONVERTIR FECHAS
+        // ==========================================
 
         private bool IntentarLeerFecha(
             string texto,
             out DateTime fecha)
         {
+            fecha = DateTime.MinValue;
+
+            if (string.IsNullOrWhiteSpace(texto))
+                return false;
+
+            string valor = texto.Trim();
+
             string[] formatos =
             {
                 "dd/MM/yyyy",
@@ -82,12 +153,39 @@ namespace VeterinariaServerSurPia.Views
                 "yyyy-MM-dd",
                 "yyyy-M-d",
                 "dd-MM-yyyy",
-                "d-M-yyyy"
+                "d-M-yyyy",
+                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd HH:mm",
+                "yyyy-MM-ddTHH:mm:ss",
+                "yyyy-MM-ddTHH:mm:ss.fff",
+                "yyyy-MM-ddTHH:mm",
+                "dd/MM/yyyy HH:mm:ss",
+                "d/M/yyyy H:mm:ss"
             };
 
             if (DateTime.TryParseExact(
-                texto.Trim(),
+                valor,
                 formatos,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out fecha))
+            {
+                fecha = fecha.Date;
+                return true;
+            }
+
+            if (DateTime.TryParse(
+                valor,
+                cultura,
+                DateTimeStyles.None,
+                out fecha))
+            {
+                fecha = fecha.Date;
+                return true;
+            }
+
+            if (DateTime.TryParse(
+                valor,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out fecha))
@@ -100,99 +198,121 @@ namespace VeterinariaServerSurPia.Views
             return false;
         }
 
-        private void CargarCitas()
+        // ==========================================
+        // CARGAR CITAS DESDE SQLITE
+        // ==========================================
+
+        private async Task CargarCitasAsync()
         {
-            todasLasCitas.Clear();
+            if (cargandoCitas)
+                return;
 
-            Dictionary<string, string> clientes =
-                new(StringComparer.OrdinalIgnoreCase);
+            cargandoCitas = true;
 
-            foreach (string[] p in LeerArchivo("clientes.txt"))
+            try
             {
-                if (p.Length < 2 ||
-                    string.IsNullOrWhiteSpace(p[0]))
-                    continue;
+                List<CitaCalendario> citasCargadas = new();
 
-                clientes[p[0].Trim()] = p[1].Trim();
-            }
+                using SqliteConnection conexion =
+                    await App.Database.OpenConnectionAsync();
 
-            Dictionary<string, string> mascotas =
-                new(StringComparer.OrdinalIgnoreCase);
+                using SqliteCommand comando =
+                    conexion.CreateCommand();
 
-            Dictionary<string, string> propietarios =
-                new(StringComparer.OrdinalIgnoreCase);
+                comando.CommandText = @"
+                    SELECT
+                        c.IdCita,
+                        c.IdMascota,
+                        c.Fecha,
+                        c.Hora,
+                        c.Servicio,
+                        c.Observaciones,
+                        m.Nombre AS NombreMascota,
+                        cl.Nombre AS NombrePropietario
 
-            foreach (string[] p in LeerArchivo("mascotas.txt"))
-            {
-                if (p.Length < 8 ||
-                    string.IsNullOrWhiteSpace(p[0]))
-                    continue;
+                    FROM Citas c
 
-                string idMascota = p[0].Trim();
-                string idCliente = p[7].Trim();
+                    LEFT JOIN Mascotas m
+                        ON m.IdMascota = c.IdMascota
 
-                mascotas[idMascota] = p[1].Trim();
+                    LEFT JOIN Clientes cl
+                        ON cl.IdCliente = m.IdCliente
 
-                propietarios[idMascota] =
-                    clientes.TryGetValue(
-                        idCliente,
-                        out string? nombreCliente)
-                    ? nombreCliente
-                    : "Propietario no encontrado";
-            }
+                    ORDER BY c.Fecha, c.Hora;";
 
-            // Evitar mostrar dos veces el mismo ID de cita.
-            HashSet<string> idsCargados =
-                new(StringComparer.OrdinalIgnoreCase);
+                using SqliteDataReader reader =
+                    await comando.ExecuteReaderAsync();
 
-            foreach (string[] p in LeerArchivo("citas.txt"))
-            {
-                if (p.Length < 5)
-                    continue;
+                HashSet<string> idsCargados =
+                    new(StringComparer.OrdinalIgnoreCase);
 
-                string idCita = p[0].Trim();
-
-                if (string.IsNullOrWhiteSpace(idCita))
-                    continue;
-
-                if (!IntentarLeerFecha(
-                    p[2],
-                    out DateTime fecha))
-                    continue;
-
-                if (!idsCargados.Add(idCita))
-                    continue;
-
-                string idMascota = p[1].Trim();
-
-                todasLasCitas.Add(new CitaCalendario
+                while (await reader.ReadAsync())
                 {
-                    ID = idCita,
-                    IDMascota = idMascota,
-                    Fecha = fecha,
-                    Hora = p[3].Trim(),
-                    Servicio = p[4].Trim(),
+                    string idCita =
+                        LeerTexto(reader, 0).Trim();
 
-                    Observaciones = p.Length > 5
-                        ? string.Join(",", p.Skip(5)).Trim()
-                        : "",
+                    if (string.IsNullOrWhiteSpace(idCita))
+                        continue;
 
-                    NombreMascota = mascotas.TryGetValue(
-                        idMascota,
-                        out string? nombreMascota)
-                        ? nombreMascota
-                        : "Mascota no encontrada",
+                    if (!idsCargados.Add(idCita))
+                        continue;
 
-                    NombrePropietario = propietarios.TryGetValue(
-                        idMascota,
-                        out string? nombrePropietario)
-                        ? nombrePropietario
-                        : "Propietario no encontrado"
-                });
+                    string textoFecha =
+                        LeerTexto(reader, 2);
+
+                    if (!IntentarLeerFecha(
+                        textoFecha,
+                        out DateTime fecha))
+                    {
+                        continue;
+                    }
+
+                    string idMascota =
+                        LeerTexto(reader, 1).Trim();
+
+                    string nombreMascota =
+                        LeerTexto(reader, 6).Trim();
+
+                    string nombrePropietario =
+                        LeerTexto(reader, 7).Trim();
+
+                    citasCargadas.Add(new CitaCalendario
+                    {
+                        ID = idCita,
+                        IDMascota = idMascota,
+                        Fecha = fecha,
+                        Hora = LeerTexto(reader, 3).Trim(),
+                        Servicio = LeerTexto(reader, 4).Trim(),
+                        Observaciones = LeerTexto(reader, 5).Trim(),
+
+                        NombreMascota =
+                            string.IsNullOrWhiteSpace(nombreMascota)
+                                ? "Mascota no encontrada"
+                                : nombreMascota,
+
+                        NombrePropietario =
+                            string.IsNullOrWhiteSpace(nombrePropietario)
+                                ? "Propietario no encontrado"
+                                : nombrePropietario
+                    });
+                }
+
+                todasLasCitas.Clear();
+                todasLasCitas.AddRange(citasCargadas);
+
+                ActualizarResumenMes();
+
+                RefrescarColoresCalendario();
             }
-
-            ActualizarResumenMes();
+            finally
+            {
+                cargandoCitas = false;
+            }
         }
+
+        // ==========================================
+        // CAMBIO DE FECHA SELECCIONADA
+        // ==========================================
 
         private void Calendario_SelectedDatesChanged(
             CalendarView sender,
@@ -203,18 +323,30 @@ namespace VeterinariaServerSurPia.Views
 
             if (sender.SelectedDates.Count > 0)
             {
-                MostrarAgenda(sender.SelectedDates[0].Date);
+                MostrarAgenda(
+                    sender.SelectedDates[0].Date);
             }
             else
             {
                 CitasListView.ItemsSource = null;
+
                 TxtTotalDia.Text = "0";
+
                 TxtMensajeAgenda.Text =
                     "Selecciona una fecha para consultar las citas.";
 
+                TxtFechaSeleccionada.Text =
+                    "Agenda del día";
+
                 LimpiarDetalle();
+
+                ActualizarResumenMes();
             }
         }
+
+        // ==========================================
+        // MOSTRAR AGENDA DEL DÍA
+        // ==========================================
 
         private void MostrarAgenda(DateTime fecha)
         {
@@ -227,48 +359,181 @@ namespace VeterinariaServerSurPia.Views
 
             List<CitaCalendario> citasDia = todasLasCitas
                 .Where(c => c.Fecha.Date == fecha)
-                .OrderBy(c =>
-                {
-                    return TimeSpan.TryParseExact(
-                        c.Hora,
-                        @"hh\:mm",
-                        CultureInfo.InvariantCulture,
-                        out TimeSpan hora)
-                        ? hora
-                        : TimeSpan.MaxValue;
-                })
+                .OrderBy(c => ObtenerHoraOrdenamiento(c.Hora))
                 .ThenBy(c => c.ID)
                 .ToList();
 
             CitasListView.SelectedItem = null;
-            CitasListView.ItemsSource = null;
             CitasListView.ItemsSource = citasDia;
 
-            TxtTotalDia.Text = citasDia.Count.ToString();
+            TxtTotalDia.Text =
+                citasDia.Count.ToString(cultura);
 
             TxtMensajeAgenda.Text = citasDia.Count == 0
                 ? "No hay citas registradas para esta fecha."
                 : $"Hay {citasDia.Count} cita(s) programada(s) para este día.";
 
             LimpiarDetalle();
+
             ActualizarResumenMes();
         }
 
-        private void ActualizarResumenMes()
+        // ==========================================
+        // ORDENAR CITAS POR HORA
+        // ==========================================
+
+        private static TimeSpan ObtenerHoraOrdenamiento(
+            string textoHora)
         {
-            if (!calendarioInicializado)
+            if (string.IsNullOrWhiteSpace(textoHora))
+                return TimeSpan.MaxValue;
+
+            string[] formatos =
+            {
+                @"hh\:mm",
+                @"h\:mm",
+                @"hh\:mm\:ss",
+                @"h\:mm\:ss"
+            };
+
+            if (TimeSpan.TryParseExact(
+                textoHora.Trim(),
+                formatos,
+                CultureInfo.InvariantCulture,
+                out TimeSpan hora))
+            {
+                return hora;
+            }
+
+            if (DateTime.TryParse(
+                textoHora,
+                CultureInfo.GetCultureInfo("es-MX"),
+                DateTimeStyles.None,
+                out DateTime fechaHora))
+            {
+                return fechaHora.TimeOfDay;
+            }
+
+            return TimeSpan.MaxValue;
+        }
+
+        // ==========================================
+        // RESALTAR DÍAS CON CITAS
+        // ==========================================
+
+        private void AplicarColorDia(
+            CalendarViewDayItem item)
+        {
+            if (item == null)
                 return;
 
-            DateTime fecha = Calendario.SelectedDates.Count > 0
-                ? Calendario.SelectedDates[0].Date
-                : DateTime.Today;
+            DateTime fecha = item.Date.Date;
+
+            bool tieneCitas = todasLasCitas.Any(c =>
+                c.Fecha.Date == fecha);
+
+            if (tieneCitas)
+            {
+                item.Background =
+                    new SolidColorBrush(ColorDiaConCita);
+
+                item.Foreground =
+                    new SolidColorBrush(ColorTextoDiaConCita);
+
+                item.FontWeight =
+                    Microsoft.UI.Text.FontWeights.Bold;
+            }
+            else
+            {
+                item.ClearValue(
+                    Control.BackgroundProperty);
+
+                item.ClearValue(
+                    Control.ForegroundProperty);
+
+                item.ClearValue(
+                    Control.FontWeightProperty);
+            }
+        }
+
+        private void Calendario_DayItemChanging(
+            CalendarView sender,
+            CalendarViewDayItemChangingEventArgs args)
+        {
+            if (args.InRecycleQueue || args.Item == null)
+                return;
+
+            AplicarColorDia(args.Item);
+        }
+
+        // ==========================================
+        // ACTUALIZAR COLORES DE LOS DÍAS VISIBLES
+        // ==========================================
+
+        private void RefrescarColoresCalendario()
+        {
+            CalendarView? calendario = ObtenerCalendario();
+
+            if (calendario == null)
+                return;
+
+            calendario.UpdateLayout();
+
+            ActualizarColoresElementosVisuales(calendario);
+        }
+
+        private void ActualizarColoresElementosVisuales(
+            DependencyObject elemento)
+        {
+            if (elemento is CalendarViewDayItem dia)
+            {
+                AplicarColorDia(dia);
+                return;
+            }
+
+            int cantidad =
+                VisualTreeHelper.GetChildrenCount(elemento);
+
+            for (int i = 0; i < cantidad; i++)
+            {
+                DependencyObject hijo =
+                    VisualTreeHelper.GetChild(elemento, i);
+
+                ActualizarColoresElementosVisuales(hijo);
+            }
+        }
+
+        // ==========================================
+        // RESUMEN DE CITAS DEL MES
+        // ==========================================
+
+        private void ActualizarResumenMes()
+        {
+            if (!calendarioInicializado ||
+                TxtTotalMes == null)
+            {
+                return;
+            }
+
+            CalendarView? calendario = ObtenerCalendario();
+
+            DateTime fecha =
+                calendario != null &&
+                calendario.SelectedDates.Count > 0
+                    ? calendario.SelectedDates[0].Date
+                    : DateTime.Today;
 
             int totalMes = todasLasCitas.Count(c =>
                 c.Fecha.Year == fecha.Year &&
                 c.Fecha.Month == fecha.Month);
 
-            TxtTotalMes.Text = totalMes.ToString();
+            TxtTotalMes.Text =
+                totalMes.ToString(cultura);
         }
+
+        // ==========================================
+        // SELECCIONAR CITA
+        // ==========================================
 
         private void CitasListView_SelectionChanged(
             object sender,
@@ -281,13 +546,32 @@ namespace VeterinariaServerSurPia.Views
             }
 
             TxtIDCita.Text = cita.ID;
+
             TxtMascota.Text =
                 $"{cita.NombreMascota} ({cita.IDMascota})";
-            TxtPropietario.Text = cita.NombrePropietario;
-            TxtServicio.Text = cita.Servicio;
-            TxtHora.Text = cita.Hora;
-            TxtObservaciones.Text = cita.Observaciones;
+
+            TxtPropietario.Text =
+                cita.NombrePropietario;
+
+            TxtServicio.Text =
+                string.IsNullOrWhiteSpace(cita.Servicio)
+                    ? "Sin servicio especificado"
+                    : cita.Servicio;
+
+            TxtHora.Text =
+                string.IsNullOrWhiteSpace(cita.Hora)
+                    ? "Sin hora especificada"
+                    : cita.Hora;
+
+            TxtObservaciones.Text =
+                string.IsNullOrWhiteSpace(cita.Observaciones)
+                    ? "Sin observaciones"
+                    : cita.Observaciones;
         }
+
+        // ==========================================
+        // LIMPIAR DETALLE
+        // ==========================================
 
         private void LimpiarDetalle()
         {
@@ -299,35 +583,101 @@ namespace VeterinariaServerSurPia.Views
             TxtObservaciones.Text = "";
         }
 
+        // ==========================================
+        // IR A HOY
+        // ==========================================
+
         private void BtnIrHoy_Click(
             object sender,
             RoutedEventArgs e)
         {
-            Calendario.SelectedDates.Clear();
-            Calendario.SelectedDates.Add(DateTimeOffset.Now);
+            CalendarView? calendario = ObtenerCalendario();
 
-            MostrarAgenda(DateTime.Today);
+            if (calendario == null)
+                return;
+
+            DateTimeOffset hoy =
+                new DateTimeOffset(DateTime.Today);
+
+            calendario.SelectedDates.Clear();
+            calendario.SelectedDates.Add(hoy);
+
+            MostrarAgenda(hoy.Date);
+
+            RefrescarColoresCalendario();
         }
 
+        // ==========================================
+        // ACTUALIZAR CALENDARIO
+        // ==========================================
+
         private async void BtnActualizar_Click(
-            object sender,
-            RoutedEventArgs e)
+    object sender,
+    RoutedEventArgs e)
         {
-            DateTime fecha = Calendario.SelectedDates.Count > 0
-                ? Calendario.SelectedDates[0].Date
-                : DateTime.Today;
+            if (actualizandoAgenda)
+                return;
+
+            actualizandoAgenda = true;
+
+            Button? botonActualizar = sender as Button;
+
+            if (botonActualizar != null)
+                botonActualizar.IsEnabled = false;
+
+            CalendarView? calendario = ObtenerCalendario();
+
+            DateTime fecha =
+                calendario != null &&
+                calendario.SelectedDates.Count > 0
+                    ? calendario.SelectedDates[0].Date
+                    : DateTime.Today;
 
             try
             {
-                CargarCitas();
+                TxtMensajeAgenda.Text =
+                    "Actualizando agenda...";
+
+                await CargarCitasAsync();
+
                 MostrarAgenda(fecha);
+
+                RefrescarColoresCalendario();
+
+                TxtMensajeAgenda.Text =
+                    "La agenda se actualizó correctamente. " +
+                    (todasLasCitas.Count == 0
+                        ? "No hay citas registradas."
+                        : $"Se cargaron {todasLasCitas.Count} citas.");
+            }
+            catch (SqliteException ex)
+            {
+                TxtMensajeAgenda.Text =
+                    "No se pudo actualizar la agenda.";
+
+                await MostrarAviso(
+                    $"Ocurrió un problema al consultar la base de datos: {ex.Message}");
             }
             catch (Exception ex)
             {
+                TxtMensajeAgenda.Text =
+                    "No se pudo actualizar la agenda.";
+
                 await MostrarAviso(
                     $"No se pudo actualizar la agenda: {ex.Message}");
             }
+            finally
+            {
+                actualizandoAgenda = false;
+
+                if (botonActualizar != null)
+                    botonActualizar.IsEnabled = true;
+            }
         }
+
+        // ==========================================
+        // ADMINISTRAR CITA SELECCIONADA
+        // ==========================================
 
         private async void BtnAdministrar_Click(
             object sender,
@@ -337,22 +687,39 @@ namespace VeterinariaServerSurPia.Views
             {
                 await MostrarAviso(
                     "Primero selecciona una cita de la agenda.");
+
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(cita.ID))
+            {
+                await MostrarAviso(
+                    "La cita seleccionada no tiene un identificador válido.");
+
                 return;
             }
 
             MainWindow.CitaPendienteId = cita.ID;
+
             MainWindow.Current?.SeleccionarPantalla(
                 "ModificarEliminar");
         }
 
+        // ==========================================
+        // MOSTRAR AVISOS
+        // ==========================================
+
         private async Task MostrarAviso(string mensaje)
         {
+            if (XamlRoot == null)
+                return;
+
             ContentDialog dialogo = new()
             {
                 Title = "Calendario de citas",
                 Content = mensaje,
                 CloseButtonText = "Aceptar",
-                XamlRoot = this.XamlRoot
+                XamlRoot = XamlRoot
             };
 
             await dialogo.ShowAsync();

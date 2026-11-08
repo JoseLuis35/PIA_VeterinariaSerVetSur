@@ -54,6 +54,101 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
+        // ============ VALIDACIONES DE ENTRADA ============
+
+        private bool actualizandoPassword = false;
+
+        // USUARIO: solo letras y números (sin espacios ni símbolos).
+        // Se ejecuta antes de que el texto cambie, así también
+        // bloquea lo que se pegue con Ctrl+V.
+        private void TxtUsuario_BeforeTextChanging(
+            TextBox sender,
+            TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (!UsuarioValido(args.NewText))
+            {
+                args.Cancel = true;
+
+                MostrarError(
+                    "El usuario solo puede contener letras y números, " +
+                    "sin espacios ni símbolos.");
+            }
+            else
+            {
+                OcultarError();
+            }
+        }
+
+        // CONTRASEÑA: no se permiten espacios.
+        private void TxtPassword_PasswordChanged(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (actualizandoPassword)
+            {
+                return;
+            }
+
+            string actual = TxtPassword.Password;
+
+            if (ContieneEspacios(actual))
+            {
+                actualizandoPassword = true;
+
+                TxtPassword.Password = QuitarEspacios(actual);
+
+                actualizandoPassword = false;
+
+                MostrarError(
+                    "La contraseña no puede contener espacios.");
+            }
+            else
+            {
+                OcultarError();
+            }
+        }
+
+        private static bool UsuarioValido(string texto)
+        {
+            foreach (char c in texto)
+            {
+                if (!char.IsLetterOrDigit(c))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool ContieneEspacios(string texto)
+        {
+            foreach (char c in texto)
+            {
+                if (char.IsWhiteSpace(c))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string QuitarEspacios(string texto)
+        {
+            var sb = new System.Text.StringBuilder(texto.Length);
+
+            foreach (char c in texto)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
+        }
+
         // ENTER EN USUARIO: PASA A CONTRASEÑA
         private void TxtUsuario_KeyDown(
             object sender,
@@ -71,6 +166,13 @@ namespace VeterinariaServerSurPia.Views
             object sender,
             KeyRoutedEventArgs e)
         {
+            // No permitir la barra espaciadora en la contraseña
+            if (e.Key == VirtualKey.Space)
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (e.Key == VirtualKey.Enter && !e.KeyStatus.WasKeyDown)
             {
                 e.Handled = true;
@@ -86,7 +188,7 @@ namespace VeterinariaServerSurPia.Views
             RoutedEventArgs e)
         {
             string usuario = TxtUsuario.Text.Trim();
-            string password = TxtPassword.Password.Trim();
+            string password = TxtPassword.Password;
 
             if (string.IsNullOrWhiteSpace(usuario) ||
                 string.IsNullOrWhiteSpace(password))
@@ -103,6 +205,25 @@ namespace VeterinariaServerSurPia.Views
                     TxtPassword.Focus(FocusState.Programmatic);
                 }
 
+                return;
+            }
+
+            if (!UsuarioValido(usuario))
+            {
+                MostrarError(
+                    "El usuario solo puede contener letras y números, " +
+                    "sin espacios ni símbolos.");
+
+                TxtUsuario.Focus(FocusState.Programmatic);
+                return;
+            }
+
+            if (ContieneEspacios(password))
+            {
+                MostrarError(
+                    "La contraseña no puede contener espacios.");
+
+                TxtPassword.Focus(FocusState.Programmatic);
                 return;
             }
 
@@ -170,6 +291,11 @@ namespace VeterinariaServerSurPia.Views
                 TxtPassword.Password = string.Empty;
                 TxtPassword.Focus(FocusState.Programmatic);
             }
+        }
+
+        private void OcultarError()
+        {
+            PanelError.Visibility = Visibility.Collapsed;
         }
 
         private void MostrarError(string mensaje)

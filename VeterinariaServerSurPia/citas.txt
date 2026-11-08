@@ -1,2 +1,0 @@
-T001, 2026-06-15, Consulta médica, M001
-T002, 2026-06-16, Baño y corte, M002
