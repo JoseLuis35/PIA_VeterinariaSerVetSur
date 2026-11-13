@@ -97,7 +97,6 @@
             Spacing="22"
             HorizontalAlignment="Stretch">
 
-            <!-- AVISO DE IMÁGENES -->
             <Border
                 x:Name="PanelAvisoImagenes"
                 Visibility="Collapsed"
@@ -115,7 +114,6 @@
                     TextWrapping="Wrap"/>
             </Border>
 
-            <!-- ENCABEZADO -->
             <Border
                 Height="202"
                 HorizontalAlignment="Stretch"
@@ -170,7 +168,6 @@
                             Foreground="#FF2B1A0A"
                             TextWrapping="Wrap"/>
 
-                        <!-- INDICADORES DEL SISTEMA -->
                         <StackPanel
                             Orientation="Horizontal"
                             Spacing="8"
@@ -225,7 +222,6 @@
                 </Grid>
             </Border>
 
-            <!-- 1. SELECCIONAR MASCOTA -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
                     <Image
@@ -340,7 +336,6 @@
                 </Grid>
             </Border>
 
-            <!-- 2. CONSULTAR A VETSMART AI -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <StackPanel Spacing="18">
                     <Grid ColumnSpacing="24">
@@ -450,7 +445,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- 3. NUEVA OBSERVACIÓN -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
                     <Image
@@ -533,7 +527,6 @@
                 </Grid>
             </Border>
 
-            <!-- 4. HISTORIAL -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
                     <Image
@@ -597,7 +590,6 @@
                 </Grid>
             </Border>
 
-            <!-- 5. CASOS RELACIONADOS -->
             <Border Style="{StaticResource TarjetaSeccion}">
                 <Grid>
                     <Image
@@ -677,7 +669,6 @@
                 </Grid>
             </Border>
 
-            <!-- AVISO -->
             <Border
                 Background="#FFFFEBD3"
                 CornerRadius="16"
@@ -706,7 +697,6 @@
                 </Grid>
             </Border>
 
-            <!-- CAMINITO DE HUELLAS -->
             <StackPanel
                 Orientation="Horizontal"
                 Spacing="46"

@@ -40,7 +40,6 @@
             Visibility="Collapsed"
             SelectionFollowsFocus="Disabled">
 
-            <!-- COLORES DEL MENU -->
             <NavigationView.Resources>
 
                 <SolidColorBrush
@@ -89,7 +88,6 @@
 
             </NavigationView.Resources>
 
-            <!-- ENCABEZADO -->
             <NavigationView.PaneHeader>
 
                 <Grid Padding="16,18,12,16">
@@ -151,10 +149,8 @@
 
             </NavigationView.PaneHeader>
 
-            <!-- OPCIONES DEL MENU -->
             <NavigationView.MenuItems>
 
-                <!-- INICIO -->
                 <NavigationViewItem
                     Content="Inicio"
                     Tag="Inicio"
@@ -166,7 +162,6 @@
 
                 </NavigationViewItem>
 
-                <!-- CLIENTES -->
                 <NavigationViewItem
                     Content="Clientes"
                     Tag="Clientes"
@@ -178,7 +173,6 @@
 
                 </NavigationViewItem>
 
-                <!-- MASCOTAS -->
                 <NavigationViewItem
                     Content="Mascotas"
                     Tag="Mascotas"
@@ -190,7 +184,6 @@
 
                 </NavigationViewItem>
 
-                <!-- CITAS -->
                 <NavigationViewItem
                     Content="Citas"
                     Tag="Citas"
@@ -202,7 +195,6 @@
 
                 </NavigationViewItem>
 
-                <!-- BUSQUEDA -->
                 <NavigationViewItem
                     Content="Búsqueda / Consultas"
                     Tag="Busqueda"
@@ -214,7 +206,6 @@
 
                 </NavigationViewItem>
 
-                <!-- MODIFICAR -->
                 <NavigationViewItem
                     Content="Modificar / Eliminar"
                     Tag="ModificarEliminar"
@@ -226,7 +217,6 @@
 
                 </NavigationViewItem>
 
-                <!-- HISTORIAL MEDICO -->
                 <NavigationViewItem
                     Content="Historial médico"
                     Tag="HistorialMedico"
@@ -238,7 +228,6 @@
 
                 </NavigationViewItem>
 
-                <!-- CONSULTAR HISTORIAL -->
                 <NavigationViewItem
                     Content="Consultar historial"
                     Tag="ConsultarHistorial"
@@ -250,7 +239,6 @@
 
                 </NavigationViewItem>
 
-                <!-- CALENDARIO -->
                 <NavigationViewItem
                     Content="Calendario de citas"
                     Tag="CalendarioCitas"
@@ -262,7 +250,6 @@
 
                 </NavigationViewItem>
 
-                <!-- EXPORTAR PDF -->
                 <NavigationViewItem
                     Content="Exportar reportes PDF"
                     Tag="ExportarPDF"
@@ -274,7 +261,6 @@
 
                 </NavigationViewItem>
 
-                <!-- VETSMART AI -->
                 <NavigationViewItem
                     Content="VetSmart AI"
                     Tag="Asistente"
@@ -288,7 +274,6 @@
 
             </NavigationView.MenuItems>
 
-            <!-- PIE DEL MENU -->
             <NavigationView.PaneFooter>
 
                 <Grid Padding="14,12,14,16">
@@ -343,14 +328,12 @@
 
             </NavigationView.PaneFooter>
 
-            <!-- CONTENIDO PRINCIPAL -->
             <Frame
                 x:Name="MainFrame"
                 Background="{StaticResource VetBackground}"/>
 
         </NavigationView>
 
-        <!-- LOGIN -->
         <Frame
             x:Name="LoginFrame"/>
 

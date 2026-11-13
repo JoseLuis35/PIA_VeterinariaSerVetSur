@@ -26,7 +26,6 @@ namespace VeterinariaServerSurPia.Views
             CrearPuntos(PuntosDerInf, 14, 7, 14, naranja, 0.35);
         }
 
-        // DIBUJA LA CUADRÍCULA DE PUNTITOS DECORATIVOS
         private void CrearPuntos(
             Canvas lienzo,
             int columnas,
@@ -54,13 +53,8 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ============ VALIDACIONES DE ENTRADA ============
-
         private bool actualizandoPassword = false;
 
-        // USUARIO: solo letras y números (sin espacios ni símbolos).
-        // Se ejecuta antes de que el texto cambie, así también
-        // bloquea lo que se pegue con Ctrl+V.
         private void TxtUsuario_BeforeTextChanging(
             TextBox sender,
             TextBoxBeforeTextChangingEventArgs args)
@@ -79,7 +73,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // CONTRASEÑA: no se permiten espacios.
         private void TxtPassword_PasswordChanged(
             object sender,
             RoutedEventArgs e)
@@ -149,7 +142,6 @@ namespace VeterinariaServerSurPia.Views
             return sb.ToString();
         }
 
-        // ENTER EN USUARIO: PASA A CONTRASEÑA
         private void TxtUsuario_KeyDown(
             object sender,
             KeyRoutedEventArgs e)
@@ -161,12 +153,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ENTER EN CONTRASEÑA: INICIA SESIÓN
         private void TxtPassword_KeyDown(
             object sender,
             KeyRoutedEventArgs e)
         {
-            // No permitir la barra espaciadora en la contraseña
             if (e.Key == VirtualKey.Space)
             {
                 e.Handled = true;
@@ -246,7 +236,6 @@ namespace VeterinariaServerSurPia.Views
             }
             catch
             {
-                // Se conserva el comportamiento original.
             }
 
             bool credencialesValidas = false;

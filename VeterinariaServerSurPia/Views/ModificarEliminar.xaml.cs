@@ -58,10 +58,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += ModificarEliminar_Loaded;
         }
 
-        // =========================================================
-        // REFERENCIAS A BOTONES
-        // =========================================================
-
         private Button? ObtenerBotonDarBajaCliente()
         {
             return FindName("BtnDarBajaCliente") as Button;
@@ -71,10 +67,6 @@ namespace VeterinariaServerSurPia.Views
         {
             return FindName("BtnEliminarCliente") as Button;
         }
-
-        // =========================================================
-        // CARGA INICIAL
-        // =========================================================
 
         private async void ModificarEliminar_Loaded(
             object sender,
@@ -94,10 +86,6 @@ namespace VeterinariaServerSurPia.Views
                     true);
             }
         }
-
-        // =========================================================
-        // UTILIDADES
-        // =========================================================
 
         private static bool MismoId(string a, string b)
         {
@@ -150,7 +138,6 @@ namespace VeterinariaServerSurPia.Views
             return false;
         }
 
-        // Hora actual redondeada a bloques de 5 minutos (igual que el TimePicker).
         private static TimeSpan HoraActualRedondeada()
         {
             TimeSpan ahora = DateTime.Now.TimeOfDay;
@@ -243,10 +230,6 @@ namespace VeterinariaServerSurPia.Views
             return await dialogo.ShowAsync() ==
                    ContentDialogResult.Primary;
         }
-
-        // =========================================================
-        // FILTROS DE TEXTO
-        // =========================================================
 
         private void AplicarFiltro(
             TextBox caja,
@@ -476,10 +459,6 @@ namespace VeterinariaServerSurPia.Views
                 permitirParentesis: true);
         }
 
-        // =========================================================
-        // CLIENTES
-        // =========================================================
-
         private async Task CargarClientesAsync(
             string conservarId = "")
         {
@@ -558,9 +537,6 @@ namespace VeterinariaServerSurPia.Views
                 $"Clientes encontrados: {lista.Count}";
         }
 
-        // Búsqueda de cliente: solo letras y números
-        // (sin espacios ni caracteres especiales).
-        // Se valida antes de cambiar el texto, así también bloquea lo pegado.
         private void TxtBuscarCliente_BeforeTextChanging(
             TextBox sender,
             TextBoxBeforeTextChangingEventArgs args)
@@ -971,10 +947,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // MASCOTAS
-        // =========================================================
-
         private async Task CargarMascotasAsync(
             string conservarId = "")
         {
@@ -1276,8 +1248,6 @@ namespace VeterinariaServerSurPia.Views
                 using SqliteConnection conexion =
                     await App.Database.OpenConnectionAsync();
 
-                // Estas son las tablas relacionadas existentes
-                // en la base de datos del proyecto.
                 string[] tablasRelacionadas =
                 {
                     "Citas",
@@ -1360,10 +1330,6 @@ namespace VeterinariaServerSurPia.Views
                     true);
             }
         }
-
-        // =========================================================
-        // CITAS
-        // =========================================================
 
         private async Task CargarCitasAsync(
             string conservarId = "")
@@ -1730,10 +1696,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // CITA PROCEDENTE DEL CALENDARIO
-        // =========================================================
-
         private async Task CargarCitaPendienteAsync()
         {
             string idCita = MainWindow.CitaPendienteId;
@@ -1830,10 +1792,6 @@ namespace VeterinariaServerSurPia.Views
                     true);
             }
         }
-
-        // =========================================================
-        // NAVEGACIÓN
-        // =========================================================
 
         private void BtnVerExpediente_Click(
             object sender,

@@ -56,10 +56,6 @@ namespace VeterinariaServerSurPia.Views
             InitializeComponent();
         }
 
-        // =========================================================
-        // CARGA INICIAL
-        // =========================================================
-
         private async void ExportarPDF_Loaded(
             object sender,
             RoutedEventArgs e)
@@ -68,10 +64,6 @@ namespace VeterinariaServerSurPia.Views
 
             await CargarDatosAsync();
         }
-
-        // =========================================================
-        // CARGAR INFORMACIÓN DESDE SQLITE
-        // =========================================================
 
         private async Task CargarDatosAsync()
         {
@@ -100,7 +92,6 @@ namespace VeterinariaServerSurPia.Views
                         "No se pudo establecer una conexión con la base de datos.");
                 }
 
-                // CLIENTES
                 using (SqliteCommand comando = conexion.CreateCommand())
                 {
                     comando.CommandText = @"
@@ -140,7 +131,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // MASCOTAS
                 using (SqliteCommand comando = conexion.CreateCommand())
                 {
                     comando.CommandText = @"
@@ -184,7 +174,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // CITAS
                 using (SqliteCommand comando = conexion.CreateCommand())
                 {
                     comando.CommandText = @"
@@ -215,7 +204,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // HISTORIAL MÉDICO
                 using (SqliteCommand comando = conexion.CreateCommand())
                 {
                     comando.CommandText = @"
@@ -256,7 +244,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // CARTILLA MÉDICA
                 using (SqliteCommand comando = conexion.CreateCommand())
                 {
                     comando.CommandText = @"
@@ -376,10 +363,6 @@ namespace VeterinariaServerSurPia.Views
                 CultureInfo.InvariantCulture) ?? "";
         }
 
-        // =========================================================
-        // SELECTOR DE MASCOTAS
-        // =========================================================
-
         private void CargarSelectorMascotas()
         {
             var lista = mascotas
@@ -438,10 +421,6 @@ namespace VeterinariaServerSurPia.Views
                 : "Activo";
         }
 
-        // =========================================================
-        // FILTROS DE INFORMACIÓN
-        // =========================================================
-
         private List<string[]> ObtenerCitasMascota(string idMascota)
         {
             return citas
@@ -478,10 +457,6 @@ namespace VeterinariaServerSurPia.Views
                 .OrderByDescending(p => p[4])
                 .ToList();
         }
-
-        // =========================================================
-        // VALIDACIONES Y BOTONES
-        // =========================================================
 
         private async void BtnExportarTodo_Click(
             object sender,
@@ -561,10 +536,6 @@ namespace VeterinariaServerSurPia.Views
                    ChkHistorial.IsChecked == true ||
                    ChkCartilla.IsChecked == true;
         }
-
-        // =========================================================
-        // EXPORTACIÓN PRINCIPAL
-        // =========================================================
 
         private async Task ExportarPDFAsync(
             MascotaParaPDF? mascotaIndividual)
@@ -704,10 +675,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // EXPEDIENTE INDIVIDUAL
-        // =========================================================
-
         private void ExportarIdentificacion(
             EscritorPDF pdf,
             MascotaParaPDF mascota)
@@ -742,7 +709,6 @@ namespace VeterinariaServerSurPia.Views
             EscritorPDF pdf,
             MascotaParaPDF mascota)
         {
-            // CITAS
             pdf.Titulo("HISTORIAL DE CITAS");
 
             var citasMascota = ObtenerCitasMascota(mascota.ID);
@@ -763,7 +729,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
 
-            // HISTORIAL CLÍNICO
             pdf.Titulo("HISTORIAL CLÍNICO");
 
             var consultas = ObtenerHistorialMascota(mascota.ID);
@@ -781,7 +746,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
 
-            // CARTILLA MÉDICA
             pdf.Titulo("CARTILLA MÉDICA");
 
             var registros = ObtenerCartillaMascota(mascota.ID);
@@ -802,10 +766,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
         }
-
-        // =========================================================
-        // REPORTE DE CLIENTES
-        // =========================================================
 
         private void ExportarClientes(EscritorPDF pdf)
         {
@@ -834,10 +794,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
         }
-
-        // =========================================================
-        // REPORTE DE MASCOTAS
-        // =========================================================
 
         private void ExportarMascotas(EscritorPDF pdf)
         {
@@ -871,10 +827,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
         }
-
-        // =========================================================
-        // REPORTE DE CITAS
-        // =========================================================
 
         private void ExportarCitas(EscritorPDF pdf)
         {
@@ -922,10 +874,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
         }
-
-        // =========================================================
-        // REPORTE DE HISTORIAL CLÍNICO
-        // =========================================================
 
         private void ExportarHistorialGeneral(EscritorPDF pdf)
         {
@@ -983,10 +931,6 @@ namespace VeterinariaServerSurPia.Views
             pdf.Texto($"Observaciones: {Dato(p[10])}");
         }
 
-        // =========================================================
-        // REPORTE DE CARTILLA MÉDICA
-        // =========================================================
-
         private void ExportarCartillaGeneral(EscritorPDF pdf)
         {
             pdf.Titulo("CARTILLA MÉDICA");
@@ -1022,10 +966,6 @@ namespace VeterinariaServerSurPia.Views
                 pdf.EspacioPequeno();
             }
         }
-
-        // =========================================================
-        // UTILIDADES
-        // =========================================================
 
         private static string Dato(string? valor)
         {
@@ -1065,10 +1005,6 @@ namespace VeterinariaServerSurPia.Views
             await dialogo.ShowAsync();
         }
     }
-
-    // =============================================================
-    // CLASE PARA ESCRIBIR EL CONTENIDO DEL PDF
-    // =============================================================
 
     internal sealed class EscritorPDF
     {
@@ -1309,7 +1245,6 @@ namespace VeterinariaServerSurPia.Views
 
             texto ??= "";
 
-            // Permite conservar saltos de línea en observaciones.
             string[] parrafos = texto.Replace("\r\n", "\n")
                 .Replace('\r', '\n')
                 .Split('\n');
@@ -1335,8 +1270,6 @@ namespace VeterinariaServerSurPia.Views
 
                 foreach (string palabra in palabras)
                 {
-                    // Evitar que una palabra demasiado larga
-                    // salga de los márgenes del documento.
                     if (grafico.MeasureString(
                         palabra,
                         tipoFuente).Width > AnchoUtil)

@@ -66,9 +66,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += BusquedaConsulta_Loaded;
         }
 
-        // =========================================================
-        // OBTENER CONTROLES MEDIANTE FINDNAME
-        // =========================================================
 
         private Button ObtenerBotonActualizar()
         {
@@ -85,9 +82,6 @@ namespace VeterinariaServerSurPia.Views
             return FindName("BusquedaText") as TextBox;
         }
 
-        // =========================================================
-        // CARGA INICIAL
-        // =========================================================
 
         private async void BusquedaConsulta_Loaded(
             object sender,
@@ -117,9 +111,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // LECTURA SEGURA DE SQLITE
-        // =========================================================
 
         private static string LeerTexto(
             SqliteDataReader reader,
@@ -133,9 +124,6 @@ namespace VeterinariaServerSurPia.Views
                 CultureInfo.InvariantCulture) ?? "";
         }
 
-        // =========================================================
-        // CARGAR INFORMACIÓN DESDE SQLITE
-        // =========================================================
 
         private async Task CargarDatosAsync()
         {
@@ -146,7 +134,6 @@ namespace VeterinariaServerSurPia.Views
             using SqliteConnection conexion =
                 await App.Database.OpenConnectionAsync();
 
-            // CLIENTES
 
             using (SqliteCommand comandoClientes =
                 conexion.CreateCommand())
@@ -176,7 +163,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             }
 
-            // MASCOTAS Y PROPIETARIOS
 
             using (SqliteCommand comandoMascotas =
                 conexion.CreateCommand())
@@ -217,7 +203,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             }
 
-            // CITAS, MASCOTAS Y PROPIETARIOS
 
             using (SqliteCommand comandoCitas =
                 conexion.CreateCommand())
@@ -259,13 +244,7 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // VALIDACIÓN DEL BUSCADOR
-        // =========================================================
 
-        // Término de búsqueda: solo letras y números, sin espacios.
-        // Excepciones según el criterio elegido, porque lo necesitan para
-        // poder buscar: correo (@ . _ -) y fecha (/ -).
         private bool CaracterPermitidoBusqueda(char caracter)
         {
             if (char.IsLetterOrDigit(caracter))
@@ -315,9 +294,6 @@ namespace VeterinariaServerSurPia.Views
             AplicarBusqueda();
         }
 
-        // =========================================================
-        // CAMBIO DE CATEGORÍA
-        // =========================================================
 
         private void CategoriaCombo_SelectionChanged(
             object sender,
@@ -400,9 +376,6 @@ namespace VeterinariaServerSurPia.Views
             AplicarBusqueda();
         }
 
-        // =========================================================
-        // CAMBIO DE CRITERIO
-        // =========================================================
 
         private void CriterioCombo_SelectionChanged(
             object sender,
@@ -414,8 +387,6 @@ namespace VeterinariaServerSurPia.Views
                 AplicarBusqueda();
         }
 
-        // Si se cambia de criterio (por ejemplo de correo a ID), se quitan
-        // del cuadro los símbolos que ya no son válidos para ese criterio.
         private void LimpiarCaracteresNoPermitidos()
         {
             if (BusquedaText == null)
@@ -436,9 +407,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // CAMBIO DE SERVICIO
-        // =========================================================
 
         private void FiltroServicioCombo_SelectionChanged(
             object sender,
@@ -448,9 +416,6 @@ namespace VeterinariaServerSurPia.Views
                 AplicarBusqueda();
         }
 
-        // =========================================================
-        // AGREGAR CRITERIOS
-        // =========================================================
 
         private void AgregarCriterios(params string[] criterios)
         {
@@ -460,9 +425,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // BOTÓN BUSCAR
-        // =========================================================
 
         private void BuscarBtn_Click(
             object sender,
@@ -500,9 +462,6 @@ namespace VeterinariaServerSurPia.Views
             AplicarBusqueda();
         }
 
-        // =========================================================
-        // ACTUALIZAR REGISTROS DESDE SQLITE
-        // =========================================================
 
         private async void ActualizarBtn_Click(
             object sender,
@@ -560,9 +519,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // APLICAR FILTROS Y BÚSQUEDAS
-        // =========================================================
 
         private void AplicarBusqueda()
         {
@@ -590,7 +546,6 @@ namespace VeterinariaServerSurPia.Views
             string busqueda =
                 campoBusqueda.Text.Trim();
 
-            // CLIENTES
 
             if (categoria == "Clientes")
             {
@@ -624,7 +579,7 @@ namespace VeterinariaServerSurPia.Views
                 MostrarCantidad(lista.Count, "clientes");
             }
 
-            // MASCOTAS
+
 
             else if (categoria == "Mascotas")
             {
@@ -662,7 +617,6 @@ namespace VeterinariaServerSurPia.Views
                 MostrarCantidad(lista.Count, "mascotas");
             }
 
-            // CITAS
 
             else if (categoria == "Citas")
             {
@@ -717,9 +671,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // COMPARACIÓN DE TEXTO
-        // =========================================================
 
         private static bool Contiene(
             string texto,
@@ -736,9 +687,6 @@ namespace VeterinariaServerSurPia.Views
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        // =========================================================
-        // NORMALIZAR TEXTO Y QUITAR ACENTOS PARA COMPARAR
-        // =========================================================
 
         private static string NormalizarTexto(string texto)
         {
@@ -765,9 +713,6 @@ namespace VeterinariaServerSurPia.Views
                 .Trim();
         }
 
-        // =========================================================
-        // MOSTRAR CANTIDAD DE RESULTADOS
-        // =========================================================
 
         private void MostrarCantidad(
             int cantidad,
@@ -793,9 +738,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // MOSTRAR MENSAJES DE ESTADO
-        // =========================================================
 
         private void MostrarEstado(
             string mensaje,
@@ -813,9 +755,7 @@ namespace VeterinariaServerSurPia.Views
                         : Color.FromArgb(255, 148, 96, 61));
         }
 
-        // =========================================================
-        // REGRESAR AL MENÚ
-        // =========================================================
+
 
         private void RegresarMenuBtn_Click(
             object sender,

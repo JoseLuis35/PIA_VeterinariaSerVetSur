@@ -11,26 +11,22 @@ namespace VeterinariaServerSurPia
     {
         private Window? _window;
 
-        // Servicio central de base de datos.
         public static DatabaseService Database { get; private set; } = null!;
 
         public App()
         {
             InitializeComponent();
 
-            // Idioma español para los controles nativos.
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "es";
         }
 
         protected override async void OnLaunched(
             Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            // Crear el servicio de base de datos.
             Database = new DatabaseService();
 
             try
             {
-                // Inicializar SQLite.
                 await Database.InitializeAsync();
 
                 Debug.WriteLine(
@@ -51,7 +47,6 @@ namespace VeterinariaServerSurPia
                 Debug.WriteLine(ex.ToString());
             }
 
-            // Abrir la ventana principal.
             _window = new MainWindow();
             _window.Activate();
         }

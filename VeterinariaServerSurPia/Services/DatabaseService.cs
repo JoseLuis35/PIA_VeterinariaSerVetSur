@@ -36,8 +36,6 @@ namespace VeterinariaServerSurPia.Services
         public string Diagnostico { get; set; } = "";
     }
 
-    // Antecedente clínico unificado: viene de las observaciones clínicas
-    // o del historial médico de cualquier mascota de la misma especie.
     public sealed class AntecedenteClinicoDb
     {
         public string Fuente { get; set; } = "";
@@ -83,13 +81,6 @@ namespace VeterinariaServerSurPia.Services
             _connectionString = builder.ToString();
         }
 
-        // =========================================================
-        // BASE DE DATOS INCLUIDA EN EL PROYECTO (Database\vetsmart_ai.db)
-        // =========================================================
-
-        // La primera vez que se abre la app, se copia la base incluida en el
-        // proyecto a la carpeta de datos de la aplicación (que sí es
-        // escribible). Si ya existe una base ahí, NUNCA se sobrescribe.
         private void CopiarBaseIncluidaSiNoExiste()
         {
             try
@@ -109,15 +100,10 @@ namespace VeterinariaServerSurPia.Services
             }
             catch (Exception ex)
             {
-                // Si no se puede copiar, SQLite crea una base nueva
-                // con las mismas tablas al inicializar.
                 Debug.WriteLine("No se pudo copiar la base incluida: " + ex.Message);
             }
         }
 
-        // =========================================================
-        // INICIALIZAR SQLITE
-        // =========================================================
 
         public async Task InitializeAsync()
         {
@@ -294,10 +280,6 @@ namespace VeterinariaServerSurPia.Services
                 throw;
             }
         }
-
-        // =========================================================
-        // MIGRACIÓN DE ARCHIVOS ANTIGUOS
-        // =========================================================
 
         private static string RutaLegada(string nombre)
         {
@@ -692,9 +674,6 @@ namespace VeterinariaServerSurPia.Services
             }
         }
 
-        // =========================================================
-        // MASCOTAS
-        // =========================================================
 
         public async Task<List<MascotaDb>> ObtenerMascotasAsync()
         {
@@ -729,9 +708,6 @@ namespace VeterinariaServerSurPia.Services
             return resultado;
         }
 
-        // =========================================================
-        // OBSERVACIONES CLÍNICAS
-        // =========================================================
 
         public async Task GuardarObservacionClinicaAsync(
             string idMascota,
@@ -770,8 +746,6 @@ namespace VeterinariaServerSurPia.Services
             }
         }
 
-        // Elimina una observación clínica. Se filtra también por mascota
-        // para no borrar por error la observación de otra.
         public async Task<bool> EliminarObservacionClinicaAsync(
             int idObservacion,
             string idMascota)
@@ -844,7 +818,6 @@ namespace VeterinariaServerSurPia.Services
             return resultado;
         }
 
-        // NUEVO: OBTENER OBSERVACIONES POR ESPECIE
 
         public async Task<List<ObservacionClinicaDb>>
             ObtenerObservacionesPorEspecieAsync(string especie)
@@ -892,11 +865,6 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado;
         }
-
-        // =========================================================
-        // ANTECEDENTES CLÍNICOS PARA BÚSQUEDA DE CASOS SIMILARES
-        // (observaciones clínicas + historial médico de TODAS las mascotas)
-        // =========================================================
 
         public async Task<List<AntecedenteClinicoDb>>
             ObtenerTodosLosAntecedentesClinicosAsync()
@@ -989,7 +957,6 @@ namespace VeterinariaServerSurPia.Services
                 ?? "";
         }
 
-        // Igual que Valor(), pero devuelve "" cuando no hay dato.
         private static string TextoOpcional(
             SqliteDataReader reader,
             int indice)
@@ -1002,12 +969,6 @@ namespace VeterinariaServerSurPia.Services
                 CultureInfo.InvariantCulture) ?? "").Trim();
         }
 
-        // =========================================================
-        // CONTEXTO PARA VETSMART AI
-        // =========================================================
-
-        // Define qué secciones del expediente hacen falta para responder
-        // la pregunta. Menos datos = respuesta más rápida y más enfocada.
         private readonly record struct PlanContexto(
             bool Citas,
             bool Historial,
@@ -1053,7 +1014,6 @@ namespace VeterinariaServerSurPia.Services
 
         private static PlanContexto CrearPlanContexto(string? pregunta)
         {
-            // Sin pregunta: comportamiento completo de siempre.
             if (string.IsNullOrWhiteSpace(pregunta))
             {
                 return new PlanContexto(
@@ -1083,7 +1043,6 @@ namespace VeterinariaServerSurPia.Services
                 "raza", "especie", "edad", "sexo", "propietario",
                 "dueno", "duena", "telefono", "cuantos anos");
 
-            // Pregunta de dato básico: basta con la ficha de la mascota.
             if (!citas && !cartilla && !historial && !observaciones &&
                 datosBasicos)
             {
@@ -1091,8 +1050,6 @@ namespace VeterinariaServerSurPia.Services
                     false, false, false, false, 0, 0, 0, 0);
             }
 
-            // Pregunta clínica abierta ("¿qué podría tener?"):
-            // historial, observaciones y cartilla, pocos registros.
             if (!citas && !cartilla && !historial && !observaciones)
             {
                 return new PlanContexto(
@@ -1336,10 +1293,6 @@ namespace VeterinariaServerSurPia.Services
             if (cantidad == 0)
                 contexto.AppendLine("No hay registros guardados.");
         }
-
-        // =========================================================
-        // CONEXIÓN Y UTILIDADES
-        // =========================================================
 
         private static string Valor(
             SqliteDataReader reader,

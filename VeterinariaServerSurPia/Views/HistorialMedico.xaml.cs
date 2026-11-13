@@ -57,10 +57,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += HistorialMedico_Loaded;
         }
 
-        // ==========================================
-        // CARGA INICIAL
-        // ==========================================
-
         private async void HistorialMedico_Loaded(
             object sender,
             RoutedEventArgs e)
@@ -88,10 +84,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // LEER TEXTO DE SQLITE DE FORMA SEGURA
-        // ==========================================
-
         private static string LeerTexto(
             SqliteDataReader reader,
             int indice)
@@ -103,10 +95,6 @@ namespace VeterinariaServerSurPia.Views
                 reader.GetValue(indice),
                 CulturaInvariante) ?? "";
         }
-
-        // ==========================================
-        // CARGAR MASCOTAS DESDE SQLITE
-        // ==========================================
 
         private async Task CargarMascotasAsync()
         {
@@ -218,10 +206,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // SELECCIONAR MASCOTA
-        // ==========================================
-
         private async void MascotaCombo_SelectionChanged(
             object sender,
             SelectionChangedEventArgs e)
@@ -264,10 +248,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // LIMPIAR EXPEDIENTE
-        // ==========================================
-
         private void LimpiarExpediente()
         {
             TxtIdMascota.Text = "—";
@@ -279,10 +259,6 @@ namespace VeterinariaServerSurPia.Views
             HistorialListView.ItemsSource = null;
             CartillaListView.ItemsSource = null;
         }
-
-        // ==========================================
-        // CONVERTIR FECHAS
-        // ==========================================
 
         private static DateTime ObtenerFecha(string texto)
         {
@@ -331,10 +307,6 @@ namespace VeterinariaServerSurPia.Views
                 ? texto
                 : fecha.ToString("dd/MM/yyyy", CulturaInvariante);
         }
-
-        // ==========================================
-        // CARGAR HISTORIAL MÉDICO
-        // ==========================================
 
         private async Task CargarHistorialAsync(string idMascota)
         {
@@ -404,10 +376,6 @@ namespace VeterinariaServerSurPia.Views
             HistorialListView.ItemsSource = vista;
         }
 
-        // ==========================================
-        // CARGAR CARTILLA MÉDICA
-        // ==========================================
-
         private async Task CargarCartillaAsync(string idMascota)
         {
             if (string.IsNullOrWhiteSpace(idMascota))
@@ -461,10 +429,6 @@ namespace VeterinariaServerSurPia.Views
             CartillaListView.ItemsSource = vista;
         }
 
-        // ==========================================
-        // VALIDAR PESO
-        // ==========================================
-
         private bool ValidarPeso(out decimal peso)
         {
             peso = 0;
@@ -510,10 +474,6 @@ namespace VeterinariaServerSurPia.Views
             return true;
         }
 
-        // ==========================================
-        // VALIDAR FECHA DE CONSULTA
-        // ==========================================
-
         private bool ValidarFechaConsulta()
         {
             DateTime fecha = FechaConsultaPicker.Date.Date;
@@ -530,10 +490,6 @@ namespace VeterinariaServerSurPia.Views
 
             return true;
         }
-
-        // ==========================================
-        // VALIDAR CAMPOS CLÍNICOS
-        // ==========================================
 
         private bool ValidarCamposConsulta(string[] valores)
         {
@@ -582,10 +538,6 @@ namespace VeterinariaServerSurPia.Views
 
             return true;
         }
-
-        // ==========================================
-        // GUARDAR CONSULTA MÉDICA
-        // ==========================================
 
         private async void BtnGuardarConsulta_Click(
             object sender,
@@ -736,10 +688,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // VALIDAR CARTILLA MÉDICA
-        // ==========================================
-
         private bool ValidarCartilla(
             string tipo,
             string producto,
@@ -815,7 +763,6 @@ namespace VeterinariaServerSurPia.Views
                 return false;
             }
 
-            // La próxima fecha no puede ser un día anterior a hoy.
             if (fechaProxima < DateTime.Today)
             {
                 MostrarMensaje(
@@ -836,10 +783,6 @@ namespace VeterinariaServerSurPia.Views
 
             return true;
         }
-
-        // ==========================================
-        // GUARDAR CARTILLA MÉDICA
-        // ==========================================
 
         private async void BtnGuardarCartilla_Click(
             object sender,
@@ -993,10 +936,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // FILTROS DE ESCRITURA
-        // ==========================================
-
         private string FiltrarTexto(string texto)
         {
             texto = Regex.Replace(
@@ -1054,10 +993,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // VALIDACIÓN DE PESO EN TIEMPO REAL
-        // ==========================================
-
         private void ValidarPeso(TextBox sender)
         {
             if (_ajustandoTexto)
@@ -1086,7 +1021,6 @@ namespace VeterinariaServerSurPia.Views
 
             string[] partes = resultado.Split('.');
 
-            // Se permiten cuatro dígitos para admitir hasta 1000 kg.
             if (partes[0].Length > 4)
                 partes[0] = partes[0].Substring(0, 4);
 
@@ -1120,10 +1054,6 @@ namespace VeterinariaServerSurPia.Views
                 _ajustandoTexto = false;
             }
         }
-
-        // ==========================================
-        // EVENTOS DE VALIDACIÓN
-        // ==========================================
 
         private void TxtPeso_TextChanging(
             TextBox sender,
@@ -1195,10 +1125,6 @@ namespace VeterinariaServerSurPia.Views
             ValidarCampo(sender);
         }
 
-        // ==========================================
-        // MENSAJES
-        // ==========================================
-
         private void MostrarMensaje(
             string mensaje,
             bool esError)
@@ -1211,10 +1137,6 @@ namespace VeterinariaServerSurPia.Views
 
             TxtMensaje.Visibility = Visibility.Visible;
         }
-
-        // ==========================================
-        // NAVEGACIÓN
-        // ==========================================
 
         private void BtnConsultarHistorial_Click(
             object sender,

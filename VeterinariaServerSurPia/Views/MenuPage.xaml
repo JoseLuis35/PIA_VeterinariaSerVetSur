@@ -6,7 +6,6 @@
 
     <Page.Resources>
 
-        <!-- COLORES PRINCIPALES -->
         <SolidColorBrush x:Key="MenuBackgroundBrush" Color="#FFFFF9F1"/>
         <SolidColorBrush x:Key="MenuAccentBrush" Color="#FFE58A3A"/>
         <SolidColorBrush x:Key="MenuAccentDarkBrush" Color="#FFD8752D"/>
@@ -32,7 +31,6 @@
         SelectionFollowsFocus="Disabled"
         ItemInvoked="NavMenu_ItemInvoked">
 
-        <!-- ESTILOS DEL MENU -->
         <NavigationView.Resources>
 
             <SolidColorBrush
@@ -73,14 +71,12 @@
 
         </NavigationView.Resources>
 
-        <!-- ENCABEZADO DEL MENU -->
         <NavigationView.PaneHeader>
 
             <Grid Padding="20,24,18,18">
 
                 <StackPanel Spacing="12">
 
-                    <!-- ICONO -->
                     <Border
                         Width="58"
                         Height="58"
@@ -97,7 +93,6 @@
 
                     </Border>
 
-                    <!-- NOMBRE DE LA VETERINARIA -->
                     <StackPanel Spacing="3">
 
                         <TextBlock
@@ -126,7 +121,6 @@
 
         </NavigationView.PaneHeader>
 
-        <!-- OPCIONES DE NAVEGACION -->
         <NavigationView.MenuItems>
 
             <NavigationViewItem
@@ -155,7 +149,6 @@
 
         </NavigationView.MenuItems>
 
-        <!-- PIE DEL MENU -->
         <NavigationView.PaneFooter>
 
             <Grid Padding="18,12,18,18">
@@ -190,7 +183,6 @@
 
         </NavigationView.PaneFooter>
 
-        <!-- CONTENIDO DE LAS PAGINAS -->
         <Frame
             x:Name="ContentFrame"
             Background="{StaticResource ContentBackgroundBrush}"/>

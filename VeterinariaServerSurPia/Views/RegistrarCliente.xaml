@@ -13,8 +13,6 @@
 
     <Page.Resources>
 
-        <!-- ================= ESTILOS REUTILIZABLES ================= -->
-
         <Style x:Key="TarjetaSeccion" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
@@ -31,8 +29,6 @@
             <Setter Property="Padding" Value="18,14"/>
         </Style>
 
-        <!-- ================= CAMPOS DE TEXTO ================= -->
-
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -47,8 +43,6 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- ================= LISTA DESPLEGABLE ================= -->
-
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -60,8 +54,6 @@
         <SolidColorBrush x:Key="ComboBoxForeground" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
-
-        <!-- ================= BOTONES ================= -->
 
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
@@ -87,16 +79,10 @@
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch">
 
-        <!-- CONTENEDOR PRINCIPAL: AHORA OCUPA TODO EL ANCHO -->
-
         <StackPanel
             Spacing="22"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
-
-            <!-- =====================================================
-                 ENCABEZADO
-                 ===================================================== -->
 
             <Border
                 CornerRadius="26"
@@ -117,8 +103,6 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- Huellas decorativas -->
 
                     <Image
                         Grid.ColumnSpan="3"
@@ -152,8 +136,6 @@
                         </Image.RenderTransform>
                     </Image>
 
-                    <!-- Logo -->
-
                     <Border
                         Width="82"
                         Height="82"
@@ -168,8 +150,6 @@
                             Source="/Assets/logo_servetsur.png"
                             Stretch="Uniform"/>
                     </Border>
-
-                    <!-- Títulos -->
 
                     <StackPanel
                         Grid.Column="1"
@@ -197,8 +177,6 @@
                             Foreground="#FFB4621C"
                             Margin="0,5,0,0"/>
                     </StackPanel>
-
-                    <!-- Chip -->
 
                     <Border
                         Grid.Column="2"
@@ -229,17 +207,11 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 DATOS DEL CLIENTE
-                 ===================================================== -->
-
             <Border
                 Style="{StaticResource TarjetaSeccion}"
                 HorizontalAlignment="Stretch">
 
                 <Grid>
-
-                    <!-- Huella decorativa -->
 
                     <Image
                         Source="/Assets/huella.png"
@@ -255,8 +227,6 @@
                     <StackPanel
                         Spacing="22"
                         HorizontalAlignment="Stretch">
-
-                        <!-- Título -->
 
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
@@ -300,8 +270,6 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- ID automático -->
-
                         <Border Style="{StaticResource CajaInfo}">
                             <Grid ColumnSpacing="14">
                                 <Grid.ColumnDefinitions>
@@ -344,8 +312,6 @@
                             </Grid>
                         </Border>
 
-                        <!-- Nombre completo -->
-
                         <TextBox
                             x:Name="TxtNombreCliente"
                             Header="Nombre Completo"
@@ -355,8 +321,6 @@
                             CornerRadius="12"
                             HorizontalAlignment="Stretch"
                             TextChanging="TxtNombreCliente_TextChanging"/>
-
-                        <!-- Teléfono y correo -->
 
                         <Grid
                             ColumnSpacing="18"
@@ -430,10 +394,6 @@
                 </Grid>
             </Border>
 
-            <!-- =====================================================
-                 BOTONES Y MENSAJES
-                 ===================================================== -->
-
             <StackPanel
                 Spacing="16"
                 HorizontalAlignment="Stretch">
@@ -494,8 +454,6 @@
                     </Button>
                 </Grid>
 
-                <!-- Mensaje de éxito o error -->
-
                 <Border
                     x:Name="PanelMensaje"
                     Visibility="Collapsed"
@@ -525,10 +483,6 @@
                     </Grid>
                 </Border>
             </StackPanel>
-
-            <!-- =====================================================
-                 CAMINITO DE HUELLAS
-                 ===================================================== -->
 
             <StackPanel
                 Orientation="Horizontal"

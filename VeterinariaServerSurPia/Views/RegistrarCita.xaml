@@ -12,7 +12,6 @@
 
     <Page.Resources>
 
-        <!-- TARJETAS -->
         <Style x:Key="TarjetaSeccion" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
@@ -21,7 +20,6 @@
             <Setter Property="Padding" Value="30,26"/>
         </Style>
 
-        <!-- CAJAS DE INFORMACIÓN -->
         <Style x:Key="CajaInfo" TargetType="Border">
             <Setter Property="Background" Value="#FFFFF1DD"/>
             <Setter Property="BorderBrush" Value="#FFF8E2C2"/>
@@ -30,7 +28,6 @@
             <Setter Property="Padding" Value="18,15"/>
         </Style>
 
-        <!-- TÍTULOS -->
         <Style x:Key="TituloSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="21"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -44,7 +41,6 @@
             <Setter Property="LineHeight" Value="20"/>
         </Style>
 
-        <!-- CAMPOS DE TEXTO -->
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -59,7 +55,6 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- LISTAS DESPLEGABLES -->
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -72,7 +67,6 @@
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
 
-        <!-- BOTONES -->
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
@@ -105,10 +99,6 @@
                 HorizontalAlignment="Stretch"
                 Padding="30,24,30,30">
 
-                <!-- ==========================================
-                     ENCABEZADO
-                     ========================================== -->
-
                 <Border
                     CornerRadius="26"
                     Padding="30,24"
@@ -130,7 +120,6 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Huella decorativa -->
                         <Image
                             Grid.ColumnSpan="3"
                             Source="/Assets/huella.png"
@@ -142,7 +131,6 @@
                             Margin="0,0,210,0"
                             IsHitTestVisible="False"/>
 
-                        <!-- Logo -->
                         <Border
                             Width="82"
                             Height="82"
@@ -158,7 +146,6 @@
                                 Stretch="Uniform"/>
                         </Border>
 
-                        <!-- Títulos -->
                         <StackPanel
                             Grid.Column="1"
                             VerticalAlignment="Center"
@@ -186,7 +173,6 @@
                                 Margin="0,5,0,0"/>
                         </StackPanel>
 
-                        <!-- Chip -->
                         <Border
                             Grid.Column="2"
                             Background="White"
@@ -217,17 +203,12 @@
                     </Grid>
                 </Border>
 
-                <!-- ==========================================
-                     DATOS GENERALES DE LA CITA
-                     ========================================== -->
-
                 <Border
                     Style="{StaticResource TarjetaSeccion}"
                     HorizontalAlignment="Stretch">
 
                     <Grid>
 
-                        <!-- Huella decorativa -->
                         <Image
                             Source="/Assets/huella.png"
                             Width="90"
@@ -241,7 +222,6 @@
 
                         <StackPanel Spacing="20">
 
-                            <!-- Título -->
                             <Grid ColumnSpacing="16">
 
                                 <Grid.ColumnDefinitions>
@@ -280,7 +260,6 @@
 
                             </Grid>
 
-                            <!-- ID automático -->
                             <Border Style="{StaticResource CajaInfo}">
 
                                 <Grid ColumnSpacing="14">
@@ -325,7 +304,6 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Mascota -->
                             <StackPanel Spacing="9">
 
                                 <TextBlock
@@ -370,7 +348,6 @@
 
                             </StackPanel>
 
-                            <!-- Fecha y hora -->
                             <Grid ColumnSpacing="18">
 
                                 <Grid.ColumnDefinitions>
@@ -418,7 +395,6 @@
 
                             </Grid>
 
-                            <!-- Servicio -->
                             <StackPanel Spacing="8">
 
                                 <TextBlock
@@ -443,7 +419,6 @@
 
                             </StackPanel>
 
-                            <!-- Observaciones -->
                             <StackPanel Spacing="8">
 
                                 <TextBlock
@@ -476,10 +451,6 @@
                     </Grid>
                 </Border>
 
-                <!-- ==========================================
-                     BOTONES Y MENSAJES
-                     ========================================== -->
-
                 <StackPanel
                     Spacing="16"
                     HorizontalAlignment="Stretch">
@@ -491,7 +462,6 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Guardar cita -->
                         <Button
                             x:Name="BtnGuardarCita"
                             Grid.Column="0"
@@ -516,7 +486,6 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- Ir a mascotas -->
                         <Button
                             Grid.Column="1"
                             Click="BtnIrMascotas_Click"
@@ -569,7 +538,6 @@
 
                     </Grid>
 
-                    <!-- Mensaje -->
                     <Border
                         Background="Transparent"
                         BorderThickness="0"
@@ -588,10 +556,6 @@
                     </Border>
 
                 </StackPanel>
-
-                <!-- ==========================================
-                     DECORACIÓN INFERIOR
-                     ========================================== -->
 
                 <StackPanel
                     Orientation="Horizontal"

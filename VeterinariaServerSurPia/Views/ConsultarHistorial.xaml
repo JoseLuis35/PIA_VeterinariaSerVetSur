@@ -83,7 +83,6 @@
                 HorizontalAlignment="Stretch"
                 Spacing="20">
 
-                <!-- ENCABEZADO -->
                 <Border
                     CornerRadius="26"
                     Padding="26,22"
@@ -158,7 +157,6 @@
                     </Grid>
                 </Border>
 
-                <!-- BUSCADOR -->
                 <Border Style="{StaticResource TarjetaSeccion}">
                     <StackPanel Spacing="14">
 
@@ -239,7 +237,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- INFORMACIÓN DE LA MASCOTA -->
                 <Border Style="{StaticResource TarjetaSeccion}">
                     <StackPanel Spacing="18">
 
@@ -324,7 +321,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- RESUMEN MÉDICO -->
                 <Border Style="{StaticResource TarjetaSeccion}">
                     <StackPanel Spacing="16">
 
@@ -424,7 +420,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- HISTORIAL CLÍNICO -->
                 <Border Style="{StaticResource TarjetaSeccion}">
                     <StackPanel Spacing="14">
 
@@ -501,7 +496,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- CARTILLA MÉDICA -->
                 <Border Style="{StaticResource TarjetaSeccion}">
                     <StackPanel Spacing="14">
 
@@ -578,7 +572,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- PIE -->
                 <StackPanel
                     HorizontalAlignment="Center"
                     Spacing="7"

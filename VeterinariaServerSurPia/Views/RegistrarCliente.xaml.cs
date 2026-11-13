@@ -24,10 +24,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += RegistrarCliente_Loaded;
         }
 
-        // =====================================================
-        // CARGA INICIAL
-        // =====================================================
-
         private async void RegistrarCliente_Loaded(
             object sender,
             RoutedEventArgs e)
@@ -35,10 +31,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded -= RegistrarCliente_Loaded;
             await MostrarSiguienteIdAsync();
         }
-
-        // =====================================================
-        // GENERAR ID AUTOMÁTICO
-        // =====================================================
 
         private async Task<int> ObtenerSiguienteNumeroAsync(
             SqliteConnection conexion,
@@ -100,10 +92,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =====================================================
-        // GUARDAR CLIENTE
-        // =====================================================
-
         private async void BtnGuardarCliente_Click(
             object sender,
             RoutedEventArgs e)
@@ -114,10 +102,6 @@ namespace VeterinariaServerSurPia.Views
             string nombre = TxtNombreCliente.Text.Trim();
             string telefono = TxtTelefono.Text.Trim();
             string correo = TxtCorreo.Text.Trim();
-
-            // ---------------------------------------------
-            // VALIDAR NOMBRE
-            // ---------------------------------------------
 
             if (string.IsNullOrWhiteSpace(nombre))
             {
@@ -156,10 +140,6 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            // ---------------------------------------------
-            // VALIDAR QUE EXISTA UN MEDIO DE CONTACTO
-            // ---------------------------------------------
-
             if (string.IsNullOrWhiteSpace(telefono) &&
                 string.IsNullOrWhiteSpace(correo))
             {
@@ -170,10 +150,6 @@ namespace VeterinariaServerSurPia.Views
                 TxtTelefono.Focus(FocusState.Programmatic);
                 return;
             }
-
-            // ---------------------------------------------
-            // VALIDAR TELÉFONO
-            // ---------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(telefono))
             {
@@ -197,10 +173,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
             }
-
-            // ---------------------------------------------
-            // VALIDAR CORREO
-            // ---------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(correo))
             {
@@ -239,10 +211,6 @@ namespace VeterinariaServerSurPia.Views
 
                 using SqliteTransaction transaccion =
                     conexion.BeginTransaction();
-
-                // ---------------------------------------------
-                // COMPROBAR TELÉFONO Y CORREO DUPLICADOS
-                // ---------------------------------------------
 
                 using (SqliteCommand verificarContacto =
                     conexion.CreateCommand())
@@ -294,10 +262,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // ---------------------------------------------
-                // GENERAR ID DENTRO DE LA TRANSACCIÓN
-                // ---------------------------------------------
-
                 int siguiente =
                     await ObtenerSiguienteNumeroAsync(
                         conexion,
@@ -305,10 +269,6 @@ namespace VeterinariaServerSurPia.Views
                     );
 
                 string id = $"C{siguiente:D4}";
-
-                // ---------------------------------------------
-                // INSERTAR CLIENTE
-                // ---------------------------------------------
 
                 using SqliteCommand guardar =
                     conexion.CreateCommand();
@@ -350,10 +310,6 @@ namespace VeterinariaServerSurPia.Views
 
                 transaccion.Commit();
 
-                // ---------------------------------------------
-                // LIMPIAR FORMULARIO Y ACTUALIZAR ID
-                // ---------------------------------------------
-
                 LimpiarFormulario();
 
                 await MostrarSiguienteIdAsync();
@@ -386,10 +342,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =====================================================
-        // VALIDACIONES
-        // =====================================================
-
         private bool NombreValido(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -401,8 +353,6 @@ namespace VeterinariaServerSurPia.Views
             if (nombre.Contains("  "))
                 return false;
 
-            // Acepta nombres con acentos, ñ, espacios,
-            // puntos, apóstrofes y guiones.
             return Regex.IsMatch(
                 nombre,
                 @"^\p{L}+(?:[ .'-]\p{L}+)*$"
@@ -431,10 +381,6 @@ namespace VeterinariaServerSurPia.Views
                 RegexOptions.IgnoreCase
             );
         }
-
-        // =====================================================
-        // MENSAJES VISUALES
-        // =====================================================
 
         private void MostrarMensaje(
             string mensaje,
@@ -478,10 +424,6 @@ namespace VeterinariaServerSurPia.Views
             PanelMensaje.Visibility = Visibility.Visible;
         }
 
-        // =====================================================
-        // LIMPIAR FORMULARIO
-        // =====================================================
-
         private void LimpiarFormulario()
         {
             TxtNombreCliente.Text = string.Empty;
@@ -494,20 +436,12 @@ namespace VeterinariaServerSurPia.Views
             PanelMensaje.Visibility = Visibility.Collapsed;
         }
 
-        // =====================================================
-        // NAVEGACIÓN
-        // =====================================================
-
         private void BtnIrMascotas_Click(
             object sender,
             RoutedEventArgs e)
         {
             MainWindow.Current?.SeleccionarPantalla("Mascotas");
         }
-
-        // =====================================================
-        // FILTRADO DEL NOMBRE
-        // =====================================================
 
         private void TxtNombreCliente_TextChanging(
             TextBox sender,
@@ -565,10 +499,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =====================================================
-        // FILTRADO DEL TELÉFONO
-        // =====================================================
-
         private void TxtTelefono_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -607,10 +537,6 @@ namespace VeterinariaServerSurPia.Views
                 _validandoTexto = false;
             }
         }
-
-        // =====================================================
-        // FILTRADO DEL CORREO
-        // =====================================================
 
         private void TxtCorreo_TextChanging(
             TextBox sender,
@@ -675,10 +601,6 @@ namespace VeterinariaServerSurPia.Views
                 _validandoTexto = false;
             }
         }
-
-        // =====================================================
-        // AUTOCOMPLETAR CORREO
-        // =====================================================
 
         private void CmbProveedorCorreo_SelectionChanged(
             object sender,

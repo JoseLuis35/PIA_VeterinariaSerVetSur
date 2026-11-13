@@ -23,7 +23,6 @@ namespace VeterinariaServerSurPia.Services
 
         private const string NombreModelo = "qwen2.5:3b";
 
-        // Límites para que las respuestas sean rápidas y enfocadas.
         private const int MaxCaracteresContexto = 6000;
         private const int MaxTokensConsultaSimple = 220;
         private const int MaxTokensConsultaClinica = 450;
@@ -42,8 +41,7 @@ namespace VeterinariaServerSurPia.Services
             Timeout = TimeSpan.FromMinutes(5)
         };
 
-        // Prompt de sistema corto: menos texto = respuestas más rápidas
-        // y un modelo pequeño que se desvía menos de la pregunta.
+
         private const string InstruccionesSistema =
             "Eres VetSmart AI, asistente de apoyo clínico y administrativo " +
             "para médicos veterinarios y personal de una clínica veterinaria. " +
@@ -94,7 +92,6 @@ namespace VeterinariaServerSurPia.Services
                 return MensajeFueraDeDominio;
             }
 
-            // Un contexto demasiado largo vuelve lento al modelo local.
             if (contexto.Length > MaxCaracteresContexto)
             {
                 contexto =
@@ -153,8 +150,6 @@ namespace VeterinariaServerSurPia.Services
             return texto;
         }
 
-        // Carga el modelo en memoria en segundo plano para que la primera
-        // consulta no tenga que esperar a que Ollama lo cargue.
         public async Task PrecalentarModeloAsync()
         {
             try
@@ -181,8 +176,7 @@ namespace VeterinariaServerSurPia.Services
             }
             catch
             {
-                // Si Ollama no está disponible todavía, no pasa nada:
-                // el error se mostrará al hacer la consulta.
+                
             }
         }
 
@@ -380,8 +374,7 @@ namespace VeterinariaServerSurPia.Services
                 return true;
             }
 
-            // Si la pregunta menciona por nombre (o ID) a la mascota
-            // seleccionada, es una consulta sobre un paciente.
+            
             if (MencionaMascotaDelContexto(preguntaNormalizada, contexto))
             {
                 return true;
@@ -396,8 +389,6 @@ namespace VeterinariaServerSurPia.Services
             return false;
         }
 
-        // Busca en el contexto el nombre y el ID de la mascota seleccionada
-        // ("Nombre: Max", "ID: M0004") y revisa si la pregunta los menciona.
         private static bool MencionaMascotaDelContexto(
             string preguntaNormalizada,
             string contexto)
@@ -428,7 +419,6 @@ namespace VeterinariaServerSurPia.Services
 
                 referencias.Add(completo);
 
-                // Nombres compuestos ("Max Junior"): basta con la primera palabra.
                 string primera = completo
                     .Split(' ', StringSplitOptions.RemoveEmptyEntries)
                     .FirstOrDefault() ?? "";
@@ -746,8 +736,6 @@ namespace VeterinariaServerSurPia.Services
             {
                 model = NombreModelo,
 
-                // La respuesta llega por partes y se muestra mientras
-                // se genera, así el usuario no espera a que termine.
                 stream = true,
                 keep_alive = "30m",
 
@@ -894,7 +882,6 @@ namespace VeterinariaServerSurPia.Services
                 @"(?is)</?think\b[^>]*>",
                 string.Empty);
 
-            // La pantalla muestra texto plano: se quitan marcas de Markdown.
             texto = texto.Replace("**", string.Empty)
                          .Replace("__", string.Empty);
 

@@ -9,10 +9,6 @@ using System.Threading.Tasks;
 
 namespace VeterinariaServerSurPia.Services
 {
-    /// <summary>
-    /// Consultas generales de la veterinaria.
-    /// Este servicio solo lee SQLite; no modifica ni elimina registros.
-    /// </summary>
     public sealed class ConsultaVeterinariaService
     {
         private readonly DatabaseService _database;
@@ -143,16 +139,6 @@ namespace VeterinariaServerSurPia.Services
                 " ").Trim();
         }
 
-        // =========================================================
-        // DISPONIBILIDAD DE CITAS
-        // =========================================================
-
-        /// <summary>
-        /// Calcula los horarios disponibles para una fecha.
-        /// Horario de atención: 08:00 a 17:00.
-        /// Duración de cada cita: 30 minutos.
-        /// No modifica ni reserva horarios.
-        /// </summary>
         public async Task<string> ObtenerDisponibilidadAsync(DateTime fecha)
         {
             const int duracionMinutos = 30;
@@ -335,9 +321,6 @@ namespace VeterinariaServerSurPia.Services
             return false;
         }
 
-        // =========================================================
-        // RESUMEN GENERAL
-        // =========================================================
 
         public async Task<string> ObtenerResumenGeneralAsync()
         {
@@ -361,10 +344,6 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado.ToString();
         }
-
-        // =========================================================
-        // PRÓXIMAS CITAS REGISTRADAS
-        // =========================================================
 
         public async Task<string> ObtenerProximasCitasAsync(int limite = 30)
         {
@@ -431,9 +410,6 @@ namespace VeterinariaServerSurPia.Services
             return resultado.ToString();
         }
 
-        // =========================================================
-        // CARTILLA MÉDICA
-        // =========================================================
 
         public async Task<string> ObtenerProximasFechasCartillaAsync(int limite = 50)
         {
@@ -501,9 +477,6 @@ namespace VeterinariaServerSurPia.Services
             return resultado.ToString();
         }
 
-        // =========================================================
-        // LISTADO DE MASCOTAS
-        // =========================================================
 
         public async Task<string> ObtenerListadoMascotasAsync(int limite = 100)
         {
@@ -555,10 +528,6 @@ namespace VeterinariaServerSurPia.Services
 
             return resultado.ToString();
         }
-
-        // =========================================================
-        // MÉTODOS AUXILIARES
-        // =========================================================
 
         private static async Task<long> ContarAsync(
             SqliteConnection connection,

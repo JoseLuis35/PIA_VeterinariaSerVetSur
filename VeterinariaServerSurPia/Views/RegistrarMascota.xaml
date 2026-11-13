@@ -49,7 +49,6 @@
             <Setter Property="LineHeight" Value="20"/>
         </Style>
 
-        <!-- Campos de texto -->
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -64,7 +63,6 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- Listas desplegables -->
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -77,7 +75,6 @@
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
 
-        <!-- Botones -->
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
@@ -108,7 +105,6 @@
                 HorizontalAlignment="Stretch"
                 Padding="30,24,30,30">
 
-                <!-- ENCABEZADO -->
                 <Border
                     CornerRadius="26"
                     Padding="30,24"
@@ -209,7 +205,6 @@
                     </Grid>
                 </Border>
 
-                <!-- 1. DATOS DE LA MASCOTA -->
                 <Border
                     Style="{StaticResource TarjetaSeccion}"
                     HorizontalAlignment="Stretch">
@@ -259,7 +254,6 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- ID -->
                             <Border Style="{StaticResource CajaInfo}">
                                 <Grid ColumnSpacing="14">
                                     <Grid.ColumnDefinitions>
@@ -302,7 +296,6 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Nombre -->
                             <TextBox
                                 x:Name="TxtNombreMascota"
                                 Header="Nombre de la mascota"
@@ -313,7 +306,6 @@
                                 HorizontalAlignment="Stretch"
                                 TextChanging="TxtNombreMascota_TextChanging"/>
 
-                            <!-- Especie y raza -->
                             <Grid ColumnSpacing="18">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -350,7 +342,6 @@
                                     TextChanging="TxtRaza_TextChanging"/>
                             </Grid>
 
-                            <!-- Edad -->
                             <Grid ColumnSpacing="18">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -383,7 +374,6 @@
                                 </ComboBox>
                             </Grid>
 
-                            <!-- Sexo y peso -->
                             <Grid ColumnSpacing="18">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -420,7 +410,6 @@
                     </Grid>
                 </Border>
 
-                <!-- 2. PROPIETARIO -->
                 <Border
                     Style="{StaticResource TarjetaSeccion}"
                     HorizontalAlignment="Stretch">
@@ -501,7 +490,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- BOTONES Y MENSAJES -->
                 <StackPanel Spacing="16" HorizontalAlignment="Stretch">
 
                     <Grid ColumnSpacing="18">
@@ -582,7 +570,6 @@
                     </Border>
                 </StackPanel>
 
-                <!-- DECORACIÓN INFERIOR -->
                 <StackPanel
                     Orientation="Horizontal"
                     Spacing="46"

@@ -9,7 +9,6 @@
 
     <Page.Resources>
 
-        <!-- TARJETAS -->
         <Style x:Key="TarjetaSeccion" TargetType="Border">
             <Setter Property="Background" Value="#FFFFFFFF"/>
             <Setter Property="BorderBrush" Value="#FFF6E6CF"/>
@@ -19,7 +18,6 @@
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
-        <!-- TÍTULOS -->
         <Style x:Key="TituloSeccion" TargetType="TextBlock">
             <Setter Property="FontSize" Value="19"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -40,7 +38,6 @@
             <Setter Property="Margin" Value="0,3,0,5"/>
         </Style>
 
-        <!-- CAMPOS -->
         <Style x:Key="CampoTexto" TargetType="TextBox">
             <Setter Property="MinHeight" Value="46"/>
             <Setter Property="Padding" Value="12,9"/>
@@ -72,7 +69,6 @@
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
-        <!-- BOTONES -->
         <Style x:Key="BotonPrincipal" TargetType="Button">
             <Setter Property="Height" Value="50"/>
             <Setter Property="Background" Value="#FFFF9A1F"/>
@@ -109,8 +105,6 @@
             <StackPanel
                 HorizontalAlignment="Stretch"
                 Spacing="20">
-
-                <!-- ENCABEZADO -->
 
                 <Border
                     CornerRadius="26"
@@ -190,8 +184,6 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-
-                <!-- 1. SELECCIÓN DE MASCOTA -->
 
                 <Border Style="{StaticResource TarjetaSeccion}">
 
@@ -359,8 +351,6 @@
 
                     </StackPanel>
                 </Border>
-
-                <!-- 2. CONSULTA MÉDICA -->
 
                 <Border Style="{StaticResource TarjetaSeccion}">
 
@@ -590,8 +580,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 3. CARTILLA MÉDICA -->
-
                 <Border Style="{StaticResource TarjetaSeccion}">
 
                     <StackPanel
@@ -736,8 +724,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ESTADO DE OPERACIÓN -->
-
                 <Border
                     Background="#FFFFF1DD"
                     BorderBrush="#FFF4DDBD"
@@ -786,8 +772,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- LISTAS UTILIZADAS POR EL CODE-BEHIND -->
-
                 <ListView
                     x:Name="HistorialListView"
                     Visibility="Collapsed"/>
@@ -795,8 +779,6 @@
                 <ListView
                     x:Name="CartillaListView"
                     Visibility="Collapsed"/>
-
-                <!-- PIE DE PÁGINA -->
 
                 <StackPanel
                     HorizontalAlignment="Center"

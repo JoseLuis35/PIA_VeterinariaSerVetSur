@@ -6,28 +6,24 @@
     Background="#FFFFF3E2">
 
     <Page.Resources>
-        <!-- Quita los efectos azules al enfocar los campos -->
+
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent"/>
         <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent"/>
         <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent"/>
         <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
 
-        <!-- Texto escrito: negro -->
         <SolidColorBrush x:Key="TextControlForeground" Color="#FF161616"/>
         <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FF161616"/>
         <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="TextControlForegroundDisabled" Color="#FF161616"/>
 
-        <!-- Placeholder: gris -->
         <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#FF6B6B6B"/>
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#FF6B6B6B"/>
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FF8A8A8A"/>
     </Page.Resources>
 
     <Grid>
-
-        <!-- ============ FORMAS NARANJAS DE FONDO ============ -->
 
         <Ellipse
             Width="520"
@@ -71,9 +67,6 @@
             VerticalAlignment="Bottom"
             Margin="-260,0,0,-330"/>
 
-
-        <!-- ============ TARJETA PRINCIPAL ============ -->
-
         <Viewbox Stretch="Uniform" Margin="30">
 
             <Border
@@ -88,9 +81,6 @@
                         <ColumnDefinition Width="470"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-
-                    <!-- ========== PANEL IZQUIERDO NARANJA ========== -->
 
                     <Border
                         Grid.Column="0"
@@ -121,9 +111,6 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-
-                            <!-- PUNTITOS DECORATIVOS -->
-
                             <Canvas
                                 x:Name="PuntosIzqSup"
                                 Grid.RowSpan="3"
@@ -141,9 +128,6 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
                                 Margin="12,0,0,230"/>
-
-
-                            <!-- LOGO Y NOMBRE -->
 
                             <StackPanel
                                 Grid.Row="0"
@@ -183,9 +167,6 @@
 
                             </StackPanel>
 
-
-                            <!-- BIENVENIDA -->
-
                             <StackPanel
                                 Grid.Row="1"
                                 Margin="32,75,0,0"
@@ -208,9 +189,6 @@
 
                             </StackPanel>
 
-
-                            <!-- ILUSTRACIÓN -->
-
                             <Image
                                 Grid.Row="2"
                                 Source="/Assets/mujer_perro.png"
@@ -221,12 +199,7 @@
                         </Grid>
                     </Border>
 
-
-                    <!-- ========== PANEL DERECHO: LOGIN ========== -->
-
                     <Grid Grid.Column="1">
-
-                        <!-- PUNTITOS DECORATIVOS -->
 
                         <Canvas
                             x:Name="PuntosDerSup"
@@ -244,16 +217,12 @@
                             VerticalAlignment="Bottom"
                             Margin="0,0,25,20"/>
 
-
                         <StackPanel
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"
                             Margin="40,0,0,0"
                             Width="384"
                             Spacing="18">
-
-
-                            <!-- TÍTULO -->
 
                             <StackPanel
                                 Spacing="14"
@@ -271,9 +240,6 @@
                                     Foreground="#FF1E1E1E"/>
 
                             </StackPanel>
-
-
-                            <!-- CAMPO USUARIO -->
 
                             <Border
                                 Height="52"
@@ -312,9 +278,6 @@
                                 </Grid>
                             </Border>
 
-
-                            <!-- CAMPO CONTRASEÑA -->
-
                             <Border
                                 Height="52"
                                 CornerRadius="10"
@@ -352,9 +315,6 @@
                                 </Grid>
                             </Border>
 
-
-                            <!-- MENSAJE DE ERROR -->
-
                             <Border
                                 x:Name="PanelError"
                                 Background="#FFFFF0ED"
@@ -369,9 +329,6 @@
                                     TextWrapping="Wrap"/>
 
                             </Border>
-
-
-                            <!-- BOTÓN INICIAR SESIÓN -->
 
                             <Button
                                 x:Name="BtnLogin"

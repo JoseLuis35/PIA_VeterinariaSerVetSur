@@ -68,18 +68,10 @@ namespace VeterinariaServerSurPia.Views
             Loaded += CalendarioCitas_Loaded;
         }
 
-        // ==========================================
-        // OBTENER CALENDARIO
-        // ==========================================
-
         private CalendarView? ObtenerCalendario()
         {
             return FindName("Calendario") as CalendarView;
         }
-
-        // ==========================================
-        // CARGA INICIAL
-        // ==========================================
 
         private async void CalendarioCitas_Loaded(
             object sender,
@@ -115,10 +107,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // LEER TEXTO DE SQLITE
-        // ==========================================
-
         private static string LeerTexto(
             SqliteDataReader reader,
             int indice)
@@ -130,10 +118,6 @@ namespace VeterinariaServerSurPia.Views
                 reader.GetValue(indice),
                 CultureInfo.InvariantCulture) ?? "";
         }
-
-        // ==========================================
-        // VALIDAR Y CONVERTIR FECHAS
-        // ==========================================
 
         private bool IntentarLeerFecha(
             string texto,
@@ -197,10 +181,6 @@ namespace VeterinariaServerSurPia.Views
             fecha = DateTime.MinValue;
             return false;
         }
-
-        // ==========================================
-        // CARGAR CITAS DESDE SQLITE
-        // ==========================================
 
         private async Task CargarCitasAsync()
         {
@@ -310,10 +290,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // CAMBIO DE FECHA SELECCIONADA
-        // ==========================================
-
         private void Calendario_SelectedDatesChanged(
             CalendarView sender,
             CalendarViewSelectedDatesChangedEventArgs args)
@@ -344,10 +320,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // MOSTRAR AGENDA DEL DÍA
-        // ==========================================
-
         private void MostrarAgenda(DateTime fecha)
         {
             fecha = fecha.Date;
@@ -377,10 +349,6 @@ namespace VeterinariaServerSurPia.Views
 
             ActualizarResumenMes();
         }
-
-        // ==========================================
-        // ORDENAR CITAS POR HORA
-        // ==========================================
 
         private static TimeSpan ObtenerHoraOrdenamiento(
             string textoHora)
@@ -416,10 +384,6 @@ namespace VeterinariaServerSurPia.Views
 
             return TimeSpan.MaxValue;
         }
-
-        // ==========================================
-        // RESALTAR DÍAS CON CITAS
-        // ==========================================
 
         private void AplicarColorDia(
             CalendarViewDayItem item)
@@ -466,10 +430,6 @@ namespace VeterinariaServerSurPia.Views
             AplicarColorDia(args.Item);
         }
 
-        // ==========================================
-        // ACTUALIZAR COLORES DE LOS DÍAS VISIBLES
-        // ==========================================
-
         private void RefrescarColoresCalendario()
         {
             CalendarView? calendario = ObtenerCalendario();
@@ -503,10 +463,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // RESUMEN DE CITAS DEL MES
-        // ==========================================
-
         private void ActualizarResumenMes()
         {
             if (!calendarioInicializado ||
@@ -530,10 +486,6 @@ namespace VeterinariaServerSurPia.Views
             TxtTotalMes.Text =
                 totalMes.ToString(cultura);
         }
-
-        // ==========================================
-        // SELECCIONAR CITA
-        // ==========================================
 
         private void CitasListView_SelectionChanged(
             object sender,
@@ -569,10 +521,6 @@ namespace VeterinariaServerSurPia.Views
                     : cita.Observaciones;
         }
 
-        // ==========================================
-        // LIMPIAR DETALLE
-        // ==========================================
-
         private void LimpiarDetalle()
         {
             TxtIDCita.Text = "";
@@ -582,10 +530,6 @@ namespace VeterinariaServerSurPia.Views
             TxtHora.Text = "";
             TxtObservaciones.Text = "";
         }
-
-        // ==========================================
-        // IR A HOY
-        // ==========================================
 
         private void BtnIrHoy_Click(
             object sender,
@@ -606,10 +550,6 @@ namespace VeterinariaServerSurPia.Views
 
             RefrescarColoresCalendario();
         }
-
-        // ==========================================
-        // ACTUALIZAR CALENDARIO
-        // ==========================================
 
         private async void BtnActualizar_Click(
     object sender,
@@ -675,10 +615,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // ADMINISTRAR CITA SELECCIONADA
-        // ==========================================
-
         private async void BtnAdministrar_Click(
             object sender,
             RoutedEventArgs e)
@@ -704,10 +640,6 @@ namespace VeterinariaServerSurPia.Views
             MainWindow.Current?.SeleccionarPantalla(
                 "ModificarEliminar");
         }
-
-        // ==========================================
-        // MOSTRAR AVISOS
-        // ==========================================
 
         private async Task MostrarAviso(string mensaje)
         {

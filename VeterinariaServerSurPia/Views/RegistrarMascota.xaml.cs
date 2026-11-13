@@ -37,10 +37,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += RegistrarMascota_Loaded;
         }
 
-        // =====================================================
-        // CARGA INICIAL
-        // =====================================================
-
         private async void RegistrarMascota_Loaded(
             object sender,
             RoutedEventArgs e)
@@ -60,10 +56,6 @@ namespace VeterinariaServerSurPia.Views
                 );
             }
         }
-
-        // =====================================================
-        // GENERAR ID AUTOMÁTICO DESDE SQLITE
-        // =====================================================
 
         private async Task<string> GenerarIdMascotaAsync()
         {
@@ -131,10 +123,6 @@ namespace VeterinariaServerSurPia.Views
                 );
             }
         }
-
-        // =====================================================
-        // CARGAR CLIENTES DESDE SQLITE
-        // =====================================================
 
         private async Task CargarClientesAsync(bool avisar = false)
         {
@@ -214,10 +202,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =====================================================
-        // ACTUALIZAR LISTA DE CLIENTES
-        // =====================================================
-
         private async void BtnActualizarClientes_Click(
             object sender,
             RoutedEventArgs e)
@@ -235,10 +219,6 @@ namespace VeterinariaServerSurPia.Views
                 );
             }
         }
-
-        // =====================================================
-        // GUARDAR MASCOTA EN SQLITE
-        // =====================================================
 
         private async void BtnGuardarMascota_Click(
             object sender,
@@ -260,10 +240,6 @@ namespace VeterinariaServerSurPia.Views
 
             string sexo =
                 CmbSexo.SelectedItem?.ToString() ?? "";
-
-            // ---------------------------------------------
-            // VALIDAR NOMBRE
-            // ---------------------------------------------
 
             if (string.IsNullOrWhiteSpace(nombre))
             {
@@ -287,10 +263,6 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            // ---------------------------------------------
-            // VALIDAR ESPECIE
-            // ---------------------------------------------
-
             if (string.IsNullOrWhiteSpace(especie))
             {
                 MostrarMensaje(
@@ -301,10 +273,6 @@ namespace VeterinariaServerSurPia.Views
                 CmbEspecie.Focus(FocusState.Programmatic);
                 return;
             }
-
-            // ---------------------------------------------
-            // VALIDAR RAZA
-            // ---------------------------------------------
 
             if (raza.Length > 60 ||
                 (raza.Length > 0 && !TextoRazaValido(raza)))
@@ -317,10 +285,6 @@ namespace VeterinariaServerSurPia.Views
                 TxtRaza.Focus(FocusState.Programmatic);
                 return;
             }
-
-            // ---------------------------------------------
-            // VALIDAR EDAD
-            // ---------------------------------------------
 
             if (string.IsNullOrWhiteSpace(edadTexto))
             {
@@ -378,10 +342,6 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            // ---------------------------------------------
-            // VALIDAR SEXO
-            // ---------------------------------------------
-
             if (string.IsNullOrWhiteSpace(sexo))
             {
                 MostrarMensaje(
@@ -392,10 +352,6 @@ namespace VeterinariaServerSurPia.Views
                 CmbSexo.Focus(FocusState.Programmatic);
                 return;
             }
-
-            // ---------------------------------------------
-            // VALIDAR PESO
-            // ---------------------------------------------
 
             if (string.IsNullOrWhiteSpace(pesoTexto))
             {
@@ -437,10 +393,6 @@ namespace VeterinariaServerSurPia.Views
                 return;
             }
 
-            // ---------------------------------------------
-            // VALIDAR PROPIETARIO
-            // ---------------------------------------------
-
             if (CmbPropietario.SelectedItem is not ClienteOpcion propietario)
             {
                 MostrarMensaje(
@@ -464,10 +416,6 @@ namespace VeterinariaServerSurPia.Views
 
                 using SqliteTransaction transaccion =
                     conexion.BeginTransaction();
-
-                // ---------------------------------------------
-                // VERIFICAR QUE EL PROPIETARIO SIGA ACTIVO
-                // ---------------------------------------------
 
                 using (SqliteCommand verificarCliente = conexion.CreateCommand())
                 {
@@ -508,10 +456,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // ---------------------------------------------
-                // GENERAR ID DESDE SQLITE
-                // ---------------------------------------------
-
                 string id = await GenerarIdMascotaAsync(
                     conexion,
                     transaccion
@@ -519,10 +463,6 @@ namespace VeterinariaServerSurPia.Views
 
                 string edadGuardada =
                     $"{edad} {unidad.ToLowerInvariant()}";
-
-                // ---------------------------------------------
-                // INSERTAR MASCOTA
-                // ---------------------------------------------
 
                 using SqliteCommand guardar = conexion.CreateCommand();
 
@@ -567,12 +507,7 @@ namespace VeterinariaServerSurPia.Views
 
                 await guardar.ExecuteNonQueryAsync();
 
-                // Confirmar el registro.
                 transaccion.Commit();
-
-                // ---------------------------------------------
-                // LIMPIAR Y ACTUALIZAR FORMULARIO
-                // ---------------------------------------------
 
                 LimpiarFormulario();
 
@@ -607,10 +542,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =====================================================
-        // VALIDACIONES DE TEXTO
-        // =====================================================
-
         private bool TextoNombreValido(string texto)
         {
             if (string.IsNullOrWhiteSpace(texto) ||
@@ -640,10 +571,6 @@ namespace VeterinariaServerSurPia.Views
                 c == '-'
             );
         }
-
-        // =====================================================
-        // MENSAJES VISUALES
-        // =====================================================
 
         private void MostrarMensaje(
             string texto,
@@ -701,10 +628,6 @@ namespace VeterinariaServerSurPia.Views
             PanelMensaje.Visibility = Visibility.Collapsed;
         }
 
-        // =====================================================
-        // LIMPIAR FORMULARIO
-        // =====================================================
-
         private void LimpiarFormulario()
         {
             TxtNombreMascota.Text = "";
@@ -724,10 +647,6 @@ namespace VeterinariaServerSurPia.Views
             CmbPropietario.SelectedIndex = -1;
         }
 
-        // =====================================================
-        // NAVEGACIÓN
-        // =====================================================
-
         private void BtnIrClientes_Click(
             object sender,
             RoutedEventArgs e)
@@ -739,10 +658,6 @@ namespace VeterinariaServerSurPia.Views
                 MainWindow.Current.SeleccionarPantalla("Clientes");
             }
         }
-
-        // =====================================================
-        // FILTRAR NOMBRE DE MASCOTA
-        // =====================================================
 
         private void TxtNombreMascota_TextChanging(
             TextBox sender,
@@ -756,10 +671,6 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // =====================================================
-        // FILTRAR RAZA
-        // =====================================================
-
         private void TxtRaza_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -772,10 +683,6 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // =====================================================
-        // FILTRAR EDAD
-        // =====================================================
-
         private void TxtEdad_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -787,10 +694,6 @@ namespace VeterinariaServerSurPia.Views
             );
         }
 
-        // =====================================================
-        // FILTRAR PESO
-        // =====================================================
-
         private void TxtPeso_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -801,7 +704,6 @@ namespace VeterinariaServerSurPia.Views
             string original = sender.Text;
             int posicionOriginal = sender.SelectionStart;
 
-            // Permitir coma o punto como separador decimal.
             string texto = original.Replace(',', '.');
 
             string filtrado = "";
@@ -860,10 +762,6 @@ namespace VeterinariaServerSurPia.Views
                 _filtrando = false;
             }
         }
-
-        // =====================================================
-        // MÉTODO GENERAL PARA FILTRAR CARACTERES
-        // =====================================================
 
         private void Filtrar(
             TextBox caja,

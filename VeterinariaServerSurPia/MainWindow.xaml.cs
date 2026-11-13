@@ -19,7 +19,6 @@ namespace VeterinariaServerSurPia
             LoginFrame.Navigate(typeof(LoginPage));
         }
 
-        // Ícono de la ventana (barra de título, barra de tareas y Alt+Tab)
         private void AplicarIconoVentana()
         {
             try
@@ -36,7 +35,7 @@ namespace VeterinariaServerSurPia
             }
             catch
             {
-                // Si el ícono no se puede cargar, la app sigue funcionando.
+                
             }
         }
 

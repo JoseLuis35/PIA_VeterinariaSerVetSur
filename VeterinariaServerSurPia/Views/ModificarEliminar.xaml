@@ -122,8 +122,6 @@
                 HorizontalAlignment="Stretch"
                 Spacing="22">
 
-                <!-- ENCABEZADO -->
-
                 <Border
                     Padding="26,22"
                     CornerRadius="26"
@@ -232,8 +230,6 @@
                     </Grid>
                 </Border>
 
-                <!-- 1. SELECCIÓN DEL CLIENTE -->
-
                 <Border Style="{StaticResource TarjetaSeccion}">
 
                     <Grid HorizontalAlignment="Stretch">
@@ -324,8 +320,6 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-
-                <!-- 2. INFORMACIÓN DEL CLIENTE -->
 
                 <Border Style="{StaticResource TarjetaSeccion}">
 
@@ -500,8 +494,6 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-
-                <!-- 3. MASCOTAS -->
 
                 <Border Style="{StaticResource TarjetaSeccion}">
 
@@ -772,8 +764,6 @@
                     </Grid>
                 </Border>
 
-                <!-- 4. CITAS -->
-
                 <Border Style="{StaticResource TarjetaSeccion}">
 
                     <Grid HorizontalAlignment="Stretch">
@@ -997,8 +987,6 @@
                     </Grid>
                 </Border>
 
-                <!-- ESTADO DE LA OPERACIÓN -->
-
                 <Border
                     Background="#FFFFFFFF"
                     BorderBrush="#FFF6E6CF"
@@ -1034,14 +1022,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- VOLVER -->
-
                 <Button
                     Style="{StaticResource BotonSecundario}"
                     Content="Volver a Búsqueda / Consultas"
                     Click="BtnIrBusqueda_Click"/>
-
-                <!-- DECORACIÓN INFERIOR -->
 
                 <StackPanel
                     Orientation="Horizontal"

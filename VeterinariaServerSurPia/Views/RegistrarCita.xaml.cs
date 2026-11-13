@@ -27,10 +27,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += RegistrarCita_Loaded;
         }
 
-        // ==========================================
-        // CONFIGURAR FECHA Y HORA INICIAL
-        // ==========================================
-
         private void ConfigurarFechaYHoraInicial()
         {
             DateTime horaInicial = DateTime.Now.AddMinutes(30);
@@ -69,16 +65,10 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // GENERAR ID DE CITA
-        // ==========================================
-
         private async Task<string> GenerarIdCitaAsync(
             SqliteConnection? conexionExistente = null,
             SqliteTransaction? transaccion = null)
         {
-            // Si recibimos una conexión existente, NO debemos
-            // cerrarla ni disponerla desde este método.
             if (conexionExistente != null)
             {
                 return await ObtenerSiguienteIdAsync(
@@ -86,8 +76,6 @@ namespace VeterinariaServerSurPia.Views
                     transaccion);
             }
 
-            // Solo se abre y se cierra una conexión cuando
-            // este método es responsable de crearla.
             using SqliteConnection conexion =
                 await App.Database.OpenConnectionAsync();
 
@@ -146,10 +134,6 @@ namespace VeterinariaServerSurPia.Views
                     true);
             }
         }
-
-        // ==========================================
-        // CARGAR MASCOTAS DESDE SQLITE
-        // ==========================================
 
         private async Task CargarMascotasAsync()
         {
@@ -236,10 +220,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // VALIDAR OBSERVACIONES
-        // ==========================================
-
         private void TxtObservaciones_TextChanging(
             TextBox sender,
             TextBoxTextChangingEventArgs args)
@@ -274,10 +254,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // REGISTRAR CITA
-        // ==========================================
-
         private async void BtnGuardarCita_Click(
             object sender,
             RoutedEventArgs e)
@@ -294,7 +270,6 @@ namespace VeterinariaServerSurPia.Views
 
             try
             {
-                // Validar mascota seleccionada.
                 if (CmbMascota.SelectedItem is not ComboBoxItem mascota)
                 {
                     MostrarMensaje(
@@ -314,7 +289,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // Validar servicio.
                 if (CmbTipoServicio.SelectedItem is not ComboBoxItem servicioItem)
                 {
                     MostrarMensaje(
@@ -334,7 +308,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // Validar fecha.
                 DateTime fechaSeleccionada =
                     DpFechaCita.Date.Date;
 
@@ -348,7 +321,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // Validar hora.
                 TimeSpan horaSeleccionada = TpHoraCita.Time;
 
                 if (horaSeleccionada < TimeSpan.Zero ||
@@ -379,7 +351,6 @@ namespace VeterinariaServerSurPia.Views
                     @"hh\:mm",
                     CultureInfo.InvariantCulture);
 
-                // Validar observaciones.
                 string observaciones =
                     TxtObservaciones.Text.Trim();
 
@@ -391,17 +362,12 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // ==================================
-                // GUARDAR EN SQLITE
-                // ==================================
-
                 using SqliteConnection conexion =
                     await App.Database.OpenConnectionAsync();
 
                 using SqliteTransaction transaccion =
                     conexion.BeginTransaction();
 
-                // Verificar que la mascota todavía exista.
                 using (SqliteCommand verificarMascota =
                     conexion.CreateCommand())
                 {
@@ -436,7 +402,6 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // Evitar dos citas en el mismo horario.
                 using (SqliteCommand verificarCita =
                     conexion.CreateCommand())
                 {
@@ -474,13 +439,10 @@ namespace VeterinariaServerSurPia.Views
                     }
                 }
 
-                // Generar ID utilizando la misma conexión.
-                // Este método ya NO cierra la conexión recibida.
                 string idCita = await GenerarIdCitaAsync(
                     conexion,
                     transaccion);
 
-                // Insertar cita.
                 using SqliteCommand guardar =
                     conexion.CreateCommand();
 
@@ -532,7 +494,6 @@ namespace VeterinariaServerSurPia.Views
 
                 await guardar.ExecuteNonQueryAsync();
 
-                // Confirmar cambios.
                 transaccion.Commit();
 
                 string mascotaRegistrada =
@@ -568,20 +529,12 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // ==========================================
-        // NAVEGACIÓN
-        // ==========================================
-
         private void BtnIrMascotas_Click(
             object sender,
             RoutedEventArgs e)
         {
             MainWindow.Current?.SeleccionarPantalla("Mascotas");
         }
-
-        // ==========================================
-        // MENSAJES
-        // ==========================================
 
         private void MostrarMensaje(
             string texto,
@@ -602,10 +555,6 @@ namespace VeterinariaServerSurPia.Views
             TxtMensaje.Text = "";
             TxtMensaje.Visibility = Visibility.Collapsed;
         }
-
-        // ==========================================
-        // LIMPIAR FORMULARIO
-        // ==========================================
 
         private void LimpiarFormulario()
         {

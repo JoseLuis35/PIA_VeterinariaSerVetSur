@@ -15,9 +15,6 @@ namespace VeterinariaServerSurPia.Views
 {
     public sealed partial class AsistenteView : Page
     {
-        // =========================================================
-        // MODELOS INTERNOS
-        // =========================================================
 
         private sealed class MascotaOpcion
         {
@@ -62,18 +59,12 @@ namespace VeterinariaServerSurPia.Views
             public double Similitud { get; set; }
             public List<string> Coincidencias { get; set; } = new();
 
-            // Puntos extra por parecerse al paciente actual (raza, edad,
-            // sexo). Solo se usan para ordenar los resultados.
             public double Afinidad { get; set; }
             public List<string> Afinidades { get; set; } = new();
 
-            // El caso es de la misma especie que la mascota seleccionada.
             public bool MismaEspecie { get; set; }
         }
 
-        // =========================================================
-        // VARIABLES
-        // =========================================================
 
         private readonly List<MascotaOpcion> mascotas = new();
 
@@ -89,7 +80,6 @@ namespace VeterinariaServerSurPia.Views
         private bool guardandoObservacion = false;
         private bool buscandoSimilares = false;
 
-        // HORARIO DE ATENCIÓN
         private static readonly TimeSpan HoraApertura =
             new(8, 0, 0);
 
@@ -99,9 +89,6 @@ namespace VeterinariaServerSurPia.Views
         private static readonly TimeSpan DuracionCita =
             TimeSpan.FromMinutes(30);
 
-        // =========================================================
-        // PATRONES DE SÍNTOMAS
-        // =========================================================
 
         private static readonly Dictionary<string, string> Patrones =
             new()
@@ -160,9 +147,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             };
 
-        // =========================================================
-        // CONSTRUCTOR
-        // =========================================================
 
         public AsistenteView()
         {
@@ -171,9 +155,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += AsistenteView_Loaded;
         }
 
-        // =========================================================
-        // INICIALIZACIÓN
-        // =========================================================
 
         private async void AsistenteView_Loaded(
             object sender,
@@ -181,22 +162,12 @@ namespace VeterinariaServerSurPia.Views
         {
             Loaded -= AsistenteView_Loaded;
 
-            // Carga el modelo de Ollama en segundo plano para que la
-            // primera consulta no tenga que esperar.
             _ = ollamaService.PrecalentarModeloAsync();
 
             await CargarMascotasAsync();
         }
 
-        // =========================================================
-        // VALIDACIÓN DE CAMPOS DE TEXTO LIBRE
-        // (espacios y caracteres especiales)
-        // =========================================================
 
-        // Solo se permiten letras (con acentos y ñ), números, espacios y
-        // la puntuación básica necesaria para escribir preguntas y fechas:
-        // . , ? ¿ : / -
-        // Quedan bloqueados símbolos como ; ' ( ) ! " * # @ $ % & = + < > etc.
         private static bool EsCaracterPermitido(char caracter)
         {
             if (char.IsLetterOrDigit(caracter))
@@ -337,9 +308,6 @@ namespace VeterinariaServerSurPia.Views
                 .Trim();
         }
 
-        // =========================================================
-        // AVISO DE IMÁGENES
-        // =========================================================
 
         private void Imagen_ImageFailed(
             object sender,
@@ -372,9 +340,6 @@ namespace VeterinariaServerSurPia.Views
             PanelAvisoImagenes.Visibility = Visibility.Visible;
         }
 
-        // =========================================================
-        // CARGAR MASCOTAS DESDE SQLITE
-        // =========================================================
 
         private async Task CargarMascotasAsync()
         {
@@ -468,9 +433,6 @@ namespace VeterinariaServerSurPia.Views
             await CargarMascotasAsync();
         }
 
-        // =========================================================
-        // SELECCIÓN DE MASCOTA
-        // =========================================================
 
         private async void CmbMascotas_SelectionChanged(
             object sender,
@@ -516,9 +478,6 @@ namespace VeterinariaServerSurPia.Views
             await MostrarHistorialAsync();
         }
 
-        // =========================================================
-        // NORMALIZACIÓN DE PREGUNTAS
-        // =========================================================
 
         private static string NormalizarPregunta(string texto)
         {
@@ -578,11 +537,7 @@ namespace VeterinariaServerSurPia.Views
             return null;
         }
 
-        // =========================================================
-        // IDENTIFICACIÓN DE INTENCIONES
-        // =========================================================
 
-        // Detecta cuando el usuario pregunta por horarios libres.
         private static bool EsConsultaDeDisponibilidad(string pregunta)
         {
             string texto = NormalizarPregunta(pregunta);
@@ -592,7 +547,6 @@ namespace VeterinariaServerSurPia.Views
                 @"\b(disponibilidad|disponibles|horarios libres|horario libre|espacios libres|espacio libre|huecos|citas libres|agenda libre|hay lugar|hay lugares|hay espacio|hay espacios|cuando puedo agendar|puedo agendar|puedo sacar una cita|agendar una cita|agendar cita|reservar una cita|reservar cita|sacar una cita)\b");
         }
 
-        // Detecta cuando el usuario quiere consultar citas ya registradas.
         private static bool EsConsultaDeCitasRegistradas(string pregunta)
         {
             string texto = NormalizarPregunta(pregunta);
@@ -651,9 +605,6 @@ namespace VeterinariaServerSurPia.Views
                 @"\b(por que|porque|que significa|que puede significar|explica|explicame|recomiendas|que podria tener|que enfermedad|posibles causas|como puedo ayudar|que debo hacer|interpreta|analiza)\b");
         }
 
-        // =========================================================
-        // EXTRAER FECHA DE LA PREGUNTA
-        // =========================================================
 
         private static DateTime? ExtraerFechaPregunta(string pregunta)
         {
@@ -670,7 +621,6 @@ namespace VeterinariaServerSurPia.Views
             if (Regex.IsMatch(texto, @"\b(hoy)\b"))
                 return hoy;
 
-            // Formato: dd/MM/yyyy o dd-MM-yyyy.
             Match fechaDiaMes = Regex.Match(
                 texto,
                 @"\b(?<dia>\d{1,2})[/-](?<mes>\d{1,2})[/-](?<anio>\d{4})\b");
@@ -693,7 +643,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             }
 
-            // Formato: yyyy-MM-dd.
             Match fechaIso = Regex.Match(
                 texto,
                 @"\b(?<anio>\d{4})-(?<mes>\d{1,2})-(?<dia>\d{1,2})\b");
@@ -716,7 +665,6 @@ namespace VeterinariaServerSurPia.Views
                 }
             }
 
-            // Formato: 8 de noviembre de 2026.
             Match fechaTexto = Regex.Match(
                 texto,
                 @"\b(?<dia>\d{1,2})\s+de\s+(?<mes>[a-z]+)(?:\s+de\s+(?<anio>\d{4}))?\b");
@@ -771,9 +719,6 @@ namespace VeterinariaServerSurPia.Views
             return null;
         }
 
-        // =========================================================
-        // CONSULTAR DISPONIBILIDAD REAL EN SQLITE
-        // =========================================================
 
         private async Task<string> ObtenerDisponibilidadAsync(DateTime fecha)
         {
@@ -977,19 +922,12 @@ namespace VeterinariaServerSurPia.Views
             return false;
         }
 
-        // =========================================================
-        // CONSULTA INTELIGENTE A SQLITE Y OLLAMA
-        // =========================================================
 
-        // Se llama mientras el modelo escribe: muestra el texto
-        // conforme se genera en lugar de esperar a que termine.
         private void MostrarRespuestaParcial(string texto)
         {
             TxtRespuestaOllama.Text = texto;
         }
 
-        // Responde al instante (sin usar el modelo) las preguntas de datos
-        // puntuales de una mascota: raza, especie, edad, sexo, peso o dueño.
         private async Task<string?> ResponderDatoDirectoAsync(
             string pregunta,
             string idMascota)
@@ -999,7 +937,6 @@ namespace VeterinariaServerSurPia.Views
 
             string n = NormalizarTexto(pregunta);
 
-            // Si pide interpretar, comparar o aconsejar, responde el modelo.
             string[] clinicas =
             {
                 "diagnostic", "sintoma", "tratamiento", "enfermedad",
@@ -1148,8 +1085,6 @@ namespace VeterinariaServerSurPia.Views
                 bool consultaGeneral =
                     string.IsNullOrWhiteSpace(idMascota);
 
-                // 1. CONSULTAR DISPONIBILIDAD DE HORARIOS.
-                // Esta condición va antes de las consultas generales de citas.
 
                 if (EsConsultaDeDisponibilidad(pregunta))
                 {
@@ -1181,7 +1116,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 2. CONSULTAR CITAS YA REGISTRADAS.
 
                 if (EsConsultaDeCitasRegistradas(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
@@ -1208,7 +1142,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 3. CONSULTAS DIRECTAS: CARTILLA.
 
                 if (EsConsultaDeCartilla(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
@@ -1224,7 +1157,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 4. CONSULTAS DIRECTAS: LISTADO DE MASCOTAS.
 
                 if (EsConsultaDeListadoMascotas(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
@@ -1240,7 +1172,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 5. CONSULTAS DIRECTAS: RESUMEN GENERAL.
 
                 if (EsConsultaDeResumenGeneral(pregunta) &&
                     !SolicitaInterpretacion(pregunta))
@@ -1256,7 +1187,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 6. PREGUNTAS SOBRE UNA MASCOTA.
 
                 if (!string.IsNullOrWhiteSpace(idMascota))
                 {
@@ -1276,8 +1206,6 @@ namespace VeterinariaServerSurPia.Views
                         return;
                     }
 
-                    // El contexto solo incluye las secciones del expediente
-                    // que la pregunta necesita.
                     string contextoVeterinario =
                         await App.Database.ObtenerContextoVeterinarioAsync(
                             idMascota,
@@ -1303,7 +1231,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 7. CONSULTAS GENERALES DE DATOS.
 
                 if (consultaGeneral &&
                     PareceConsultaDeDatos(pregunta))
@@ -1375,7 +1302,6 @@ namespace VeterinariaServerSurPia.Views
                     return;
                 }
 
-                // 8. ORIENTACIÓN VETERINARIA GENERAL.
 
                 string contextoOrientacion =
                     "No hay una mascota seleccionada ni se identificó " +
@@ -1412,9 +1338,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // GUARDAR OBSERVACIÓN EN SQLITE
-        // =========================================================
 
         private async void BtnGuardarObservacion_Click(
             object sender,
@@ -1508,18 +1431,13 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // MOSTRAR HISTORIAL DESDE SQLITE
-        // =========================================================
 
-        // Muestra un mensaje simple y quita las tarjetas anteriores.
         private void MostrarMensajeHistorial(string mensaje)
         {
             PanelHistorial.Children.Clear();
             TxtHistorial.Text = mensaje;
         }
 
-        // Tarjeta de una observación, con botón para eliminarla.
         private Border CrearTarjetaObservacion(ObservacionClinicaDb registro)
         {
             StackPanel texto = new() { Spacing = 3 };
@@ -1670,8 +1588,7 @@ namespace VeterinariaServerSurPia.Views
                     await App.Database.ObtenerObservacionesClinicasAsync(
                         idMascota);
 
-                // Evita mostrar el historial de una mascota anterior
-                // si el usuario cambia la selección mientras se consulta.
+
                 if (mascotaSeleccionada == null ||
                     !mascotaSeleccionada.Id.Equals(
                         idMascota,
@@ -1707,9 +1624,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // NORMALIZACIÓN DE TEXTO CLÍNICO
-        // =========================================================
 
         private static string NormalizarTexto(string texto)
         {
@@ -1732,9 +1646,6 @@ namespace VeterinariaServerSurPia.Views
                 .Normalize(NormalizationForm.FormC);
         }
 
-        // =========================================================
-        // INTERPRETACIÓN DE SÍNTOMAS
-        // =========================================================
 
         private static InterpretacionClinica Interpretar(
             string comentario)
@@ -1860,9 +1771,6 @@ namespace VeterinariaServerSurPia.Views
             return interpretacion;
         }
 
-        // =========================================================
-        // COMPARAR CASOS CLÍNICOS
-        // =========================================================
 
         private static CasoRelacionado CompararCaso(
             string consulta,
@@ -1906,13 +1814,6 @@ namespace VeterinariaServerSurPia.Views
             };
         }
 
-        // =========================================================
-        // AFINIDAD CON EL PACIENTE ACTUAL
-        // =========================================================
-
-        // Raza, sexo y edad parecidos suben el caso en la lista, pero no
-        // sirven para que un caso entre: eso lo decide la coincidencia
-        // de síntomas.
         private static void AplicarAfinidad(
             CasoRelacionado caso,
             MascotaOpcion? actual)
@@ -1987,9 +1888,6 @@ namespace VeterinariaServerSurPia.Views
             return true;
         }
 
-        // =========================================================
-        // BUSCAR CASOS SIMILARES EN SQLITE
-        // =========================================================
 
         private async void BtnBuscarSimilares_Click(
             object sender,
@@ -2000,9 +1898,6 @@ namespace VeterinariaServerSurPia.Views
 
             PanelCasosSimilares.Children.Clear();
 
-            // No es necesario seleccionar una mascota: la búsqueda se hace
-            // en todas las mascotas registradas. Si hay una seleccionada,
-            // solo se usa para ordenar primero los casos más parecidos.
 
             string consulta =
                 NormalizarEspacios(TxtConsultaIA.Text);
@@ -2054,9 +1949,7 @@ namespace VeterinariaServerSurPia.Views
                         "La base de datos no está inicializada.");
                 }
 
-                // Busca en TODA la información clínica guardada:
-                // observaciones clínicas e historial médico de todas las
-                // mascotas registradas, de cualquier especie.
+
                 var antecedentes =
                     await App.Database.ObtenerTodosLosAntecedentesClinicosAsync();
 
@@ -2077,7 +1970,7 @@ namespace VeterinariaServerSurPia.Views
                         Tratamiento = a.Tratamiento,
                         Alergias = a.Alergias
                     })
-                    // Evita mostrar el mismo antecedente dos veces.
+                    
                     .GroupBy(r => (
                         r.IdMascota.ToUpperInvariant(),
                         r.Fecha.Date,
@@ -2148,9 +2041,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // CREAR TARJETAS DE CASOS RELACIONADOS
-        // =========================================================
 
         private void CrearTarjetaClinica(
             CasoRelacionado caso,
@@ -2331,9 +2221,7 @@ namespace VeterinariaServerSurPia.Views
             PanelCasosSimilares.Children.Add(tarjeta);
         }
 
-        // =========================================================
-        // CREAR TEXTO PARA TARJETAS
-        // =========================================================
+
 
         private static TextBlock CrearTexto(
             string contenido,

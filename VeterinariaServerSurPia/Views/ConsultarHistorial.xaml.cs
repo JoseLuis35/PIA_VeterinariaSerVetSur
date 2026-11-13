@@ -45,10 +45,6 @@ namespace VeterinariaServerSurPia.Views
             Loaded += ConsultarHistorial_Loaded;
         }
 
-        // =========================================================
-        // CARGA INICIAL
-        // =========================================================
-
         private async void ConsultarHistorial_Loaded(
             object sender,
             RoutedEventArgs e)
@@ -71,10 +67,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // LECTURA SEGURA DE DATOS SQLITE
-        // =========================================================
-
         private static string LeerTexto(
             SqliteDataReader reader,
             int indice)
@@ -86,10 +78,6 @@ namespace VeterinariaServerSurPia.Views
                 reader.GetValue(indice),
                 CultureInfo.InvariantCulture)?.Trim() ?? "";
         }
-
-        // =========================================================
-        // CARGAR MASCOTAS
-        // =========================================================
 
         private async Task CargarMascotasAsync()
         {
@@ -132,7 +120,6 @@ namespace VeterinariaServerSurPia.Views
                     string idMascota = LeerTexto(reader, 0);
                     string nombre = LeerTexto(reader, 1);
 
-                    // No agregar registros sin identificador o nombre.
                     if (string.IsNullOrWhiteSpace(idMascota) ||
                         string.IsNullOrWhiteSpace(nombre))
                     {
@@ -189,10 +176,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // SELECCIÓN DE MASCOTA
-        // =========================================================
-
         private async void MascotaCombo_SelectionChanged(
             object sender,
             SelectionChangedEventArgs e)
@@ -218,10 +201,6 @@ namespace VeterinariaServerSurPia.Views
 
             await CargarExpedienteAsync(mascota);
         }
-
-        // =========================================================
-        // CARGAR EXPEDIENTE COMPLETO
-        // =========================================================
 
         private async Task CargarExpedienteAsync(
             MascotaHistorial mascota)
@@ -272,10 +251,6 @@ namespace VeterinariaServerSurPia.Views
             }
         }
 
-        // =========================================================
-        // MOSTRAR DATOS GENERALES DE LA MASCOTA
-        // =========================================================
-
         private void MostrarInformacionMascota(
             MascotaHistorial mascota)
         {
@@ -297,10 +272,6 @@ namespace VeterinariaServerSurPia.Views
             TxtPropietario.Text = mascota.Propietario;
         }
 
-        // =========================================================
-        // LIMPIAR INFORMACIÓN
-        // =========================================================
-
         private void LimpiarVista()
         {
             TxtIdMascota.Text = "—";
@@ -316,10 +287,6 @@ namespace VeterinariaServerSurPia.Views
             HistorialListView.ItemsSource = null;
             CartillaListView.ItemsSource = null;
         }
-
-        // =========================================================
-        // CONVERTIR FECHAS
-        // =========================================================
 
         private static DateTime ObtenerFecha(string texto)
         {
@@ -358,10 +325,6 @@ namespace VeterinariaServerSurPia.Views
             return DateTime.MinValue;
         }
 
-        // =========================================================
-        // FORMATEAR FECHAS PARA MOSTRAR
-        // =========================================================
-
         private static string FormatearFecha(string texto)
         {
             DateTime fecha = ObtenerFecha(texto);
@@ -372,10 +335,6 @@ namespace VeterinariaServerSurPia.Views
                     : texto)
                 : fecha.ToString("dd/MM/yyyy");
         }
-
-        // =========================================================
-        // CARGAR HISTORIAL CLÍNICO
-        // =========================================================
 
         private async Task CargarConsultasAsync(string idMascota)
         {
@@ -450,7 +409,6 @@ namespace VeterinariaServerSurPia.Views
                         $"Observaciones: {ValorOAlternativa(observaciones)}"
                 });
 
-                // El primer registro corresponde al más reciente.
                 if (primerRegistro)
                 {
                     ultimaAlergia = string.IsNullOrWhiteSpace(alergias)
@@ -477,10 +435,6 @@ namespace VeterinariaServerSurPia.Views
                 TxtAntecedentes.Text = "Sin información registrada.";
             }
         }
-
-        // =========================================================
-        // CARGAR CARTILLA MÉDICA
-        // =========================================================
 
         private async Task CargarCartillaAsync(string idMascota)
         {
@@ -566,20 +520,12 @@ namespace VeterinariaServerSurPia.Views
             CartillaListView.ItemsSource = registros;
         }
 
-        // =========================================================
-        // EVITAR CAMPOS VACÍOS EN LOS REGISTROS
-        // =========================================================
-
         private static string ValorOAlternativa(string valor)
         {
             return string.IsNullOrWhiteSpace(valor)
                 ? "Sin información registrada."
                 : valor.Trim();
         }
-
-        // =========================================================
-        // MOSTRAR ESTADO
-        // =========================================================
 
         private void MostrarEstado(
             string mensaje,

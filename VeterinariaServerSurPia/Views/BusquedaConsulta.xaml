@@ -13,7 +13,6 @@
 
     <Page.Resources>
 
-        <!-- CAMPOS DE TEXTO -->
         <SolidColorBrush x:Key="TextControlBackground" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White"/>
@@ -28,7 +27,6 @@
         <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#FFA89E92"/>
         <SolidColorBrush x:Key="TextControlHeaderForeground" Color="#FF5A4E42"/>
 
-        <!-- LISTAS DESPLEGABLES -->
         <SolidColorBrush x:Key="ComboBoxBackground" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="White"/>
         <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="White"/>
@@ -41,7 +39,6 @@
         <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FF161616"/>
         <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#FF8E857B"/>
 
-        <!-- BOTONES -->
         <SolidColorBrush x:Key="ButtonBackground" Color="#FFFF9A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#FFF58A1F"/>
         <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#FFE67E14"/>
@@ -55,7 +52,6 @@
         <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent"/>
         <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent"/>
 
-        <!-- FILAS DE TABLAS -->
         <Style x:Key="FilaTabla" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
@@ -75,10 +71,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- =====================================================
-             ENCABEZADO
-             ===================================================== -->
 
         <Border
             Grid.Row="0"
@@ -103,7 +95,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- HUELLITAS -->
                 <Image
                     Grid.ColumnSpan="3"
                     Source="/Assets/huella.png"
@@ -138,7 +129,6 @@
                     </Image.RenderTransform>
                 </Image>
 
-                <!-- LOGO -->
                 <Border
                     Width="78"
                     Height="78"
@@ -154,7 +144,6 @@
                         Stretch="Uniform"/>
                 </Border>
 
-                <!-- TÍTULOS -->
                 <StackPanel
                     Grid.Column="1"
                     VerticalAlignment="Center"
@@ -182,7 +171,6 @@
                         Margin="0,5,0,0"/>
                 </StackPanel>
 
-                <!-- CHIP -->
                 <Border
                     Grid.Column="2"
                     Background="White"
@@ -212,10 +200,6 @@
 
             </Grid>
         </Border>
-
-        <!-- =====================================================
-             PANEL DE FILTROS Y BÚSQUEDA
-             ===================================================== -->
 
         <Border
             Grid.Row="1"
@@ -267,7 +251,6 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- CONTROLES DE BÚSQUEDA -->
                 <ScrollViewer
                     HorizontalScrollMode="Auto"
                     HorizontalScrollBarVisibility="Auto"
@@ -328,7 +311,6 @@
                             <x:String>Desparasitación</x:String>
                         </ComboBox>
 
-                        <!-- BUSCAR -->
                         <Button
                             x:Name="BuscarBtn"
                             Click="BuscarBtn_Click"
@@ -351,7 +333,6 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- ACTUALIZAR -->
                         <Button
                             x:Name="ActualizarBtn"
                             Click="ActualizarBtn_Click"
@@ -407,10 +388,6 @@
             </StackPanel>
         </Border>
 
-        <!-- =====================================================
-             ESTADO DE LA BÚSQUEDA
-             ===================================================== -->
-
         <Border
             Grid.Row="2"
             Background="#FFFFF1DD"
@@ -441,16 +418,10 @@
             </StackPanel>
         </Border>
 
-        <!-- =====================================================
-             RESULTADOS
-             ===================================================== -->
-
         <Grid
             Grid.Row="3"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
-
-            <!-- ================= CLIENTES ================= -->
 
             <ScrollViewer
                 x:Name="ScrollClientes"
@@ -566,8 +537,6 @@
                 </ListView>
             </ScrollViewer>
 
-            <!-- ================= MASCOTAS ================= -->
-
             <ScrollViewer
                 x:Name="ScrollMascotas"
                 Visibility="Collapsed"
@@ -654,8 +623,6 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </ScrollViewer>
-
-            <!-- ================= CITAS ================= -->
 
             <ScrollViewer
                 x:Name="ScrollCitas"

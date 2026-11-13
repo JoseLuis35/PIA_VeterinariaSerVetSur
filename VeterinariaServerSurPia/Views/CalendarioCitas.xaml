@@ -102,8 +102,6 @@
                 Spacing="18"
                 Margin="20,18,20,26">
 
-                <!-- ENCABEZADO -->
-
                 <Border
                     CornerRadius="26"
                     Padding="26,22"
@@ -179,8 +177,6 @@
                             VerticalAlignment="Top"/>
                     </Grid>
                 </Border>
-
-                <!-- RESUMEN -->
 
                 <Grid
                     ColumnSpacing="14"
@@ -275,8 +271,6 @@
                     </Border>
                 </Grid>
 
-                <!-- CALENDARIO -->
-
                 <Border
                     Style="{StaticResource TarjetaSeccion}">
 
@@ -319,8 +313,6 @@
                                     Style="{StaticResource TextoSecundario}"/>
                             </StackPanel>
                         </Grid>
-
-                        <!-- LEYENDA -->
 
                         <StackPanel
                             Orientation="Horizontal"
@@ -419,8 +411,6 @@
                         </Grid>
                     </StackPanel>
                 </Border>
-
-                <!-- AGENDA DEL DÍA -->
 
                 <Border
                     Style="{StaticResource TarjetaSeccion}">
@@ -538,8 +528,6 @@
                         </ListView>
                     </StackPanel>
                 </Border>
-
-                <!-- DETALLES DE LA CITA -->
 
                 <Border
                     Style="{StaticResource TarjetaSeccion}">
@@ -730,8 +718,6 @@
                             TextAlignment="Center"/>
                     </StackPanel>
                 </Border>
-
-                <!-- PIE -->
 
                 <StackPanel
                     HorizontalAlignment="Center"
